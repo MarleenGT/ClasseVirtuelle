@@ -1,0 +1,9 @@
+<div class="d-flex">
+    <h1>Emploi du temps du {{ date|date_modify("monday this week")|date("d/m") }} au {{ date|date_modify("friday this week")|date("d/m") }}</h1>
+    <div>
+        <a href="{{ path('cours.previous') }}" ><button>Semaine précédente</button></a>
+        <a href="{{ path('cours.next') }}" ><button>Semaine suivante</button></a>
+    </div>
+    <div>
+    </div>
+</div>
