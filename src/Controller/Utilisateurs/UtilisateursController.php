@@ -5,11 +5,7 @@ namespace App\Controller\Utilisateurs;
 
 
 use App\Entity\Eleves;
-use App\Entity\Personnels;
-use App\Entity\Profs;
-use App\Form\AddEleve;
-use App\Form\AddPersonnel;
-use App\Form\AddProfesseur;
+use App\Form\EleveType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,27 +24,6 @@ class UtilisateursController extends AbstractController
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
-     */
-    public function add(Request $request): Response
-    {
-        $util = $request->request->get('typeUtil');
-        if ($util === 'Eleves'){
-            $task = new Eleves();
-            $form = $this->createForm(AddEleve::class, $task);
-        } elseif ($util === "Professeurs"){
-            $task = new Profs();
-            $form = $this->createForm(AddProfesseur::class, $task);
-        } elseif ($util === "Personnels"){
-            $task = new Personnels();
-            $form = $this->createForm(AddPersonnel::class, $task);
-        }
-    dump($form);
-        return $this->render('utilisateurs/add/add.html.twig', ['form' => $form->createView()]);
-    }
 
     /**
      * @param Request $request
@@ -63,7 +38,7 @@ class UtilisateursController extends AbstractController
         }
 
         $task = new Eleves();
-        $form = $this->createForm(AddEleve::class, $task);
+        $form = $this->createForm(EleveType::class, $task);
 
         return $this->render('utilisateurs/add/add.html.twig', ['form' => $form->createView()]);
     }

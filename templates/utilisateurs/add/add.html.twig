@@ -1,5 +1,9 @@
 {% extends 'base.html.twig' %}
 {% block title 'Ajout' %}
 {% block body %}
-    {{ form(form) }}
+    <form action="{{ path('utilisateurs.index') }}" method="post">
+        {{ form(form) }}
+        {{ form(form2) }}
+        <button type="submit">Ajouter</button>
+    </form>
 {% endblock %}
