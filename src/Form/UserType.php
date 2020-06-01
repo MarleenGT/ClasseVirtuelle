@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Form;
 
 use App\Entity\Users;
@@ -21,4 +22,5 @@ class UserType extends AbstractType
             'data_class' => Users::class,
         ]);
     }
+
 }
