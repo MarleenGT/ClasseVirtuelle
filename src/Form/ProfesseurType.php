@@ -22,12 +22,16 @@ class ProfesseurType extends AbstractType
                 'class' => Matieres::class,
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_matiere',
+                'expanded'  => true,
+                'multiple'  => true,
             ])
             ->add('id_classe', EntityType::class, [
                 // looks for choices from this entity
                 'class' => Classes::class,
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_classe',
+                'expanded'  => true,
+                'multiple'  => true,
             ])
         ;
     }

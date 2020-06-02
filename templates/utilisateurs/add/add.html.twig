@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
-{% block title 'Ajout' %}
+{% block title 'Ajout '~typeUtil %}
 {% block body %}
-    {{ dump(form) }}
+
     {{ form(form) }}
 {% endblock %}

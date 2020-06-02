@@ -7,6 +7,7 @@ namespace App\Controller\Form;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
+use App\Entity\Roles;
 use App\Entity\Users;
 use App\Form\AddEleveType;
 use App\Form\AddPersonnelType;
@@ -25,56 +26,151 @@ class FormController extends AbstractController
      */
     public function add(Request $request)
     {
-        dump($request);
         if ($request->request->has("typeUtil")) {
             $util = $_POST["typeUtil"];
-        } elseif ($request->request->has("add_eleve")){
+        } elseif ($request->request->has("add_eleve")) {
             $util = "Eleves";
-        } elseif ($request->request->has("add_professeur")){
+        } elseif ($request->request->has("add_professeur")) {
             $util = "Professeurs";
-        } elseif ($request->request->has("add_personnel")){
+        } elseif ($request->request->has("add_personnel")) {
             $util = "Personnels";
+        } else {
+            $util = "";
         }
-        $class = new Users();
 
-        if ($util === 'Eleves') {
-            $class2 = new Eleves();
-            $util2 = AddEleveType::class;
-        } elseif ($util === 'Professeurs') {
-            $class2 = new Profs();
-            $util2 = AddProfesseurType::class;
-        } elseif ($util === 'Personnels') {
-            $class2 = new Personnels();
-            $util2 = AddPersonnelType::class;
-        }
-        $mergedData = [
-            "$util" => $class2,
-            "Users" => $class
-        ];
-        $form = $this->createForm($util2, $mergedData);
-        dump($form);
-        $form->handleRequest($request);
-        dump($form);
-        if ($form->isSubmitted() && $form->isValid()) {
+            $class = new Users();
 
-            // $form->getData() holds the submitted values
-            // but, the original `$task` variable has also been updated
-            $task = $form->getData();
+            if ($util === 'Eleves') {
+                $class2 = new Eleves();
+                $util2 = AddEleveType::class;
+            } elseif ($util === 'Professeurs') {
+                $class2 = new Profs();
+                $util2 = AddProfesseurType::class;
+            } elseif ($util === 'Personnels') {
+                $class2 = new Personnels();
+                $util2 = AddPersonnelType::class;
+            }
+            $mergedData = [
+                "$util" => $class2,
+                "Users" => $class
+            ];
+            $form = $this->createForm($util2, $mergedData);
 
-            // ... perform some action, such as saving the task to the database
-            // for example, if Task is a Doctrine entity, save it!
-            // $entityManager = $this->getDoctrine()->getManager();
-            // $entityManager->persist($task);
-            // $entityManager->flush();
+            $form->handleRequest($request);
 
-            return $this->redirectToRoute('task_success');
-        }
+            if ($form->isSubmitted() && $form->isValid()) {
+
+                $task = $form->getData();
+                dump($task);
+                $entityManager = $this->getDoctrine()->getManager();
+                $user = $this->completeUser($task, $util);
+                $entityManager->persist($user);
+                $entityManager->flush();
+                dump($task);
+                if ($util === 'Eleves') {
+                    $user2 = $this->completeEleve($task);
+                } elseif ($util === 'Professeurs') {
+                    $user2 = $this->completeProf($task);
+                } elseif ($util === 'Personnels') {
+                    dump('aaa');
+                    $user2 = $this->completePersonnel($task);
+                }
+                dump($task);
+                $entityManager->persist($user2);
+                dump("bbb");
+                $entityManager->flush();
+                dump('ccc');
+                return $this->redirectToRoute('utilisateurs.index');
+            }
 
         return $this->render('utilisateurs/add/add.html.twig', [
             'form' => $form->createView(),
             'typeUtil' => $util
         ]);
+    }
 
+    public function completeUser($task, $type)
+    {
+        $user = new Users();
+        $identifiant = bin2hex(random_bytes(6));
+        $password = bin2hex(random_bytes(6));
+        $email = $task['users']->getEmail();
+        $role = $this->getRoleFromTable($type);
 
+        $user->setIdentifiant($identifiant)->setMdp($password)->setEmail($email)->setIdRole($role);
+
+        return $user;
+    }
+
+    public function completeEleve($task)
+    {
+        $nom = $task['eleve']->getNom();
+        $prenom = $task['eleve']->getPrenom();
+        $idClasse = $task['eleve']->getIdClasse();
+        $email = $task['users']->getEmail();
+        $idUser = $this->getUserIdFromTable($email);
+
+        $eleve = new Eleves();
+
+        $eleve->setNom($nom)->setPrenom($prenom)->setIdClasse($idClasse)->setIdUser($idUser);
+
+        return $eleve;
+    }
+
+    public function completePersonnel($task)
+    {
+        $nom = $task['personnel']->getNom();
+        $prenom = $task['personnel']->getPrenom();
+        $email = $task['users']->getEmail();
+        $idUser = $this->getUserIdFromTable($email);
+
+        $personnel = new Personnels();
+
+        $personnel->setNom($nom)->setPrenom($prenom)->setIdUser($idUser);
+
+        return $personnel;
+    }
+
+    public function completeProf($task)
+    {
+        $nom = $task['profs']->getNom();
+        $prenom = $task['profs']->getPrenom();
+        $idClasse = $task['profs']->getIdClasse();
+        $idMatiere = $task['profs']->getIdMatiere();
+        $email = $task['users']->getEmail();
+        $idUser = $this->getUserIdFromTable($email);
+
+        $prof = new Profs();
+
+        $prof->setNom($nom)->setPrenom($prenom)->setIdUser($idUser);
+
+        foreach ($idClasse as $id => $classe){
+            $prof->addIdClasse($classe);
+        }
+        foreach ($idMatiere as $id => $matiere){
+            $prof->addIdMatiere($matiere);
+        }
+
+        return $prof;
+    }
+
+    public function getRoleFromTable($type)
+    {
+        $role = $this->getDoctrine()->getRepository(Roles::class);
+        if ($type === 'Professeurs') {
+            return $role->find(2);
+        } elseif ($type === 'Personnels') {
+            return $role->find(3);
+        } else {
+            return $role->find(1);
+        }
+    }
+
+    public function getUserIdFromTable($email)
+    {
+        $user = $this->getDoctrine()->getRepository(Users::class);
+        return $user->findOneBy([
+           'email' => $email
+        ]);
     }
 }
