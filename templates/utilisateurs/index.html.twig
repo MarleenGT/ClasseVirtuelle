@@ -7,30 +7,89 @@
             <option value="Professeurs">Professeurs</option>
             <option value="Personnels">Personnels</option>
         </select>
+        {#        <button id="offsetMoins"><</button>#}
+        {#        <button id="offsetPlus">></button>#}
         <div id="ajax_results">
-            {% if form is defined %}
-                {{ form(form) }}
-            {% endif %}
+
         </div>
         <input type="submit" value="Ajouter">
     </form>
 {% endblock %}
 {% block javascripts %}
     <script>
-        let select =  document.getElementById('util_select');
+        let select = $('#util_select');
+        let div = $('#ajax_results');
+        let plus = $('#offsetPlus');
+        let moins = $('#offsetMoins');
 
-        select.addEventListener("change", function () {
-            XHR();
+        let offset = 0;
+
+        $(moins).click(function () {
+            offset -= 1;
         })
-        function XHR() {
-            let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
+
+        $(plus).click(function () {
+            offset += 1;
+        })
+
+        function refreshDiv(arr) {
+            let user = select.val();
+            let str = "";
+            str += '<ul>';
+            arr.forEach(function(obj){
+                str += '<li>';
+                str += '<div class = "nom">';
+                str +=  obj.nom + ' ' + obj.prenom;
+                str += '</div>';
+                if (user === "Eleves"){
+                    let sousgroupe = [];
+                    if (obj.sousgroupe){
+                        sousgroupe = obj.sousgroupe.split(',');
+                    }
+                    str += '<div class = "sousgroupe">';
+                    str += '<ul>';
+                    sousgroupe.forEach(sg => str += '<li>'+sg+'</li>');
+                    str += '</ul>';
+                    str += '</div>';
+                    str += '<div class = "classe">';
+                    str += obj.classe;
+                    str += '</div>';
+                } else if (user === "Professeurs"){
+                    let classe = obj.classe.split(',');
+                    let matiere = obj.matiere.split(',');
+                    str += '<div class = "classe">';
+                    str += '<ul>';
+                    classe.forEach(cla => str += '<li>'+cla+'</li>');
+                    str += '</ul>';
+                    str += '</div>';
+                    str += '<div class = "matière">';
+                    str += '<ul>';
+                    matiere.forEach(mat => str += '<li>'+mat+'</li>');
+                    str += '</ul>';
+                    str += '</div>';
                 }
-            };
-            xhttp.open("GET", "{{ path('utilisateurs.choice') }}", true);
-            xhttp.send(select.value);
+                str += '</li>';
+            })
+            str += '</ul>';
+            div.html(str);
         }
-        XHR();
+        $(select).change(function () {
+            AJAX();
+        })
+
+        function AJAX() {
+            let user = select.children('option:selected').val();
+
+            $.ajax({
+                url: "{{ path('utilisateurs.choice') }}",
+                method: "GET",
+                data: {user: user, limit: 15, offset: offset}
+            }).done(function (msg) {
+                console.log(msg);
+                refreshDiv(msg);
+            })
+        }
+        AJAX();
+
     </script>
 {% endblock %}

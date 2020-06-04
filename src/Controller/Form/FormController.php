@@ -61,12 +61,12 @@ class FormController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
 
                 $task = $form->getData();
-                dump($task);
+
                 $entityManager = $this->getDoctrine()->getManager();
                 $user = $this->completeUser($task, $util);
                 $entityManager->persist($user);
                 $entityManager->flush();
-                dump($task);
+
                 if ($util === 'Eleves') {
                     $user2 = $this->completeEleve($task);
                 } elseif ($util === 'Professeurs') {
@@ -75,11 +75,10 @@ class FormController extends AbstractController
                     dump('aaa');
                     $user2 = $this->completePersonnel($task);
                 }
-                dump($task);
+
                 $entityManager->persist($user2);
-                dump("bbb");
                 $entityManager->flush();
-                dump('ccc');
+
                 return $this->redirectToRoute('utilisateurs.index');
             }
 
