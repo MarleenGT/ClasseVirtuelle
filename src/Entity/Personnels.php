@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PersonnelsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PersonnelsRepository::class)
@@ -38,6 +39,10 @@ class Personnels
      */
     private $poste;
 
+    /**
+     * @Assert\Type(type="App\Entity\Users")
+     */
+    protected $user;
 
     public function getId(): ?int
     {
@@ -93,6 +98,16 @@ class Personnels
     public function setPoste(string $poste): self
     {
         $this->poste = $poste;
+
+        return $this;
+    }
+    public function getUser()
+    {
+        return $this->user;
+    }
+    public function setUser($user)
+    {
+        $this->user = $user;
 
         return $this;
     }

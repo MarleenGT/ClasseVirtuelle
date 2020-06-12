@@ -7,6 +7,7 @@ use App\Entity\Matieres;
 use App\Entity\Profs;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -17,6 +18,9 @@ class ProfesseurType extends AbstractType
         $builder
             ->add('nom')
             ->add('prenom')
+            ->add('user', UserType::class, [
+                'label' => false
+            ])
             ->add('id_matiere', EntityType::class, [
                 // looks for choices from this entity
                 'class' => Matieres::class,
@@ -33,7 +37,11 @@ class ProfesseurType extends AbstractType
                 'expanded'  => true,
                 'multiple'  => true,
             ])
+            ->add('ajout', SubmitType::class, [
+                'label' => "Ajouter"
+            ])
         ;
+
     }
 
     public function configureOptions(OptionsResolver $resolver)

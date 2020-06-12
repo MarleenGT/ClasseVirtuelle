@@ -1,42 +1,37 @@
 <?php
 
+
 namespace App\Form;
 
+
 use App\Entity\Classes;
-use App\Entity\Eleves;
 use App\Entity\Sousgroupes;
+use App\Entity\Users;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EleveType extends AbstractType
+class ModifEleveType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('nom')
+            ->add('email', EntityType::class, [
+                'class' => Users::class
+
+            ])
             ->add('prenom')
-//            ->add('email', UserType::class)
             ->add('id_classe', EntityType::class, [
-                // looks for choices from this entity
                 'class' => Classes::class,
-                // uses the User.username property as the visible option string
                 'choice_label' => 'nom_classe',
-                'expanded'  => true,
+                'expanded' => true,
             ])
             ->add('id_sousgroupe', EntityType::class, [
                 'class' => Sousgroupes::class,
                 'choice_label' => 'nom_sousgroupe',
-                'expanded'  => true,
-                'multiple'  => true,
+                'expanded' => true,
+                'multiple' => true,
             ]);
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => Eleves::class,
-        ]);
     }
 }

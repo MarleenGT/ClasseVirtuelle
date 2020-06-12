@@ -6,6 +6,7 @@ use App\Repository\ProfsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProfsRepository::class)
@@ -49,6 +50,12 @@ class Profs
      * @ORM\ManyToMany(targetEntity=Classes::class, inversedBy="profs", fetch="EAGER")
      */
     private $id_classe;
+
+    /**
+     * @Assert\Type(type="App\Entity\Users")
+     */
+    protected $user;
+
 
     public function __construct()
     {
@@ -180,10 +187,18 @@ class Profs
 
         return $this;
     }
-
-
     public function __toString()
     {
         return 'profs';
+    }
+    public function getUser()
+    {
+        return $this->user;
+    }
+    public function setUser($user)
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

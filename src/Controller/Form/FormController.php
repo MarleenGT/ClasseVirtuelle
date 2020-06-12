@@ -12,6 +12,9 @@ use App\Entity\Users;
 use App\Form\AddEleveType;
 use App\Form\AddPersonnelType;
 use App\Form\AddProfesseurType;
+use App\Form\EleveType;
+use App\Form\PersonnelType;
+use App\Form\ProfesseurType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,11 +31,11 @@ class FormController extends AbstractController
     {
         if ($request->request->has("typeUtil")) {
             $util = $_POST["typeUtil"];
-        } elseif ($request->request->has("add_eleve")) {
+        } elseif ($request->request->has("eleve")) {
             $util = "Eleves";
-        } elseif ($request->request->has("add_professeur")) {
+        } elseif ($request->request->has("professeur")) {
             $util = "Professeurs";
-        } elseif ($request->request->has("add_personnel")) {
+        } elseif ($request->request->has("personnel")) {
             $util = "Personnels";
         } else {
             return $this->render('utilisateurs/index.html.twig');
@@ -41,27 +44,20 @@ class FormController extends AbstractController
             $class = new Users();
 
             if ($util === 'Eleves') {
-                $class2 = new Eleves();
-                $util2 = AddEleveType::class;
+                $util2 = EleveType::class;
+                $class = new Eleves();
             } elseif ($util === 'Professeurs') {
-                $class2 = new Profs();
-                $util2 = AddProfesseurType::class;
+                $util2 = ProfesseurType::class;
+                $class = new Profs();
             } elseif ($util === 'Personnels') {
-                $class2 = new Personnels();
-                $util2 = AddPersonnelType::class;
+                $util2 = PersonnelType::class;
+                $class = new Personnels();
             }
-            $mergedData = [
-                "$util" => $class2,
-                "Users" => $class
-            ];
-            $form = $this->createForm($util2, $mergedData);
+            $form = $this->createForm($util2, $class);
 
             $form->handleRequest($request);
-
             if ($form->isSubmitted() && $form->isValid()) {
-
                 $task = $form->getData();
-
                 $entityManager = $this->getDoctrine()->getManager();
                 $user = $this->completeUser($task, $util);
                 $entityManager->persist($user);
@@ -80,7 +76,6 @@ class FormController extends AbstractController
 
                 return $this->redirectToRoute('utilisateurs.index');
             }
-            dump($form);
         return $this->render('utilisateurs/add/add.html.twig', [
             'form' => $form->createView(),
             'typeUtil' => $util
@@ -92,7 +87,7 @@ class FormController extends AbstractController
         $user = new Users();
         $identifiant = bin2hex(random_bytes(6));
         $password = bin2hex(random_bytes(6));
-        $email = $task['users']->getEmail();
+        $email = $task->getUser()->getEmail();
         $role = $this->getRoleFromTable($type);
 
         $user->setIdentifiant($identifiant)->setMdp($password)->setEmail($email)->setIdRole($role);
@@ -102,10 +97,10 @@ class FormController extends AbstractController
 
     public function completeEleve($task)
     {
-        $nom = $task['eleve']->getNom();
-        $prenom = $task['eleve']->getPrenom();
-        $idClasse = $task['eleve']->getIdClasse();
-        $email = $task['users']->getEmail();
+        $nom = $task->getNom();
+        $prenom = $task->getPrenom();
+        $idClasse = $task->getIdClasse();
+        $email = $task->getUser()->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $eleve = new Eleves();
@@ -117,10 +112,10 @@ class FormController extends AbstractController
 
     public function completePersonnel($task)
     {
-        $nom = $task['personnel']->getNom();
-        $prenom = $task['personnel']->getPrenom();
-        $poste = $task['personnel']->getPoste();
-        $email = $task['users']->getEmail();
+        $nom = $task->getNom();
+        $prenom = $task->getPrenom();
+        $poste = $task->getPoste();
+        $email = $task->getUser()->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $personnel = new Personnels();
@@ -132,11 +127,11 @@ class FormController extends AbstractController
 
     public function completeProf($task)
     {
-        $nom = $task['profs']->getNom();
-        $prenom = $task['profs']->getPrenom();
-        $idClasse = $task['profs']->getIdClasse();
-        $idMatiere = $task['profs']->getIdMatiere();
-        $email = $task['users']->getEmail();
+        $nom = $task->getNom();
+        $prenom = $task->getPrenom();
+        $idClasse = $task->getIdClasse();
+        $idMatiere = $task->getIdMatiere();
+        $email = $task->getUser()->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $prof = new Profs();
