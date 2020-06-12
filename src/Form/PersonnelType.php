@@ -13,7 +13,8 @@ class PersonnelType extends AbstractType
     {
         $builder
             ->add('nom')
-            ->add('prenom');
+            ->add('prenom')
+            ->add('poste');
     }
 
     public function configureOptions(OptionsResolver $resolver)

@@ -1,0 +1,76 @@
+<form method="POST" action="{{ path('utilisateurs.modifUser') }}">
+    {% if error is defined %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+    {% if response %}
+        {% if user == 'Eleves' %}
+            {% set col1 = 'Classe' %}
+            {% set col2 = 'Sous-groupes' %}
+        {% elseif user == 'Professeurs' %}
+            {% set col1 = 'Classes' %}
+            {% set col2 = 'Matière(s) enseignée(s)' %}
+        {% elseif user == 'Personnels' %}
+            {% set col1 = 'Classes' %}
+            {% set col2 = '' %}
+        {% endif %}
+        <table class="w-100">
+            <thead>
+            <tr class="row">
+                <th class="col-2 offset-2">Nom</th>
+                <th class="col-2">{{ col1 }}</th>
+                <th class="col-2">{{ col2 }}</th>
+                <th class="col-2"></th>
+            </tr>
+            {% for list in response %}
+                <tr class="row">
+                    <td class="nom col-2 offset-2">{{ list.nom }} {{ list.prenom }}</td>
+                    {% if user == "Eleves" %}
+                        <td class="classeEleve col-2">{{ list.classe }}</td>
+                        <td class="col-2">
+                            {% if list.sousgroupe %}
+                                <ul class="sousgroupe">
+                                    {% for sg in list.sousgroupe %}
+                                        <li>
+                                            {{ sg }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </td>
+                    {% elseif user == "Professeurs" %}
+                        {% set classe = list.classe|split(',') %}
+                        <td class="col-2">
+                            <ul class="classeProf">
+                                {% for cl in classe %}
+                                    <li>
+                                        {{ cl }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td class="col-2">
+                            <ul class="matiereProf">
+                                {% set matiere = list.matiere|split(',') %}
+                                {% for mat in matiere %}
+                                    <li>
+                                        {{ mat }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    {% elseif user == "Personnels" %}
+                        <td class="col-2">
+                            <p class="poste">{{ list.poste }}</p>
+                        </td>
+                        <td class="col-2">
+                        </td>
+                    {% endif %}
+                    <td class="col-2">
+                        <button type="submit" value="user{{ list.id }}">Modifier</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </thead>
+        </table>
+    {% endif %}
+</form>

@@ -35,7 +35,7 @@ class FormController extends AbstractController
         } elseif ($request->request->has("add_personnel")) {
             $util = "Personnels";
         } else {
-            $util = "";
+            return $this->render('utilisateurs/index.html.twig');
         }
 
             $class = new Users();
@@ -72,7 +72,6 @@ class FormController extends AbstractController
                 } elseif ($util === 'Professeurs') {
                     $user2 = $this->completeProf($task);
                 } elseif ($util === 'Personnels') {
-                    dump('aaa');
                     $user2 = $this->completePersonnel($task);
                 }
 
@@ -81,7 +80,7 @@ class FormController extends AbstractController
 
                 return $this->redirectToRoute('utilisateurs.index');
             }
-
+            dump($form);
         return $this->render('utilisateurs/add/add.html.twig', [
             'form' => $form->createView(),
             'typeUtil' => $util
@@ -120,12 +119,13 @@ class FormController extends AbstractController
     {
         $nom = $task['personnel']->getNom();
         $prenom = $task['personnel']->getPrenom();
+        $poste = $task['personnel']->getPoste();
         $email = $task['users']->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $personnel = new Personnels();
 
-        $personnel->setNom($nom)->setPrenom($prenom)->setIdUser($idUser);
+        $personnel->setNom($nom)->setPrenom($prenom)->setIdUser($idUser)->setPoste($poste);
 
         return $personnel;
     }

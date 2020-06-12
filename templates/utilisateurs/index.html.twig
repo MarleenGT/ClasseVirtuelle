@@ -7,13 +7,18 @@
             <option value="Professeurs">Professeurs</option>
             <option value="Personnels">Personnels</option>
         </select>
-        {#        <button id="offsetMoins"><</button>#}
-        {#        <button id="offsetPlus">></button>#}
-        <div id="ajax_results">
 
-        </div>
         <input type="submit" value="Ajouter">
+        <select id="limit" name="limit">
+            <option value="15">15</option>
+            <option value="30">30</option>
+            <option value="45">45</option>
+        </select>
+        <button type="button" id="offsetMoins"><</button>
+        <button type="button" id="offsetPlus">></button>
     </form>
+    <div id="ajax_results"></div>
+    <div id="modalModif"></div>
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -21,59 +26,31 @@
         let div = $('#ajax_results');
         let plus = $('#offsetPlus');
         let moins = $('#offsetMoins');
+        let limit = $('#limit');
 
         let offset = 0;
 
         $(moins).click(function () {
             offset -= 1;
+            if (offset < 0){
+                offset = 0;
+            } else {
+                AJAX();
+            }
         })
 
         $(plus).click(function () {
             offset += 1;
+            AJAX();
         })
 
-        function refreshDiv(arr) {
-            let user = select.val();
-            let str = "";
-            str += '<ul>';
-            arr.forEach(function(obj){
-                str += '<li>';
-                str += '<div class = "nom">';
-                str +=  obj.nom + ' ' + obj.prenom;
-                str += '</div>';
-                if (user === "Eleves"){
-                    let sousgroupe = [];
-                    if (obj.sousgroupe){
-                        sousgroupe = obj.sousgroupe.split(',');
-                    }
-                    str += '<div class = "sousgroupe">';
-                    str += '<ul>';
-                    sousgroupe.forEach(sg => str += '<li>'+sg+'</li>');
-                    str += '</ul>';
-                    str += '</div>';
-                    str += '<div class = "classe">';
-                    str += obj.classe;
-                    str += '</div>';
-                } else if (user === "Professeurs"){
-                    let classe = obj.classe.split(',');
-                    let matiere = obj.matiere.split(',');
-                    str += '<div class = "classe">';
-                    str += '<ul>';
-                    classe.forEach(cla => str += '<li>'+cla+'</li>');
-                    str += '</ul>';
-                    str += '</div>';
-                    str += '<div class = "matière">';
-                    str += '<ul>';
-                    matiere.forEach(mat => str += '<li>'+mat+'</li>');
-                    str += '</ul>';
-                    str += '</div>';
-                }
-                str += '</li>';
-            })
-            str += '</ul>';
-            div.html(str);
-        }
         $(select).change(function () {
+            AJAX();
+        })
+        $(limit).change(function () {
+            AJAX();
+        })
+        $(document).ready(function () {
             AJAX();
         })
 
@@ -81,15 +58,12 @@
             let user = select.children('option:selected').val();
 
             $.ajax({
-                url: "{{ path('utilisateurs.choice') }}",
+                url: "{{ path('utilisateurs.ajax') }}",
                 method: "GET",
-                data: {user: user, limit: 15, offset: offset}
+                data: {user: user, limit: limit.val(), offset: offset}
             }).done(function (msg) {
-                console.log(msg);
-                refreshDiv(msg);
+                div.html(msg);
             })
         }
-        AJAX();
-
     </script>
 {% endblock %}

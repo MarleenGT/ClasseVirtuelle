@@ -8,7 +8,6 @@ use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +17,7 @@ class UtilisateursController extends AbstractController
 
     /**
      * @param Request $request
-     * @Route("/Utilisateurs/index", name="utilisateurs.choice", methods={"GET"})
+     * @Route("/Utilisateurs/ajax", name="utilisateurs.ajax", methods={"GET"})
      * @return Response
      */
     public function choice(Request $request): Response
@@ -26,7 +25,10 @@ class UtilisateursController extends AbstractController
         if ($request->isXmlHttpRequest()) {
             $user = $request->query->get('user');
             $limit = $request->query->get('limit');
-            $offset = $request->query->get('offset');
+            $offset = $request->query->get('offset')*$limit;
+            if ($offset < 0){
+                $offset = 0;
+            }
             if ($user === 'Eleves') {
                 $query = $this->getDoctrine()->getRepository(Eleves::class)->findElevesByPages($limit, $offset);
             } elseif ($user === 'Professeurs') {
@@ -34,12 +36,19 @@ class UtilisateursController extends AbstractController
             } elseif ($user === 'Personnels') {
                 $query = $this->getDoctrine()->getRepository(Personnels::class)->findPersonnelsByPages($limit, $offset);
             } else {
-                return new Response('Erreur dans la requête GET');
+                return $this->render('utilisateurs/listing.html.twig', [
+                    'error' => 'Problème dans la requête'
+                ]);
             }
             dump($query);
-            return new JsonResponse($query);
+            return $this->render('utilisateurs/listing.html.twig', [
+                'response' => $query,
+                'user' => $user
+            ]);
         } else {
-            return new Response('Problème dans la requête AJAX');
+            return $this->render('utilisateurs/listing.html.twig', [
+                'error' => 'Ceci n\'est pas une requête AJAX'
+            ]);
         }
 
     }
@@ -54,6 +63,4 @@ class UtilisateursController extends AbstractController
             'current_menu' => 'utilisateurs'
         ]);
     }
-
-
 }

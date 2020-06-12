@@ -11,50 +11,34 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CoursController extends AbstractController
 {
+    /**
+     * @param Request $request
+     * @return Response
+     * @Route("/Cours/ajax", name="cours.ajax", methods={"GET"})
+     */
+    public function ajax(Request $request): Response
+    {
+        if ($request->isXmlHttpRequest()) {
+        $date = $request->query->get('date');
+
+
+        } else {
+
+        }
+        return $this->render('cours/content.html.twig', [
+            'date' => $date
+        ]);
+    }
+
 
     /**
      * @return Response
-     * @Route("/cours", name="cours.index")
+     * @Route("/Cours", name="cours.index")
      */
     public function index(): Response
     {
-
-        // $date = $this->session->get('date')->format('Y-m-d');
-        return $this->render('cours/index.html.twig',
-            ['date' => '', 'current_menu' => 'cours']
-        );
-    }
-
-    /**
-     * @return Response
-     * @Route("/cours", name="cours.previous")
-     */
-    public function previous(): Response
-    {
-
-        // $date = $this->session->get('date');
-        // var_dump($date);
-        // $this->session->set('date', $date);
-        return $this->index();
-    }
-
-    /**
-     * @return Response
-     * @Route("/cours", name="cours.next")
-     */
-    public function next(): Response
-    {
-        // $date = $this->session->get('date')->modify('+1 week');
-        // $this->session->set('date', $date);
-        return $this->index();
-    }
-
-    public function setSession()
-    {
-
-    }
-    public function ajaxAction(Request $request)
-    {
-
+        return $this->render('cours/index.html.twig', [
+            'current_menu' => 'cours'
+        ]);
     }
 }

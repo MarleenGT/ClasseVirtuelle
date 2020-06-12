@@ -2,8 +2,40 @@
 {% block title 'cours' %}
 
 {% block body %}
-    {{ date }}
-    <div class="container mt-4">
-        {{ include('cours/content.html.twig') }}
+    <div id="calendrier">
     </div>
+    <div>
+        <button type="button" id="dateMoins">Semaine précédente</button>
+        <button type="button" id="datePlus">Semaine suivante</button>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        let div = $('#calendrier');
+        let plus = $('#datePlus');
+        let moins = $('#dateMoins');
+        let date = new Date().toUTCString();
+
+        $(moins).click(function () {
+            date = new Date(Date.parse(date) - 7*24*60*60*1000).toUTCString();
+            AJAX();
+        })
+        $(plus).click(function () {
+            date = new Date(Date.parse(date) + 7*24*60*60*1000).toUTCString();
+            AJAX();
+        })
+        $(document).ready(function () {
+            AJAX();
+        })
+
+        function AJAX() {
+            $.ajax({
+                url: "{{ path('cours.ajax') }}",
+                method: "GET",
+                data: {date: date}
+            }).done(function (msg) {
+                div.html(msg);
+            })
+        }
+    </script>
 {% endblock %}
