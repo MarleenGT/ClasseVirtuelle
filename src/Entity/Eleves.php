@@ -6,6 +6,7 @@ use App\Repository\ElevesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ElevesRepository::class)
@@ -20,7 +21,7 @@ class Eleves
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity=Users::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Users::class, cascade={"persist", "remove"}, fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
     private $id_user;

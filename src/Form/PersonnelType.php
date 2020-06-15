@@ -15,7 +15,7 @@ class PersonnelType extends AbstractType
         $builder
             ->add('nom')
             ->add('prenom')
-            ->add('email', UserType::class, [
+            ->add('user', UserType::class, [
                 'label' => false
             ])
             ->add('poste')

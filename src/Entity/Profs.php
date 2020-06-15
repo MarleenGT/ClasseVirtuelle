@@ -51,12 +51,6 @@ class Profs
      */
     private $id_classe;
 
-    /**
-     * @Assert\Type(type="App\Entity\Users")
-     */
-    protected $user;
-
-
     public function __construct()
     {
         $this->id_matiere = new ArrayCollection();
@@ -190,15 +184,5 @@ class Profs
     public function __toString()
     {
         return 'profs';
-    }
-    public function getUser()
-    {
-        return $this->user;
-    }
-    public function setUser($user)
-    {
-        $this->user = $user;
-
-        return $this;
     }
 }

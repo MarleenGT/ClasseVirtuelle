@@ -9,9 +9,6 @@ use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Entity\Roles;
 use App\Entity\Users;
-use App\Form\AddEleveType;
-use App\Form\AddPersonnelType;
-use App\Form\AddProfesseurType;
 use App\Form\EleveType;
 use App\Form\PersonnelType;
 use App\Form\ProfesseurType;
@@ -31,17 +28,11 @@ class FormController extends AbstractController
     {
         if ($request->request->has("typeUtil")) {
             $util = $_POST["typeUtil"];
-        } elseif ($request->request->has("eleve")) {
-            $util = "Eleves";
-        } elseif ($request->request->has("professeur")) {
-            $util = "Professeurs";
-        } elseif ($request->request->has("personnel")) {
-            $util = "Personnels";
+        } elseif ($request->request->has("eleve") || $request->request->has("professeur") || $request->request->has("personnel")) {
+            $util = ucwords(array_key_first($request->request->all()).'s');
         } else {
             return $this->render('utilisateurs/index.html.twig');
         }
-
-            $class = new Users();
 
             if ($util === 'Eleves') {
                 $util2 = EleveType::class;
@@ -70,10 +61,9 @@ class FormController extends AbstractController
                 } elseif ($util === 'Personnels') {
                     $user2 = $this->completePersonnel($task);
                 }
-
                 $entityManager->persist($user2);
                 $entityManager->flush();
-
+                $this->addFlash('success', 'Utilisateur ajouté!');
                 return $this->redirectToRoute('utilisateurs.index');
             }
         return $this->render('utilisateurs/add/add.html.twig', [
@@ -87,7 +77,7 @@ class FormController extends AbstractController
         $user = new Users();
         $identifiant = bin2hex(random_bytes(6));
         $password = bin2hex(random_bytes(6));
-        $email = $task->getUser()->getEmail();
+        $email = $task->getIdUser()->getEmail();
         $role = $this->getRoleFromTable($type);
 
         $user->setIdentifiant($identifiant)->setMdp($password)->setEmail($email)->setIdRole($role);
@@ -100,7 +90,7 @@ class FormController extends AbstractController
         $nom = $task->getNom();
         $prenom = $task->getPrenom();
         $idClasse = $task->getIdClasse();
-        $email = $task->getUser()->getEmail();
+        $email = $task->getIdUser()->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $eleve = new Eleves();
@@ -115,7 +105,7 @@ class FormController extends AbstractController
         $nom = $task->getNom();
         $prenom = $task->getPrenom();
         $poste = $task->getPoste();
-        $email = $task->getUser()->getEmail();
+        $email = $task->getIdUser()->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $personnel = new Personnels();
@@ -131,7 +121,7 @@ class FormController extends AbstractController
         $prenom = $task->getPrenom();
         $idClasse = $task->getIdClasse();
         $idMatiere = $task->getIdMatiere();
-        $email = $task->getUser()->getEmail();
+        $email = $task->getIdUser()->getEmail();
         $idUser = $this->getUserIdFromTable($email);
 
         $prof = new Profs();

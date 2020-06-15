@@ -8,7 +8,6 @@ use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Form\EleveType;
-use App\Form\ModifEleveType;
 use App\Form\PersonnelType;
 use App\Form\ProfesseurType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +28,7 @@ class ModifController extends AbstractController
         $id = $request->get('id');
         if ($util === 'Eleves') {
             $obj = $this->getDoctrine()->getRepository(Eleves::class)->find($id);
-            $formType = ModifEleveType::class;
+            $formType = EleveType::class;
         } elseif ($util === 'Professeurs') {
             $obj = $this->getDoctrine()->getRepository(Profs::class)->find($id);
             $formType = ProfesseurType::class;
@@ -39,7 +38,6 @@ class ModifController extends AbstractController
         } else {
             return $this->render('utilisateurs/index.html.twig');
         }
-        dump($obj);
         $form = $this->createForm($formType, $obj);
 
         return $this->render("utilisateurs/modif.html.twig",[

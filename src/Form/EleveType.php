@@ -7,6 +7,7 @@ use App\Entity\Eleves;
 use App\Entity\Sousgroupes;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -17,7 +18,9 @@ class EleveType extends AbstractType
         $builder
             ->add('nom')
             ->add('prenom')
-//            ->add('email', UserType::class)
+            ->add('id_user', UserType::class, [
+                'label' => false
+            ])
             ->add('id_classe', EntityType::class, [
                 // looks for choices from this entity
                 'class' => Classes::class,
@@ -30,6 +33,9 @@ class EleveType extends AbstractType
                 'choice_label' => 'nom_sousgroupe',
                 'expanded'  => true,
                 'multiple'  => true,
+            ])
+            ->add('ajout', SubmitType::class, [
+                'label' => "Ajouter"
             ]);
     }
 
