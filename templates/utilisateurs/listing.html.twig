@@ -1,5 +1,6 @@
 {% block stylesheets %}<link rel="stylesheet" type="text/css" href="{{ asset('css/listing.css') }}">{% endblock %}
 {% if error is defined %}
+    {{ dump() }}
     <div class="error">{{ error }}</div>
 {% endif %}
 {% if response %}
@@ -26,7 +27,7 @@
                     <span class="td nom col-2 offset-2">{{ list.nom }} {{ list.prenom }}</span>
                     {% if user == "Eleves" %}
                         <span class="td classeEleve col-2">{{ list.classe }}</span>
-                        <span class="td col-2">
+                        <div class="td col-2">
                             {% if list.sousgroupe %}
                                 <ul class="sousgroupe">
                                     {% for sg in list.sousgroupe %}
@@ -36,10 +37,10 @@
                                     {% endfor %}
                                 </ul>
                             {% endif %}
-                        </span>
+                        </div>
                     {% elseif user == "Professeurs" %}
                         {% set classe = list.classe|split(',') %}
-                        <span class="td col-2">
+                        <div class="td col-2">
                             <ul class="classeProf">
                                 {% for cl in classe %}
                                     <li>
@@ -47,8 +48,8 @@
                                     </li>
                                 {% endfor %}
                             </ul>
-                        </span>
-                        <span class="td col-2">
+                        </div>
+                        <div class="td col-2">
                             <ul class="matiereProf">
                                 {% set matiere = list.matiere|split(',') %}
                                 {% for mat in matiere %}
@@ -57,16 +58,17 @@
                                     </li>
                                 {% endfor %}
                             </ul>
-                        </span>
+                        </div>
                     {% elseif user == "Personnels" %}
-                        <span class="td col-2">
+                        <div class="td col-2">
                             <p class="poste">{{ list.poste }}</p>
-                        </span>
+                        </div>
                         <span class="td col-2">
                         </span>
                     {% endif %}
                     <span class="td col-2">
-                        <button type="submit" id="{{ user }}{{ list.id }}">Modifier</button>
+                        <button type="submit" name="update_{{ user }}_{{ list.id }}">Modifier</button>
+                        <button type="submit" name="delete_{{ user }}_{{ list.id }}">Supprimer</button>
                     </span>
                 </form>
         {% endfor %}

@@ -51,17 +51,16 @@ class FormController extends AbstractController
                 $task = $form->getData();
                 $entityManager = $this->getDoctrine()->getManager();
                 $user = $this->completeUser($task, $util);
-                $entityManager->persist($user);
-                $entityManager->flush();
+
 
                 if ($util === 'Eleves') {
-                    $user2 = $this->completeEleve($task);
+                    $obj = $this->completeEleve($task, $user);
                 } elseif ($util === 'Professeurs') {
-                    $user2 = $this->completeProf($task);
+                    $obj = $this->completeProf($task, $user);
                 } elseif ($util === 'Personnels') {
-                    $user2 = $this->completePersonnel($task);
+                    $obj = $this->completePersonnel($task, $user);
                 }
-                $entityManager->persist($user2);
+                $entityManager->persist($obj);
                 $entityManager->flush();
                 $this->addFlash('success', 'Utilisateur ajouté!');
                 return $this->redirectToRoute('utilisateurs.index');
@@ -85,48 +84,42 @@ class FormController extends AbstractController
         return $user;
     }
 
-    public function completeEleve($task)
+    public function completeEleve($task, $user)
     {
+
         $nom = $task->getNom();
         $prenom = $task->getPrenom();
         $idClasse = $task->getIdClasse();
-        $email = $task->getIdUser()->getEmail();
-        $idUser = $this->getUserIdFromTable($email);
 
         $eleve = new Eleves();
 
-        $eleve->setNom($nom)->setPrenom($prenom)->setIdClasse($idClasse)->setIdUser($idUser);
-
+        $eleve->setNom($nom)->setPrenom($prenom)->setIdClasse($idClasse)->setIdUser($user);
         return $eleve;
     }
 
-    public function completePersonnel($task)
+    public function completePersonnel($task, $user)
     {
         $nom = $task->getNom();
         $prenom = $task->getPrenom();
         $poste = $task->getPoste();
-        $email = $task->getIdUser()->getEmail();
-        $idUser = $this->getUserIdFromTable($email);
 
         $personnel = new Personnels();
 
-        $personnel->setNom($nom)->setPrenom($prenom)->setIdUser($idUser)->setPoste($poste);
+        $personnel->setNom($nom)->setPrenom($prenom)->setIdUser($user)->setPoste($poste);
 
         return $personnel;
     }
 
-    public function completeProf($task)
+    public function completeProf($task, $user)
     {
         $nom = $task->getNom();
         $prenom = $task->getPrenom();
         $idClasse = $task->getIdClasse();
         $idMatiere = $task->getIdMatiere();
-        $email = $task->getIdUser()->getEmail();
-        $idUser = $this->getUserIdFromTable($email);
 
         $prof = new Profs();
 
-        $prof->setNom($nom)->setPrenom($prenom)->setIdUser($idUser);
+        $prof->setNom($nom)->setPrenom($prenom)->setIdUser($user);
 
         foreach ($idClasse as $id => $classe){
             $prof->addIdClasse($classe);
@@ -148,13 +141,5 @@ class FormController extends AbstractController
         } else {
             return $role->find(1);
         }
-    }
-
-    public function getUserIdFromTable($email)
-    {
-        $user = $this->getDoctrine()->getRepository(Users::class);
-        return $user->findOneBy([
-           'email' => $email
-        ]);
     }
 }
