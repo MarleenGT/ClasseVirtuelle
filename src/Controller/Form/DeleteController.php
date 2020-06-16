@@ -11,31 +11,26 @@ use App\Form\EleveType;
 use App\Form\PersonnelType;
 use App\Form\ProfesseurType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
-class ModifController extends AbstractController
+class DeleteController extends AbstractController
 {
-    public function modifUser($user, $id)
+    public function deleteUser($user, $id)
     {
         if ($user === 'Eleves') {
             $obj = $this->getDoctrine()->getRepository(Eleves::class)->find($id);
-            $formType = EleveType::class;
         } elseif ($user === 'Professeurs') {
             $obj = $this->getDoctrine()->getRepository(Profs::class)->find($id);
-            $formType = ProfesseurType::class;
         } elseif ($user === 'Personnels') {
             $obj = $this->getDoctrine()->getRepository(Personnels::class)->find($id);
-            $formType = PersonnelType::class;
         } else {
             return $this->render('utilisateurs/index.html.twig');
         }
-        $form = $this->createForm($formType, $obj);
-        dump($form);
+        $nom = $obj->getNom();
+        $prenom = $obj->getPrenom();
+        $substrUser = substr($user, 0, strlen($user) - 1);
 
-        return $this->render("utilisateurs/modif.html.twig",[
-            "form" => $form->createView()
+        return $this->render("utilisateurs/delete.html.twig",[
+            "modal" => "Voulez-vous vraiment supprimer $nom $prenom ($substrUser) ?"
         ]);
     }
 }

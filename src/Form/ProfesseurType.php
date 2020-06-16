@@ -20,7 +20,7 @@ class ProfesseurType extends AbstractType
         $builder
             ->add('nom')
             ->add('prenom')
-            ->add('user', UserType::class, [
+            ->add('id_user', UserType::class, [
                 'label' => false
             ])
             ->add('id_matiere', EntityType::class, [
@@ -42,9 +42,7 @@ class ProfesseurType extends AbstractType
             ->add('ajout', SubmitType::class, [
                 'label' => "Ajouter"
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                dump($event, 'aaa');
-            });
+            ;
 
     }
 

@@ -1,6 +1,5 @@
 {% block stylesheets %}<link rel="stylesheet" type="text/css" href="{{ asset('css/listing.css') }}">{% endblock %}
 {% if error is defined %}
-    {{ dump() }}
     <div class="error">{{ error }}</div>
 {% endif %}
 {% if response %}
@@ -11,7 +10,7 @@
         {% set col1 = 'Classes' %}
         {% set col2 = 'Matière(s) enseignée(s)' %}
     {% elseif user == 'Personnels' %}
-        {% set col1 = 'Classes' %}
+        {% set col1 = 'Poste' %}
         {% set col2 = '' %}
     {% endif %}
     <div></div>
@@ -23,7 +22,7 @@
             <span class=" td col-2"></span>
         </div>
         {% for list in response %}
-                <form class="tr row" method="POST" action="{{ path('utilisateurs.modifUser', {user : user, id : list.id}) }}">
+                <form class="tr row" method="POST" action="{{ path('utilisateurs.choixModif', {user : user, id : list.id}) }}">
                     <span class="td nom col-2 offset-2">{{ list.nom }} {{ list.prenom }}</span>
                     {% if user == "Eleves" %}
                         <span class="td classeEleve col-2">{{ list.classe }}</span>
@@ -67,8 +66,8 @@
                         </span>
                     {% endif %}
                     <span class="td col-2">
-                        <button type="submit" name="update_{{ user }}_{{ list.id }}">Modifier</button>
-                        <button type="submit" name="delete_{{ user }}_{{ list.id }}">Supprimer</button>
+                        <button type="submit" name="update" value="{{ user }}_{{ list.id }}">Modifier</button>
+                        <button type="submit" name="delete" value="{{ user }}_{{ list.id }}">Supprimer</button>
                     </span>
                 </form>
         {% endfor %}

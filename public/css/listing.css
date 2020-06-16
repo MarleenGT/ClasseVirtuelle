@@ -2,8 +2,8 @@ div.table{
     display: table;
 }
 div.tr, form.tr{
-    display: table-row;
+    display: flex;
 }
-span.td{
+span.td, div.td{
     display: table-cell;
 }
