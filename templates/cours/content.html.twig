@@ -1,4 +1,3 @@
-{{ dump(date) }}
 <h1>Emploi du temps du {{ date|date_modify("monday this week")|date("d/m") }}
     au {{ date|date_modify("saturday this week")|date("d/m") }}</h1>
 <table class="emploiDuTemps w-100">

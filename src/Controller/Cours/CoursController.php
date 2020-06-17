@@ -19,11 +19,13 @@ class CoursController extends AbstractController
     public function ajax(Request $request): Response
     {
         if ($request->isXmlHttpRequest()) {
-        $date = $request->query->get('date');
+            $date = $request->query->get('date');
 
 
         } else {
-
+            return $this->render('cours/index.html.twig', [
+                'error' => 'Ceci n\'est pas une requête AJAX'
+            ]);
         }
         return $this->render('cours/content.html.twig', [
             'date' => $date

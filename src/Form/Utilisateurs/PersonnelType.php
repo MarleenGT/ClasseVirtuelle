@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Utilisateurs;
 
-use App\Entity\Classes;
-use App\Entity\Matieres;
-use App\Entity\Profs;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Personnels;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -14,7 +11,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ProfesseurType extends AbstractType
+class PersonnelType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -32,44 +29,30 @@ class ProfesseurType extends AbstractType
                 'mapped' => false,
                 'data' => $options['type']
             ])
-            ->add('id_matiere', EntityType::class, [
-                // looks for choices from this entity
-                'class' => Matieres::class,
-                // uses the User.username property as the visible option string
-                'choice_label' => 'nom_matiere',
-                'expanded' => true,
-                'multiple' => true,
-            ])
-            ->add('id_classe', EntityType::class, [
-                // looks for choices from this entity
-                'class' => Classes::class,
-                // uses the User.username property as the visible option string
-                'choice_label' => 'nom_classe',
-                'expanded' => true,
-                'multiple' => true,
+            ->add('poste')
+            ->add('ajout', SubmitType::class, [
+                'label' => "Ajouter"
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                $prof = $event->getData();
+                $personnel = $event->getData();
                 $form = $event->getForm();
 
-                if (!$prof || null === $prof->getId()) {
+                if (!$personnel || null === $personnel->getId()) {
                     $form->add('ajout', SubmitType::class, [
                         'label' => "Ajouter"
                     ]);
-                } elseif ($form->getName() === "modif") {
+                } elseif($form->getName() === "modif"){
                     $form->add('submit', SubmitType::class, [
                         'label' => "Modifier",
-
                     ]);
                 }
             });
-
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Profs::class,
+            'data_class' => Personnels::class,
             'id' => null,
             'type' => ''
         ]);

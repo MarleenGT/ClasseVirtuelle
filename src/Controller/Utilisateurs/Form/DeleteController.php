@@ -7,7 +7,7 @@ namespace App\Controller\Utilisateurs\Form;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
-use App\Form\DeleteType;
+use App\Form\Utilisateurs\DeleteType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

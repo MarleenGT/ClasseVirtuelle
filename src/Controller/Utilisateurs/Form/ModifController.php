@@ -7,9 +7,9 @@ namespace App\Controller\Utilisateurs\Form;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
-use App\Form\EleveType;
-use App\Form\PersonnelType;
-use App\Form\ProfesseurType;
+use App\Form\Utilisateurs\EleveType;
+use App\Form\Utilisateurs\PersonnelType;
+use App\Form\Utilisateurs\ProfesseurType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,9 +22,8 @@ class ModifController extends AbstractController
      * @return Response
      * @Route("/Utilisateurs/Modif", name="utilisateurs.modif")
      */
-    public function modifUser(Request $request)
+    public function modif(Request $request)
     {
-        dump($request);
         if (isset($request->request->all()['modif'])) {
             $modif = $request->request->all()['modif'];
             $user = $modif['type'];
@@ -43,7 +42,9 @@ class ModifController extends AbstractController
             $obj = $this->getDoctrine()->getRepository(Personnels::class)->find($id);
             $formType = PersonnelType::class;
         } else {
-//            return $this->render('utilisateurs/index.html.twig');
+            return $this->render('utilisateurs/index.html.twig', [
+                'error' => 'Le type d\'utilisateur (Eleves, Professeurs ou Personnels) est incorrect'
+            ]);
         }
         $form = $this->get('form.factory')->createNamed('modif',$formType, $obj, [
             'id' => $id,

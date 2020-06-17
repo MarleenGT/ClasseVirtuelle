@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Utilisateurs;
 
-use App\Entity\Personnels;
+use App\Entity\Classes;
+use App\Entity\Eleves;
+use App\Entity\Sousgroupes;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -11,7 +14,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PersonnelType extends AbstractType
+class EleveType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -29,21 +32,30 @@ class PersonnelType extends AbstractType
                 'mapped' => false,
                 'data' => $options['type']
             ])
-            ->add('poste')
-            ->add('ajout', SubmitType::class, [
-                'label' => "Ajouter"
+            ->add('id_classe', EntityType::class, [
+                // looks for choices from this entity
+                'class' => Classes::class,
+                // uses the User.username property as the visible option string
+                'choice_label' => 'nom_classe',
+                'expanded'  => true,
+            ])
+            ->add('id_sousgroupe', EntityType::class, [
+                'class' => Sousgroupes::class,
+                'choice_label' => 'nom_sousgroupe',
+                'expanded'  => true,
+                'multiple'  => true,
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                $personnel = $event->getData();
+                $eleve = $event->getData();
                 $form = $event->getForm();
-
-                if (!$personnel || null === $personnel->getId()) {
+                dump($event);
+                if (!$eleve || null === $eleve->getId()) {
                     $form->add('ajout', SubmitType::class, [
                         'label' => "Ajouter"
                     ]);
                 } elseif($form->getName() === "modif"){
                     $form->add('submit', SubmitType::class, [
-                        'label' => "Modifier",
+                        'label' => "Modifier"
                     ]);
                 }
             });
@@ -52,7 +64,7 @@ class PersonnelType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Personnels::class,
+            'data_class' => Eleves::class,
             'id' => null,
             'type' => ''
         ]);
