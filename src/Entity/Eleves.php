@@ -47,6 +47,8 @@ class Eleves
      */
     private $id_sousgroupe;
 
+    private $type = 'Eleves';
+
     public function __construct()
     {
         $this->id_sousgroupe = new ArrayCollection();
@@ -131,8 +133,18 @@ class Eleves
         return $this;
     }
 
+    public function getType()
+    {
+        return $this->type;
+    }
+    public function setType(string $type)
+    {
+        $this->type = $type;
+        return $this;
+    }
+
     public function __toString()
     {
-        return 'eleves';
+        return 'Eleves';
     }
 }

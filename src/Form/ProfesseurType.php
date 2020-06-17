@@ -7,6 +7,7 @@ use App\Entity\Matieres;
 use App\Entity\Profs;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -18,10 +19,18 @@ class ProfesseurType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('id', HiddenType::class, [
+                'mapped' => false,
+                'data' => $options['id']
+            ])
             ->add('nom')
             ->add('prenom')
             ->add('id_user', UserType::class, [
                 'label' => false
+            ])
+            ->add('type', HiddenType::class, [
+                'mapped' => false,
+                'data' => $options['type']
             ])
             ->add('id_matiere', EntityType::class, [
                 // looks for choices from this entity
@@ -39,7 +48,7 @@ class ProfesseurType extends AbstractType
                 'expanded' => true,
                 'multiple' => true,
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $prof = $event->getData();
                 $form = $event->getForm();
 
@@ -48,8 +57,7 @@ class ProfesseurType extends AbstractType
                         'label' => "Ajouter"
                     ]);
                 } elseif ($form->getName() === "modif") {
-                    $str = $options['user'].'-'.$options['id'];
-                    $form->add($str, SubmitType::class, [
+                    $form->add('submit', SubmitType::class, [
                         'label' => "Modifier",
 
                     ]);
@@ -62,8 +70,8 @@ class ProfesseurType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Profs::class,
-            'user' => null,
-            'id' => null
+            'id' => null,
+            'type' => ''
         ]);
     }
 }

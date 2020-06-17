@@ -51,6 +51,8 @@ class Profs
      */
     private $id_classe;
 
+    private $type = 'Professeurs';
+
     public function __construct()
     {
         $this->id_matiere = new ArrayCollection();
@@ -183,6 +185,17 @@ class Profs
     }
     public function __toString()
     {
-        return 'profs';
+        return 'Profs';
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type)
+    {
+        $this->type = $type;
+        return $this;
     }
 }

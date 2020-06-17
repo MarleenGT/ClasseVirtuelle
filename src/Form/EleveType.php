@@ -7,6 +7,7 @@ use App\Entity\Eleves;
 use App\Entity\Sousgroupes;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -18,10 +19,18 @@ class EleveType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('id', HiddenType::class, [
+                'mapped' => false,
+                'data' => $options['id']
+            ])
             ->add('nom')
             ->add('prenom')
             ->add('id_user', UserType::class, [
                 'label' => false
+            ])
+            ->add('type', HiddenType::class, [
+                'mapped' => false,
+                'data' => $options['type']
             ])
             ->add('id_classe', EntityType::class, [
                 // looks for choices from this entity
@@ -36,7 +45,7 @@ class EleveType extends AbstractType
                 'expanded'  => true,
                 'multiple'  => true,
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $eleve = $event->getData();
                 $form = $event->getForm();
                 dump($event);
@@ -45,8 +54,7 @@ class EleveType extends AbstractType
                         'label' => "Ajouter"
                     ]);
                 } elseif($form->getName() === "modif"){
-                    $str = $options['user'].'-'.$options['id'];
-                    $form->add($str, SubmitType::class, [
+                    $form->add('submit', SubmitType::class, [
                         'label' => "Modifier"
                     ]);
                 }
@@ -57,8 +65,8 @@ class EleveType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Eleves::class,
-            'user' => null,
-            'id' => null
+            'id' => null,
+            'type' => ''
         ]);
     }
 }

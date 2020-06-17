@@ -27,21 +27,8 @@ class ModifController extends AbstractController
         dump($request);
         if (isset($request->request->all()['modif'])) {
             $modif = $request->request->all()['modif'];
-            dump($modif);
-            die();
-            if (array_key_exists('Eleves', $modif)){
-                $name = explode('-', array_key_first($request->request->all()['delete']));
-                $user = $name[0];
-                $id = $name[1];
-            } elseif (array_key_exists('Professeurs', $modif)){
-                $name = explode('-', array_key_first($request->request->all()['delete']));
-                $user = $name[0];
-                $id = $name[1];
-            } elseif (array_key_exists('Personnels', $modif)){
-                $$name = explode('-', array_key_first($request->request->all()['delete']));
-                $user = $name[0];
-                $id = $name[1];
-            }
+            $user = $modif['type'];
+            $id = $modif['id'];
         } else {
             $user = $request->request->get('user');
             $id = $request->request->get('id');
@@ -59,16 +46,14 @@ class ModifController extends AbstractController
 //            return $this->render('utilisateurs/index.html.twig');
         }
         $form = $this->get('form.factory')->createNamed('modif',$formType, $obj, [
-            'user' => $user,
-            'id' => $id
+            'id' => $id,
+            'type' => $user
         ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $obj = $form->getData();
-            dump($obj);
-            die();
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($obj);
             $entityManager->flush();

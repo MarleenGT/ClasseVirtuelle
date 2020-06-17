@@ -23,9 +23,9 @@ class DeleteController extends AbstractController
     public function deleteUser(Request $request)
     {
         if (isset($request->request->all()['delete'])) {
-            $name = explode('-', array_key_first($request->request->all()['delete']));
-            $user = $name[0];
-            $id = $name[1];
+            $delete = $request->request->all()['delete'];
+            $user = $delete['type'];
+            $id = $delete['id'];
         } else {
             $user = $request->request->get('user');
             $id = $request->request->get('id');
@@ -40,10 +40,12 @@ class DeleteController extends AbstractController
         } else {
             return $this->render('utilisateurs/index.html.twig');
         }
+
         $form = $this->createForm(DeleteType::class, $obj, [
-            'user' => $user,
-            'id' => $id
+            'id' => $id,
+            'type' => $user
         ]);
+        dump($request);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

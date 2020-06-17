@@ -39,6 +39,8 @@ class Personnels
      */
     private $poste;
 
+    private $type = 'Personnels';
+
     public function getId(): ?int
     {
         return $this->id;
@@ -82,7 +84,7 @@ class Personnels
 
     public function __toString()
     {
-        return 'personnels';
+        return 'Personnels';
     }
 
     public function getPoste(): ?string
@@ -94,6 +96,17 @@ class Personnels
     {
         $this->poste = $poste;
 
+        return $this;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type)
+    {
+        $this->type = $type;
         return $this;
     }
 }
