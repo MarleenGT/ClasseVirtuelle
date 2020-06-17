@@ -17,15 +17,15 @@ class UtilisateursController extends AbstractController
 
     /**
      * @param Request $request
-     * @Route("/Utilisateurs/ajax", name="utilisateurs.ajax", methods={"GET"})
+     * @Route("/Utilisateurs/ajax", name="utilisateurs.ajax", methods={"POST"})
      * @return Response
      */
     public function choice(Request $request): Response
     {
         if ($request->isXmlHttpRequest()) {
-            $user = $request->query->get('user');
-            $limit = $request->query->get('limit');
-            $offset = $request->query->get('offset')*$limit;
+            $user = $request->request->get('user');
+            $limit = $request->request->get('limit');
+            $offset = $request->request->get('offset')*$limit;
             if ($offset < 0){
                 $offset = 0;
             }

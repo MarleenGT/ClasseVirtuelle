@@ -28,21 +28,33 @@ class ProfesseurType extends AbstractType
                 'class' => Matieres::class,
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_matiere',
-                'expanded'  => true,
-                'multiple'  => true,
+                'expanded' => true,
+                'multiple' => true,
             ])
             ->add('id_classe', EntityType::class, [
                 // looks for choices from this entity
                 'class' => Classes::class,
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_classe',
-                'expanded'  => true,
-                'multiple'  => true,
+                'expanded' => true,
+                'multiple' => true,
             ])
-            ->add('ajout', SubmitType::class, [
-                'label' => "Ajouter"
-            ])
-            ;
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+                $prof = $event->getData();
+                $form = $event->getForm();
+
+                if (!$prof || null === $prof->getId()) {
+                    $form->add('ajout', SubmitType::class, [
+                        'label' => "Ajouter"
+                    ]);
+                } elseif ($form->getName() === "modif") {
+                    $str = $options['user'].'-'.$options['id'];
+                    $form->add($str, SubmitType::class, [
+                        'label' => "Modifier",
+
+                    ]);
+                }
+            });
 
     }
 
@@ -50,6 +62,8 @@ class ProfesseurType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Profs::class,
+            'user' => null,
+            'id' => null
         ]);
     }
 }

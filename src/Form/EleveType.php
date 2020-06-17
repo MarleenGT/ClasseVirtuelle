@@ -9,6 +9,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EleveType extends AbstractType
@@ -34,15 +36,29 @@ class EleveType extends AbstractType
                 'expanded'  => true,
                 'multiple'  => true,
             ])
-            ->add('ajout', SubmitType::class, [
-                'label' => "Ajouter"
-            ]);
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+                $eleve = $event->getData();
+                $form = $event->getForm();
+                dump($event);
+                if (!$eleve || null === $eleve->getId()) {
+                    $form->add('ajout', SubmitType::class, [
+                        'label' => "Ajouter"
+                    ]);
+                } elseif($form->getName() === "modif"){
+                    $str = $options['user'].'-'.$options['id'];
+                    $form->add($str, SubmitType::class, [
+                        'label' => "Modifier"
+                    ]);
+                }
+            });
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Eleves::class,
+            'user' => null,
+            'id' => null
         ]);
     }
 }

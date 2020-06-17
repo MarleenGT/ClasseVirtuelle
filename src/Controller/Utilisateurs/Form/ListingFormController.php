@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Controller\Form;
+namespace App\Controller\Utilisateurs\Form;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

@@ -1,11 +1,12 @@
 {% extends 'base.html.twig' %}
 {% block title 'Utilisateurs' %}
 {% block body %}
+    {% if select is defined %}{{ dump(select) }}{% endif %}
     <form method="POST" action="{{ path('utilisateurs.add') }}">
         <select id="util_select" name="typeUtil">
-            <option value="Eleves">Eleves</option>
-            <option value="Professeurs">Professeurs</option>
-            <option value="Personnels">Personnels</option>
+            <option {% if select is defined and select == 'Eleves' %}selected{% endif %} value="Eleves">Eleves</option>
+            <option {% if select is defined and select == 'Professeurs' %}selected{% endif %} value="Professeurs">Professeurs</option>
+            <option {% if select is defined and select == 'Personnels' %}selected{% endif %} value="Personnels">Personnels</option>
         </select>
 
         <input type="submit" value="Ajouter">
@@ -17,8 +18,10 @@
         <button type="button" id="offsetMoins"><</button>
         <button type="button" id="offsetPlus">></button>
     </form>
-    <div id="ajax_results"></div>
-    <div id="modalModif"></div>
+    <div id="ajax_results">
+        <div id="modalModif"></div>
+    </div>
+
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -27,12 +30,14 @@
         let plus = $('#offsetPlus');
         let moins = $('#offsetMoins');
         let limit = $('#limit');
+        let updateButton = $('.update');
+        let deleteButton = $('.delete');
 
         let offset = 0;
 
         $(moins).click(function () {
             offset -= 1;
-            if (offset < 0){
+            if (offset < 0) {
                 offset = 0;
             } else {
                 AJAX();
@@ -59,7 +64,7 @@
 
             $.ajax({
                 url: "{{ path('utilisateurs.ajax') }}",
-                method: "GET",
+                method: "POST",
                 data: {user: user, limit: limit.val(), offset: offset}
             }).done(function (msg) {
                 div.html(msg);

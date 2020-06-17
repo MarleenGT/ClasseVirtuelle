@@ -24,8 +24,20 @@ class PersonnelType extends AbstractType
             ->add('ajout', SubmitType::class, [
                 'label' => "Ajouter"
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                dump($event);
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+                $personnel = $event->getData();
+                $form = $event->getForm();
+
+                if (!$personnel || null === $personnel->getId()) {
+                    $form->add('ajout', SubmitType::class, [
+                        'label' => "Ajouter"
+                    ]);
+                } elseif($form->getName() === "modif"){
+                    $str = $options['user'].'-'.$options['id'];
+                    $form->add($str, SubmitType::class, [
+                        'label' => "Modifier",
+                    ]);
+                }
             });
     }
 
@@ -33,6 +45,8 @@ class PersonnelType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Personnels::class,
+            'user' => null,
+            'id' => null
         ]);
     }
 }
