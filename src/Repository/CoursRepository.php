@@ -19,22 +19,24 @@ class CoursRepository extends ServiceEntityRepository
         parent::__construct($registry, Cours::class);
     }
 
-    // /**
-    //  * @return cours[] Returns an array of cours objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return cours[] Returns an array of cours objects
+     */
+    public function findCoursByWeek($date1, $date2)
     {
+        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'p.nom as nom','cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
+            ->select($column)
+            ->leftjoin('c.id_classe', 'cl')
+            ->leftjoin('c.id_matiere', 'm')
+            ->leftjoin('c.id_prof', 'p')
+            ->where('c.heure_debut BETWEEN :lundi AND :samedi')
+            ->setParameter('lundi', $date1)
+            ->setParameter('samedi', $date2)
             ->getQuery()
             ->getResult()
-        ;
+            ;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?cours

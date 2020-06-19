@@ -8,6 +8,7 @@ use App\Entity\Cours;
 use App\Entity\Profs;
 use App\Form\Cours\CoursType;
 use DateTime;
+use DateTimeZone;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,14 +24,16 @@ class AddCoursController extends AbstractController
     public function add(Request $request): Response
     {
         $cours = new Cours();
-        dump($cours);
         $form = $this->createForm(CoursType::class, $cours);
-
         $form->handleRequest($request);
-        dump($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            /**
+             * Id prof en dur => A enlever lorsque gestion des utilisateurs connectés faite
+             */
+            $prof = $this->getDoctrine()->getRepository(Profs::class)->find(3);
             $obj = $form->getData();
-            $obj->setDate(new DateTime());
+            $obj->setDate(new DateTime())->setIdProf($prof);
             dump($obj);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($obj);

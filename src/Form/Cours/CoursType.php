@@ -18,10 +18,6 @@ class CoursType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
-        /**
-         * Ajout de l'id prof en dur pour test. A ENLEVER DES QUE LA GESTION DES UTILISATEURS CONNECTES EST FAITE
-         */
         $builder
             ->add('id_prof', HiddenType::class)
             ->add('id_matiere', EntityType::class, [
