@@ -8,7 +8,6 @@ use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Entity\Roles;
-use App\Entity\Users;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
@@ -49,18 +48,10 @@ class FormController extends AbstractController
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $task = $form->getData();
+
                 $entityManager = $this->getDoctrine()->getManager();
                 $user = $this->completeUser($task, $util);
-
-
-                if ($util === 'Eleves') {
-                    $obj = $this->completeEleve($task, $user);
-                } elseif ($util === 'Professeurs') {
-                    $obj = $this->completeProf($task, $user);
-                } elseif ($util === 'Personnels') {
-                    $obj = $this->completePersonnel($task, $user);
-                }
-                $entityManager->persist($obj);
+                $entityManager->persist($user);
                 $entityManager->flush();
                 $this->addFlash('success', 'Utilisateur ajouté!');
                 return $this->redirectToRoute('utilisateurs.index');
@@ -73,62 +64,13 @@ class FormController extends AbstractController
 
     public function completeUser($task, $type)
     {
-        $user = new Users();
         $identifiant = bin2hex(random_bytes(6));
         $password = bin2hex(random_bytes(6));
-        $email = $task->getIdUser()->getEmail();
         $role = $this->getRoleFromTable($type);
 
-        $user->setIdentifiant($identifiant)->setMdp($password)->setEmail($email)->setIdRole($role);
+        $task->getIdUser()->setIdentifiant($identifiant)->setMdp($password)->setIdRole($role);
 
-        return $user;
-    }
-
-    public function completeEleve($task, $user)
-    {
-
-        $nom = $task->getNom();
-        $prenom = $task->getPrenom();
-        $idClasse = $task->getIdClasse();
-
-        $eleve = new Eleves();
-
-        $eleve->setNom($nom)->setPrenom($prenom)->setIdClasse($idClasse)->setIdUser($user);
-        return $eleve;
-    }
-
-    public function completePersonnel($task, $user)
-    {
-        $nom = $task->getNom();
-        $prenom = $task->getPrenom();
-        $poste = $task->getPoste();
-
-        $personnel = new Personnels();
-
-        $personnel->setNom($nom)->setPrenom($prenom)->setIdUser($user)->setPoste($poste);
-
-        return $personnel;
-    }
-
-    public function completeProf($task, $user)
-    {
-        $nom = $task->getNom();
-        $prenom = $task->getPrenom();
-        $idClasse = $task->getIdClasse();
-        $idMatiere = $task->getIdMatiere();
-
-        $prof = new Profs();
-
-        $prof->setNom($nom)->setPrenom($prenom)->setIdUser($user);
-
-        foreach ($idClasse as $id => $classe){
-            $prof->addIdClasse($classe);
-        }
-        foreach ($idMatiere as $id => $matiere){
-            $prof->addIdMatiere($matiere);
-        }
-
-        return $prof;
+        return $task;
     }
 
     public function getRoleFromTable($type)
