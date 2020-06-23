@@ -27,12 +27,15 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
     private $entityManager;
     private $urlGenerator;
     private $csrfTokenManager;
+    private $passwordEncoder;
+    private $pepper;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager)
+    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, $pepper)
     {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
+        $this->pepper = $pepper;
     }
 
     public function supports(Request $request)
@@ -75,16 +78,20 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        // Check the user's password or other credentials and return true or false
-        // If there are no credentials to check, you can just return true
-        throw new \Exception('TODO: check the credentials inside '.__FILE__);
+        if($user->getActif()){
+            return ($credentials['password'] === $user->getMdp());
+        }
+        return false;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-            return new RedirectResponse($targetPath);
-        }
+        return new RedirectResponse('/ClasseVirtuelle/public/Cours');
+//        dump($request, $token, $providerKey);
+//        die();
+//        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+//            return new RedirectResponse($targetPath);
+//        }
 
         // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
         throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);

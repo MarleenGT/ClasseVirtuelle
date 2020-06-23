@@ -3,7 +3,6 @@
 
 namespace App\Controller\Utilisateurs\Form;
 
-
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
@@ -11,6 +10,7 @@ use App\Entity\Roles;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
+use App\Service\ActivateAccount;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,10 +20,11 @@ class FormController extends AbstractController
 {
     /**
      * @param Request $request
+     * @param ActivateAccount $activateAccount
      * @return Response
      * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
      */
-    public function add(Request $request)
+    public function add(Request $request, ActivateAccount $activateAccount)
     {
         if ($request->request->has("typeUtil")) {
             $util = $_POST["typeUtil"];
@@ -51,6 +52,14 @@ class FormController extends AbstractController
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $user = $this->completeUser($task, $util);
+                $error = $activateAccount->sendEmail($user);
+                if ($error){
+                    return $this->render('utilisateurs/index.html.twig', [
+                        'select' => $util,
+                        'error' => 'L\'email de création de compte n\'a pas pu être envoyé. Veuillez vérifier l\'adresse mail.'
+                    ]);
+                }
+                $activateAccount->sendEmail($user);
                 $entityManager->persist($user);
                 $entityManager->flush();
                 $this->addFlash('success', 'Utilisateur ajouté!');
@@ -65,11 +74,15 @@ class FormController extends AbstractController
     public function completeUser($task, $type)
     {
         $identifiant = bin2hex(random_bytes(6));
-        $password = bin2hex(random_bytes(6));
+        $salt = bin2hex(random_bytes(10));
+        $password = bin2hex(random_bytes(10));
         $role = $this->getRoleFromTable($type);
-
-        $task->getIdUser()->setIdentifiant($identifiant)->setMdp($password)->setIdRole($role);
-
+        $task
+            ->getIdUser()
+            ->setIdentifiant($identifiant)
+            ->setMdp($password)
+            ->setIdRole($role)
+            ->setSalt($salt);
         return $task;
     }
 

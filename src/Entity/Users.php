@@ -62,6 +62,11 @@ class Users implements UserInterface
      */
     private $actif = 0;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $salt;
+
     public function __construct()
     {
         $this->commentaires_concernes = new ArrayCollection();
@@ -184,7 +189,7 @@ class Users implements UserInterface
 
         return $this;
     }
-    
+
     /**
      * @return Collection|Sousgroupes[]
      */
@@ -235,26 +240,33 @@ class Users implements UserInterface
 
     public function getRoles()
     {
-        // TODO: Implement getRoles() method.
+        return [$this->getIdRole()->getNomRole()];
     }
 
     public function getPassword()
     {
-        // TODO: Implement getPassword() method.
+        return $this->getMdp();
     }
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
-        // TODO: Implement getSalt() method.
+        return $this->salt;
     }
 
     public function getUsername()
     {
-        // TODO: Implement getUsername() method.
+       return $this->getIdentifiant();
     }
 
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    public function setSalt(string $salt): self
+    {
+        $this->salt = $salt;
+
+        return $this;
     }
 }
