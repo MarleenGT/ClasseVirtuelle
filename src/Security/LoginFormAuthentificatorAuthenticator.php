@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
@@ -28,14 +29,13 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
     private $urlGenerator;
     private $csrfTokenManager;
     private $passwordEncoder;
-    private $pepper;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, $pepper)
+    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
-        $this->pepper = $pepper;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     public function supports(Request $request)
@@ -79,7 +79,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
     public function checkCredentials($credentials, UserInterface $user)
     {
         if($user->getActif()){
-            return ($credentials['password'] === $user->getMdp());
+            return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
         }
         return false;
     }
@@ -87,14 +87,6 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         return new RedirectResponse('/ClasseVirtuelle/public/Cours');
-//        dump($request, $token, $providerKey);
-//        die();
-//        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-//            return new RedirectResponse($targetPath);
-//        }
-
-        // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
     }
 
     protected function getLoginUrl()

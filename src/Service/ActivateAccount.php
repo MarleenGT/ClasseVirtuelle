@@ -23,17 +23,17 @@ class ActivateAccount
 
     public function sendEmail($task)
     {
-        $token = $this->passwordEncoder->encodePassword($task->getIdUser(), $task->getIdUser()->getIdentifiant());
-;
+        $id = $task->getIdUser()->getIdentifiant();
         $email = (new TemplatedEmail())
             ->from($this->address)
             ->to($task->getIdUser()->getEmail())
             ->subject('Activation de compte Classe Virtuelle')
             ->htmlTemplate('emails/activate.html.twig')
             ->context([
+                'address' => $task->getIdUser()->getEmail(),
                 'nom' => $task->getNom(),
                 'prenom' => $task->getPrenom(),
-                'token' => $token
+                'token' => $id
             ]);
         try {
             $this->mailer->send($email);
