@@ -2,6 +2,9 @@
 
 namespace App\Security;
 
+use App\Entity\Eleves;
+use App\Entity\Personnels;
+use App\Entity\Profs;
 use App\Entity\Users;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -70,7 +73,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
         if (!$user) {
             // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('Email could not be found.');
+            throw new CustomUserMessageAuthenticationException('L\'identifiant est incorrect');
         }
 
         return $user;
@@ -78,7 +81,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        if($user->getActif()){
+        if ($user->getActif()) {
             return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
         }
         return false;
@@ -86,6 +89,26 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $role = $token->getRoleNames()[0];
+        $id = $token->getUser()->getId();
+        $request->getSession()->set('role', $role);
+
+        switch ($role) {
+            case 'role_eleve':
+                $query = $this->entityManager->getRepository(Eleves::class)->findOneBy(['id_user' => $id]);
+                $request->getSession()->set('classe', $query->getIdClasse());
+                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+                break;
+            case 'role_prof':
+                $query = $this->entityManager->getRepository(Profs::class)->findOneBy(['id_user' => $id]);
+                $request->getSession()->set('classe', $query->getIdClasse());
+                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+                break;
+            case 'role_personnel':
+                $query = $this->entityManager->getRepository(Personnels::class)->findOneBy(['id_user' => $id]);
+                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+                break;
+        }
         return new RedirectResponse('/ClasseVirtuelle/public/Cours');
     }
 

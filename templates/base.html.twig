@@ -9,29 +9,38 @@
 </head>
 <body>
 {% if app.user %}
+    {% set role = app.session.get('role') %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link {% if current_menu is defined and current_menu == 'eleves' %}active{% endif %}"
-                       href="{{ path('eleve.index') }}">Elèves</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link {% if current_menu is defined and current_menu == 'cours' %}active{% endif %}"
                        href="{{ path('cours.index') }}">Emploi du temps</a>
                 </li>
+                {% if role == 'ROLE_PROF' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_menu is defined and current_menu == 'utilisateurs' %}active{% endif %}"
+                           href="{{ path('utilisateurs.index') }}">Élèves</a>
+                    </li>
+                {% elseif role == 'ROLE_PERSONNEL' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_menu is defined and current_menu == 'utilisateurs' %}active{% endif %}"
+                           href="{{ path('utilisateurs.index') }}">Utilisateurs</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link {% if current_menu is defined and current_menu == 'utilisateurs' %}active{% endif %}"
-                       href="{{ path('utilisateurs.index') }}">Utilisateurs</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link"
-                       href="{{ path('app_logout') }}">Deconnection</a>
+                    <a class="nav-link {% if current_menu is defined and current_menu == 'settings' %}active{% endif %}"
+                       href="{{ path('reglages.index') }}">Réglages</a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            {% if role == 'ROLE_PROF' or role == 'ROLE_PERSONNEL' %}
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            {% endif %}
+            <form class="form-inline" action="{{ path('app_logout') }}">
+                <button class="btn btn-outline-success" type="submit">Deconnection</button>
             </form>
         </div>
     </nav>

@@ -1,5 +1,4 @@
-{#<h1>Emploi du temps du {{ date|date_modify("monday this week")|date("d/m") }}#}
-{#    au {{ date|date_modify("saturday this week")|date("d/m") }}</h1>#}
+<h1>Emploi du temps du {{ lundi|date("d/m") }} au {{ samedi|date("d/m") }}</h1>
 {{ dump() }}
 <table class="emploiDuTemps w-100">
     <thead>
@@ -31,6 +30,3 @@
     {% endfor %}
     </tbody>
 </table>
-<script>
-
-</script>

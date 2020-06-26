@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{% block title 'Changement '~change %}
+{% block body %}
+    {% if error is defined %}
+        {{ error }}
+    {% endif %}
+    {{ form(form) }}
+{% endblock %}

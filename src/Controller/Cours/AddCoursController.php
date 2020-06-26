@@ -8,7 +8,7 @@ use App\Entity\Cours;
 use App\Entity\Profs;
 use App\Form\Cours\CoursType;
 use DateTime;
-use DateTimeZone;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +19,7 @@ class AddCoursController extends AbstractController
     /**
      * @param Request $request
      * @return Response
+     * @IsGranted("ROLE_PROF")
      * @Route("/Cours/Ajouter", name="cours.add", methods={"POST"})
      */
     public function add(Request $request): Response

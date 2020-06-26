@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title 'Reglages' %}
+
+{% block body %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    <ul>
+        <li>
+            <form method="post" action="{{ path('reglages.changeId') }}">
+                <label>Identifiant : {{ app.user.username }}</label>
+                <button type="submit">Changer son identifiant</button>
+            </form>
+        </li>
+        <li>
+            <form method="post" action="{{ path('reglages.changePassword') }}">
+                <label>Mot de passe : ******</label>
+                <button type="submit">Changer son mot de passe</button>
+            </form>
+        </li>
+        <li>
+            <form method="post" action="{{ path('reglages.changeEmail') }}">
+                <label>Email : {{ app.user.email }}</label>
+                <button type="submit">Changer son email</button>
+            </form>
+        </li>
+    </ul>
+{% endblock %}

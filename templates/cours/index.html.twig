@@ -2,15 +2,19 @@
 {% block title 'Emploi du temps' %}
 
 {% block body %}
+    {% set role = app.session.get('role') %}
     <div id="calendrier">
     </div>
     <div>
         <button type="button" id="dateMoins">Semaine précédente</button>
         <button type="button" id="datePlus">Semaine suivante</button>
     </div>
-    <form action="{{ path('cours.add') }}" method="post">
-        <button type="submit" name="ajouter">Ajouter un cours</button>
-    </form>
+    {% if role == 'ROLE_PROF' %}
+        <form action="{{ path('cours.add') }}" method="post">
+            <button type="submit" name="ajouter">Ajouter un cours</button>
+        </form>
+    {% endif %}
+
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -19,9 +23,7 @@
         let moins = $('#dateMoins');
         let date = startOfWeek(new Date);
         date.setHours(8, 0, 0, 0);
-        console.log(date);
         date = Date.parse(date);
-        console.log(date);
 
         $(moins).click(function () {
             date -= 7*24*60*60*1000;

@@ -58,12 +58,11 @@ class ActivateAccountController extends AbstractController
                 $form->handleRequest($request);
 
                 if ($form->isSubmitted() && $form->isValid()) {
-                    $password1 = $request->request->get('change_identifiant')['plainPassword']['first'];
-                    $password2 = $request->request->get('change_identifiant')['plainPassword']['second'];
+                    $password = $request->request->get('change_identifiant')['plainPassword'];
 
-                    if ($password1 === $password2) {
+                    if ($password['first'] === $password['second']) {
                         $user = $form->getData();
-                        $user->setMdp($this->passwordEncoder->encodePassword($user, $password1))
+                        $user->setMdp($this->passwordEncoder->encodePassword($user, $password['first']))
                             ->setActif(true);
 
                     } else {
