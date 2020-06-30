@@ -6,7 +6,6 @@ namespace App\Controller\Cours;
 
 use App\Entity\Cours;
 use DateTime;
-use DateTimeZone;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,14 +23,32 @@ class CoursController extends AbstractController
         if ($request->isXmlHttpRequest()) {
             $timeLundi = (int) $request->query->get('date');
             $timeSamedi = (int) ($timeLundi + 5*24*60*60 + 60*60*10);
-            $lundi = (new \DateTime)->setTimestamp($timeLundi);
-            $samedi = (new \DateTime)->setTimestamp($timeSamedi);
-            $query = $this->getDoctrine()->getRepository(Cours::class)->findCoursByWeek($lundi, $samedi);
+            $date_lundi = (new DateTime)->setTimestamp($timeLundi);
+            $date_samedi = (new DateTime)->setTimestamp($timeSamedi);
+            $query = $this->getDoctrine()->getRepository(Cours::class)->findCoursByWeek($date_lundi, $date_samedi);
+
+            $mon = [];
+            $tue = [];
+            $wed = [];
+            $thu = [];
+            $fri = [];
+            $sat = [];
             dump($query);
+            foreach ($query as $cours){
+                $date = strtolower($cours['heure_debut']->format('D'));
+                $cours['heure_debut'] = $this->hours_tofloat($cours['heure_debut']->format('H:i'));
+                $cours['heure_fin'] = $this->hours_tofloat($cours['heure_fin']->format('H:i'));
+                ${$date}[] = $cours;
+            }
             return $this->render('cours/content.html.twig', [
-                'lundi' => $lundi,
-                'samedi' => $samedi,
-                'query' => $query
+                'date_lundi' => $date_lundi,
+                'date_samedi' => $date_samedi,
+                'lundi' => $mon,
+                'mardi' => $tue,
+                'mercredi' => $wed,
+                'jeudi' => $thu,
+                'vendredi' => $fri,
+                'samedi' => $sat
             ]);
         } else {
             return $this->render('cours/index.html.twig', [
@@ -50,5 +67,12 @@ class CoursController extends AbstractController
         return $this->render('cours/index.html.twig', [
             'current_menu' => 'cours'
         ]);
+    }
+    private function hours_tofloat($val){
+        if (empty($val)) {
+            return 0;
+        }
+        $parts = explode(':', $val);
+        return $parts[0] + floor(($parts[1]/60)*100) / 100;
     }
 }

@@ -9,6 +9,7 @@
 </head>
 <body>
 {% if app.user %}
+    {{ dump(app.session) }}
     {% set role = app.session.get('role') %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">

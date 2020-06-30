@@ -35,16 +35,4 @@ class MatieresRepository extends ServiceEntityRepository
         ;
     }
     */
-
-    /*
-    public function findOneBySomeField($value): ?Matieres
-    {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

@@ -94,19 +94,21 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
         $request->getSession()->set('role', $role);
 
         switch ($role) {
-            case 'role_eleve':
+            case 'ROLE_ELEVE':
                 $query = $this->entityManager->getRepository(Eleves::class)->findOneBy(['id_user' => $id]);
+                $request->getSession()->set('id', $query->getId());
                 $request->getSession()->set('classe', $query->getIdClasse());
                 $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
                 break;
-            case 'role_prof':
+            case 'ROLE_PROF':
                 $query = $this->entityManager->getRepository(Profs::class)->findOneBy(['id_user' => $id]);
+                $request->getSession()->set('id', $query->getId());
                 $request->getSession()->set('classe', $query->getIdClasse());
-                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+                $request->getSession()->set('matiere', $query->getIdMatiere());;
                 break;
-            case 'role_personnel':
+            case 'ROLE_PERSONNEL':
                 $query = $this->entityManager->getRepository(Personnels::class)->findOneBy(['id_user' => $id]);
-                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+                $request->getSession()->set('id', $query->getId());
                 break;
         }
         return new RedirectResponse('/ClasseVirtuelle/public/Cours');

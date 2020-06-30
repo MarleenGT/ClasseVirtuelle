@@ -153,26 +153,8 @@ class Classes
         return $this;
     }
 
-    public function addElefe(Eleves $elefe): self
+    public function __toString(): string
     {
-        if (!$this->eleves->contains($elefe)) {
-            $this->eleves[] = $elefe;
-            $elefe->setIdClasse($this);
-        }
-
-        return $this;
-    }
-
-    public function removeElefe(Eleves $elefe): self
-    {
-        if ($this->eleves->contains($elefe)) {
-            $this->eleves->removeElement($elefe);
-            // set the owning side to null (unless already changed)
-            if ($elefe->getIdClasse() === $this) {
-                $elefe->setIdClasse(null);
-            }
-        }
-
-        return $this;
+        return $this->getNomClasse();
     }
 }

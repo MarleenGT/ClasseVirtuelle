@@ -3,10 +3,11 @@
 
 namespace App\Form\Cours;
 
-
 use App\Entity\Classes;
 use App\Entity\Matieres;
-use App\Entity\Personnels;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sousgroupes;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -20,30 +21,43 @@ class CoursType extends AbstractType
     {
         $builder
             ->add('id_prof', HiddenType::class)
-            ->add('id_matiere', EntityType::class, [
-                // looks for choices from this entity
-                'class' => Matieres::class,
-                // uses the User.username property as the visible option string
-                'choice_label' => 'nom_matiere',
-                'expanded' => true
+            ->add('id_matiere'
+                , ChoiceType::class, [
+                    'choices' => $options['matieres']
+                    , 'choice_label' => function (Matieres $matiere) {
+                        return $matiere ? $matiere->getNomMatiere() : '';
+                    }]
+            )
+            ->add('id_classe'
+                , ChoiceType::class, [
+                    'choices' => $options['classes']
+                    , 'choice_label' => function (Classes $classe) {
+                        return $classe ? $classe->getNomClasse() : '';
+                    }]
+            )
+            ->add('heure_debut', DateTimeType::class, [
+                'date_widget' => 'single_text'
             ])
-            ->add('id_classe', EntityType::class, [
-                // looks for choices from this entity
-                'class' => Classes::class,
-                // uses the User.username property as the visible option string
-                'choice_label' => 'nom_classe',
-                'expanded'  => true,
+            ->add('heure_fin', DateTimeType::class, [
+                'date_widget' => 'single_text'
             ])
-            ->add('heure_debut')
-            ->add('heure_fin')
             ->add('id_sousgroupe', EntityType::class, [
                 'class' => Sousgroupes::class,
                 'choice_label' => 'nom_sousgroupe',
-                'expanded'  => true,
+                'expanded' => true,
             ])
             ->add('commentaire')
-        ->add('submit', SubmitType::class, [
-            'label' => "Ajouter"
+            ->add('submit', SubmitType::class, [
+                'label' => "Ajouter"
+            ]);
+        dump($builder->get('id_matiere'));
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'matieres' => null,
+            'classes' => null
         ]);
     }
 }

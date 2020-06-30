@@ -20,6 +20,8 @@ class CoursRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param $date1
+     * @param $date2
      * @return cours[] Returns an array of cours objects
      */
     public function findCoursByWeek($date1, $date2)
@@ -37,16 +39,23 @@ class CoursRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
-
-    /*
-    public function findOneBySomeField($value): ?cours
+    public function findCoursByWeekAndByProf($date1, $date2, $id)
     {
+        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere','cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
+            ->select($column)
+            ->leftjoin('c.id_classe', 'cl')
+            ->leftjoin('c.id_matiere', 'm')
+            ->where('c.heure_debut BETWEEN :lundi AND :samedi')
+            ->setParameter('lundi', $date1)
+            ->setParameter('samedi', $date2)
+            ->andWhere('c.id_prof = :id')
+            ->setParameter('id', $id)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult()
+            ;
     }
-    */
+
+
+
 }

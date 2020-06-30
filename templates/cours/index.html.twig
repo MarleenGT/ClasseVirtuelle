@@ -1,4 +1,7 @@
 {% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <link href="">
+{% endblock %}
 {% block title 'Emploi du temps' %}
 
 {% block body %}
@@ -38,21 +41,20 @@
         })
 
         function AJAX() {
-            console.log(date/1000);
             $.ajax({
                 url: "{{ path('cours.ajax') }}",
                 method: "GET",
                 data: {date: date / 1000}
             }).done(function (msg) {
                 div.html(msg);
+
             })
         }
+
         function startOfWeek(date)
         {
             let diff = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
-
             return new Date(date.setDate(diff));
-
         }
     </script>
 {% endblock %}

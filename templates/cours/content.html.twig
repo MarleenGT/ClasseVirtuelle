@@ -1,5 +1,5 @@
-<h1>Emploi du temps du {{ lundi|date("d/m") }} au {{ samedi|date("d/m") }}</h1>
-{{ dump() }}
+<h1>Emploi du temps du {{ date_lundi|date("d/m") }} au {{ date_samedi|date("d/m") }}</h1>
+{{ dump(lundi, mardi, mercredi, jeudi, vendredi, samedi) }}
 <table class="emploiDuTemps w-100">
     <thead>
     <tr>
@@ -14,16 +14,20 @@
     </thead>
     <tbody>
     {% set hours = ['8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h'] %}
+    {% set jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'] %}
     <tr>
         <td>{{ hours[0] }}</td>
-        <td rowspan="0"></td>
-        <td rowspan="0"></td>
-        <td rowspan="0"></td>
-        <td rowspan="0"></td>
-        <td rowspan="0"></td>
-        <td rowspan="0"></td>
-    </tr>
-    {% for i in 1..10 %}
+        {% for jour in jours %}
+            <td id="{{ jour }}" rowspan="0">
+                {% for cours in _context[jour] %}
+                    {% set debut, fin = (cours.heure_debut - 8)*100, (cours.heure_fin - 8)*100 %}
+                    <div class="cours">
+                        {{ debut ~ fin }}
+                    </div>
+                {% endfor %}
+            </td>
+        {% endfor %}
+        {% for i in 1..10 %}
         <tr>
             <td>{{ hours[i] }}</td>
         </tr>
