@@ -25,13 +25,14 @@ class ElevesRepository extends ServiceEntityRepository
      * @return Eleves[] Returns an array of Eleves objects
      */
 
-    public function findElevesByPages($limit, $offset)
+    public function findElevesByPages($limit, $offset, $search)
     {
         $column = ['e.id', 'e.nom', 'e.prenom', 'c.nom_classe as classe', 'GROUP_CONCAT(s.nom_sousgroupe) as sousgroupe'];
         return $this->createQueryBuilder('e')
             ->select($column)
             ->leftjoin('e.id_classe', 'c')
             ->leftjoin('e.id_sousgroupe', 's')
+            ->where("lower(e.nom) LIKE '%".$search."%' OR lower(e.prenom) LIKE '%".$search."%'")
             ->orderBy('e.nom', 'ASC')
             ->groupBy('e.id')
             ->setFirstResult($offset)
@@ -41,8 +42,10 @@ class ElevesRepository extends ServiceEntityRepository
         ;
     }
 
-
-
+    /**
+     * @param $classe
+     * @return array
+     */
     public function findElevesByClasse($classe): array
     {
         return $this->createQueryBuilder('e')
@@ -51,6 +54,20 @@ class ElevesRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    /**
+     * @param $groupe
+     * @return array
+     */
+    public function findElevesBySousgroupe($groupe): array
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.id_sousgroupe = :groupe')
+            ->setParameter('groupe', $groupe->getId())
+            ->getQuery()
+            ->getResult()
+            ;
     }
 
 }

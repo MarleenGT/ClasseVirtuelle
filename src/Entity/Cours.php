@@ -56,7 +56,7 @@ class Cours
     private $id_matiere;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
      */
     private $date;
 

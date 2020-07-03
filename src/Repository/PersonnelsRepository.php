@@ -22,12 +22,13 @@ class PersonnelsRepository extends ServiceEntityRepository
      * @return Personnels[] Returns an array of Personnels objects
      */
 
-    public function findPersonnelsByPages($limit, $offset)
+    public function findPersonnelsByPages($limit, $offset, $search)
     {
         $column = ['p.id', 'p.nom', 'p.prenom', 'p.poste'];
 
         return $this->createQueryBuilder('p')
             ->select($column)
+            ->where("lower(e.nom) LIKE '%".$search."%' OR lower(e.prenom) LIKE '%".$search."%'")
             ->orderBy('p.nom', 'ASC')
             ->groupBy('p.id')
             ->setFirstResult($offset)

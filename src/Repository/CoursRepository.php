@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Classes;
 use App\Entity\Cours;
+use App\Entity\Sousgroupes;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,7 +28,7 @@ class CoursRepository extends ServiceEntityRepository
      * @param $id
      * @return cours[] Returns an array of cours objects
      */
-    public function findCoursByWeekAndByProf($date1, $date2, $id)
+    public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2,int $id) : array
     {
         $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
@@ -41,17 +44,22 @@ class CoursRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+
+    /**
+     * Les méthodes ci-dessous servent lors de l'ajout d'un cours pour détecter les collisions possibles
+     */
+
     /**
      * @param $sousgroupe
      * @param $heure_debut
      * @param $heure_fin
      * @return array
      */
-    public function findCoursBySousgroupe($sousgroupe, $heure_debut, $heure_fin): array
+    public function findCoursBySousgroupe(Sousgroupes $sousgroupe,DateTimeInterface $heure_debut,DateTimeInterface $heure_fin) : array
     {
         return $this->createQueryBuilder('c')
             ->leftJoin('c.id_prof', 'p')
-            ->where('c.heure_debut BETWEEN :debut AND :fin OR c.heure_fin BETWEEN :debut AND :fin')
+            ->where('c.heure_debut <= :fin AND c.heure_fin >= :debut')
             ->setParameter('debut', $heure_debut)
             ->setParameter('fin', $heure_fin)
             ->andWhere('c.id_sousgroupe = :sousgroupe')
@@ -66,11 +74,13 @@ class CoursRepository extends ServiceEntityRepository
      * @param $heure_fin
      * @return array
      */
-    public function findCoursByClasse($classe, $heure_debut, $heure_fin): array
+    public function findCoursByClasse(Classes $classe,DateTimeInterface $heure_debut,DateTimeInterface $heure_fin) : array
     {
+//        dump($classe, $heure_fin, $heure_debut);
+//        die();
         return $this->createQueryBuilder('c')
             ->leftJoin('c.id_prof', 'p')
-            ->where('c.heure_debut BETWEEN :debut AND :fin OR c.heure_fin BETWEEN :debut AND :fin')
+            ->where('c.heure_debut <= :fin AND c.heure_fin >= :debut')
             ->setParameter('debut', $heure_debut)
             ->setParameter('fin', $heure_fin)
             ->andWhere('c.id_classe = :classe')
@@ -79,6 +89,10 @@ class CoursRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @param $date
+     * @return array
+     */
     public function findCoursToArchive($date): array
     {
         return $this->createQueryBuilder('c')

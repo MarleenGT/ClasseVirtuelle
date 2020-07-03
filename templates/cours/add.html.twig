@@ -1,5 +1,11 @@
 {% extends 'base.html.twig' %}
 {% block title 'Ajout cours' %}
 {% block body %}
+    {% if error is defined %}
+        {{ error }}
+    {% endif %}
+    {% if conflit is defined %}
+        {{ dump(conflit) }}
+    {% endif %}
     {{ form(form) }}
 {% endblock %}

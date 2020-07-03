@@ -26,15 +26,16 @@ class UtilisateursController extends AbstractController
             $user = $request->request->get('user');
             $limit = $request->request->get('limit');
             $offset = $request->request->get('offset')*$limit;
+            $search = $request->request->get('search');
             if ($offset < 0){
                 $offset = 0;
             }
             if ($user === 'Eleves') {
-                $query = $this->getDoctrine()->getRepository(Eleves::class)->findElevesByPages($limit, $offset);
+                $query = $this->getDoctrine()->getRepository(Eleves::class)->findElevesByPages($limit, $offset, $search);
             } elseif ($user === 'Professeurs') {
-                $query = $this->getDoctrine()->getRepository(Profs::class)->findProfsByPages($limit, $offset);
+                $query = $this->getDoctrine()->getRepository(Profs::class)->findProfsByPages($limit, $offset, $search);
             } elseif ($user === 'Personnels') {
-                $query = $this->getDoctrine()->getRepository(Personnels::class)->findPersonnelsByPages($limit, $offset);
+                $query = $this->getDoctrine()->getRepository(Personnels::class)->findPersonnelsByPages($limit, $offset, $search);
             } else {
                 return $this->render('utilisateurs/listing.html.twig', [
                     'error' => 'Problème dans la requête'

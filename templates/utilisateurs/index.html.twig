@@ -7,8 +7,12 @@
     <form method="POST" action="{{ path('utilisateurs.add') }}">
         <select id="util_select" name="typeUtil">
             <option {% if select is defined and select == 'Eleves' %}selected{% endif %} value="Eleves">Eleves</option>
-            <option {% if select is defined and select == 'Professeurs' %}selected{% endif %} value="Professeurs">Professeurs</option>
-            <option {% if select is defined and select == 'Personnels' %}selected{% endif %} value="Personnels">Personnels</option>
+            <option {% if select is defined and select == 'Professeurs' %}selected{% endif %} value="Professeurs">
+                Professeurs
+            </option>
+            <option {% if select is defined and select == 'Personnels' %}selected{% endif %} value="Personnels">
+                Personnels
+            </option>
         </select>
 
         <input type="submit" value="Ajouter">
@@ -19,6 +23,7 @@
         </select>
         <button type="button" id="offsetMoins"><</button>
         <button type="button" id="offsetPlus">></button>
+        <input id="search" type="search" placeholder="Search" aria-label="Search">
     </form>
     <div id="ajax_results">
         <div id="modalModif"></div>
@@ -34,6 +39,7 @@
         let limit = $('#limit');
         let updateButton = $('.update');
         let deleteButton = $('.delete');
+        let search_input = $('#search');
 
         let offset = 0;
 
@@ -50,7 +56,9 @@
             offset += 1;
             AJAX();
         })
-
+        $(search_input).keyup(function () {
+            AJAX()
+        })
         $(select).change(function () {
             AJAX();
         })
@@ -67,7 +75,7 @@
             $.ajax({
                 url: "{{ path('utilisateurs.ajax') }}",
                 method: "POST",
-                data: {user: user, limit: limit.val(), offset: offset}
+                data: {user: user, limit: limit.val(), offset: offset, search: search_input.val()}
             }).done(function (msg) {
                 div.html(msg);
             })

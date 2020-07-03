@@ -23,7 +23,7 @@ class ProfsRepository extends ServiceEntityRepository
 //     * @return Profs[] Returns an array of Profs objects
 //     */
 
-    public function findProfsByPages($limit, $offset)
+    public function findProfsByPages($limit, $offset, $search)
     {
         $column = ['p.id', 'p.nom', 'p.prenom', 'GROUP_CONCAT(DISTINCT c.nom_classe) as classe', 'GROUP_CONCAT(DISTINCT m.nom_matiere) as matiere'];
 
@@ -31,6 +31,7 @@ class ProfsRepository extends ServiceEntityRepository
             ->select($column)
             ->leftjoin('p.id_classe', 'c')
             ->leftjoin('p.id_matiere', 'm')
+            ->where("lower(p.nom) LIKE '%".$search."%' OR lower(p.prenom) LIKE '%".$search."%'")
             ->orderBy('p.nom', 'ASC')
             ->groupBy('p.id')
             ->setFirstResult($offset)
