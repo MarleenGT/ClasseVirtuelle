@@ -90,7 +90,7 @@ class Cours
         return $this;
     }
 
-    public function getIdProf(): ?profs
+    public function getIdProf(): ?Profs
     {
         return $this->id_prof;
     }
@@ -150,12 +150,12 @@ class Cours
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
 

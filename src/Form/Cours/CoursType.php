@@ -6,7 +6,8 @@ namespace App\Form\Cours;
 use App\Entity\Classes;
 use App\Entity\Matieres;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sousgroupes;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -35,11 +36,17 @@ class CoursType extends AbstractType
                         return $classe ? $classe->getNomClasse() : '';
                     }]
             )
-            ->add('heure_debut', DateTimeType::class, [
-                'date_widget' => 'single_text'
+            ->add('date', DateType::class, [
+                'mapped' => false,
+                'widget' => 'single_text'
             ])
-            ->add('heure_fin', DateTimeType::class, [
-                'date_widget' => 'single_text'
+            ->add('heure_debut', TimeType::class, [
+                'mapped' => false,
+                'widget' => 'single_text'
+            ])
+            ->add('heure_fin', TimeType::class, [
+                'mapped' => false,
+                'widget' => 'single_text'
             ])
             ->add('id_sousgroupe', EntityType::class, [
                 'class' => Sousgroupes::class,

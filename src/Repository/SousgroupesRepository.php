@@ -19,22 +19,20 @@ class SousgroupesRepository extends ServiceEntityRepository
         parent::__construct($registry, Sousgroupes::class);
     }
 
-    // /**
-    //  * @return Sousgroupes[] Returns an array of Sousgroupes objects
-    //  */
-    /*
-    public function findByExampleField($value)
+     /**
+      * @return Sousgroupes[] Returns an array of Sousgroupes objects
+      */
+
+    public function findSousgroupesByEleve($eleve): array
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
+            ->Where(':eleve MEMBER OF s.eleves')
+            ->setParameter('eleve', $eleve)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Sousgroupes

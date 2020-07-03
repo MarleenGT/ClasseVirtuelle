@@ -2,10 +2,12 @@
 
 namespace App\Security;
 
+use App\Entity\DateArchive;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Entity\Users;
+use App\Service\CheckArchive;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,13 +34,15 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
     private $urlGenerator;
     private $csrfTokenManager;
     private $passwordEncoder;
+    private $checkArchive;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, CheckArchive $checkArchive)
     {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->checkArchive = $checkArchive;
     }
 
     public function supports(Request $request)
@@ -69,7 +73,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
             throw new InvalidCsrfTokenException();
         }
 
-        $user = $this->entityManager->getRepository(users::class)->findOneBy(['identifiant' => $credentials['identifiant']]);
+        $user = $this->entityManager->getRepository(Users::class)->findOneBy(['identifiant' => $credentials['identifiant']]);
 
         if (!$user) {
             // fail authentication with a custom error
@@ -89,6 +93,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $error = $this->checkArchive->check();
         $role = $token->getRoleNames()[0];
         $id = $token->getUser()->getId();
         $request->getSession()->set('role', $role);
@@ -118,4 +123,5 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
+
 }

@@ -42,15 +42,15 @@ class ElevesRepository extends ServiceEntityRepository
     }
 
 
-    /*
-    public function findOneBySomeField($value): ?Eleves
+
+    public function findElevesByClasse($classe): array
     {
         return $this->createQueryBuilder('e')
-            ->andWhere('e.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('e.id_classe = :classe')
+            ->setParameter('classe', $classe->getId())
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
-    */
+
 }

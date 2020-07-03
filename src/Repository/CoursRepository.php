@@ -22,26 +22,12 @@ class CoursRepository extends ServiceEntityRepository
     /**
      * @param $date1
      * @param $date2
+     * @param $id
      * @return cours[] Returns an array of cours objects
      */
-    public function findCoursByWeek($date1, $date2)
-    {
-        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'p.nom as nom','cl.nom_classe as classe', 'c.commentaire'];
-        return $this->createQueryBuilder('c')
-            ->select($column)
-            ->leftjoin('c.id_classe', 'cl')
-            ->leftjoin('c.id_matiere', 'm')
-            ->leftjoin('c.id_prof', 'p')
-            ->where('c.heure_debut BETWEEN :lundi AND :samedi')
-            ->setParameter('lundi', $date1)
-            ->setParameter('samedi', $date2)
-            ->getQuery()
-            ->getResult()
-            ;
-    }
     public function findCoursByWeekAndByProf($date1, $date2, $id)
     {
-        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere','cl.nom_classe as classe', 'c.commentaire'];
+        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
             ->select($column)
             ->leftjoin('c.id_classe', 'cl')
@@ -52,10 +38,53 @@ class CoursRepository extends ServiceEntityRepository
             ->andWhere('c.id_prof = :id')
             ->setParameter('id', $id)
             ->getQuery()
-            ->getResult()
-            ;
+            ->getResult();
     }
 
+    /**
+     * @param $sousgroupe
+     * @param $heure_debut
+     * @param $heure_fin
+     * @return array
+     */
+    public function findCoursBySousgroupe($sousgroupe, $heure_debut, $heure_fin): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.id_prof', 'p')
+            ->where('c.heure_debut BETWEEN :debut AND :fin OR c.heure_fin BETWEEN :debut AND :fin')
+            ->setParameter('debut', $heure_debut)
+            ->setParameter('fin', $heure_fin)
+            ->andWhere('c.id_sousgroupe = :sousgroupe')
+            ->setParameter('sousgroupe', $sousgroupe)
+            ->getQuery()
+            ->getResult();
+    }
 
+    /**
+     * @param $classe
+     * @param $heure_debut
+     * @param $heure_fin
+     * @return array
+     */
+    public function findCoursByClasse($classe, $heure_debut, $heure_fin): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.id_prof', 'p')
+            ->where('c.heure_debut BETWEEN :debut AND :fin OR c.heure_fin BETWEEN :debut AND :fin')
+            ->setParameter('debut', $heure_debut)
+            ->setParameter('fin', $heure_fin)
+            ->andWhere('c.id_classe = :classe')
+            ->setParameter('classe', $classe)
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function findCoursToArchive($date): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.heure_fin < :date')
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult();
+    }
 }

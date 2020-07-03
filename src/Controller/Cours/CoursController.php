@@ -20,12 +20,19 @@ class CoursController extends AbstractController
      */
     public function ajax(Request $request): Response
     {
+        if ($request->hasSession()) {
+            $session = $request->getSession();
+        } else {
+            $this->redirectToRoute('app_logout', [
+                'error' => 'La session a expiré. Veuillez vous reconnecter.'
+            ]);
+        }
         if ($request->isXmlHttpRequest()) {
-            $timeLundi = (int) $request->query->get('date');
-            $timeSamedi = (int) ($timeLundi + 5*24*60*60 + 60*60*10);
+            $timeLundi = (int)$request->query->get('date');
+            $timeSamedi = (int)($timeLundi + 5 * 24 * 60 * 60 + 60 * 60 * 10);
             $date_lundi = (new DateTime)->setTimestamp($timeLundi);
             $date_samedi = (new DateTime)->setTimestamp($timeSamedi);
-            $query = $this->getDoctrine()->getRepository(Cours::class)->findCoursByWeek($date_lundi, $date_samedi);
+            $query = $this->getDoctrine()->getRepository(Cours::class)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $session->get('id'));
 
             $mon = [];
             $tue = [];
@@ -33,14 +40,29 @@ class CoursController extends AbstractController
             $thu = [];
             $fri = [];
             $sat = [];
-            dump($query);
-            foreach ($query as $cours){
+            $debut = $this->getParameter('startTimeTable');
+            $fin = $this->getParameter('endTimeTable');
+
+            foreach ($query as $cours) {
                 $date = strtolower($cours['heure_debut']->format('D'));
-                $cours['heure_debut'] = $this->hours_tofloat($cours['heure_debut']->format('H:i'));
-                $cours['heure_fin'] = $this->hours_tofloat($cours['heure_fin']->format('H:i'));
+                $cours['float_debut'] = ($this->hours_tofloat($cours['heure_debut']->format('H:i')) - $debut) * ($fin - $debut);
+                $cours['float_fin'] = ($this->hours_tofloat($cours['heure_fin']->format('H:i')) - $debut) * ($fin - $debut);
                 ${$date}[] = $cours;
             }
+            $hours = [];
+
+            if ($debut > $fin){
+                return $this->render('cours/index.html.twig', [
+                    'error' => 'Problème dans les paramètres d\'affichage. Contactez l\'administrateur.'
+                ]);
+            }
+            for ($i = $debut; $i <= $fin; $i++) {
+                $hours[] = $i.'h';
+            }
             return $this->render('cours/content.html.twig', [
+                'debut_cours' => $debut,
+                'fin_cours' => $fin,
+                'hours' => $hours,
                 'date_lundi' => $date_lundi,
                 'date_samedi' => $date_samedi,
                 'lundi' => $mon,
@@ -68,11 +90,13 @@ class CoursController extends AbstractController
             'current_menu' => 'cours'
         ]);
     }
-    private function hours_tofloat($val){
+
+    private function hours_tofloat($val)
+    {
         if (empty($val)) {
             return 0;
         }
         $parts = explode(':', $val);
-        return $parts[0] + floor(($parts[1]/60)*100) / 100;
+        return $parts[0] + floor(($parts[1] / 60) * 100) / 100;
     }
 }
