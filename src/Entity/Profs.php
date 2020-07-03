@@ -6,7 +6,6 @@ use App\Repository\ProfsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProfsRepository::class)
@@ -45,6 +44,19 @@ class Profs
      * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_prof")
      */
     private $cours;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_prof")
+     */
+    private $archives;
+
+    /**
+     * @return mixed
+     */
+    public function getArchives()
+    {
+        return $this->archives;
+    }
 
     /**
      * @ORM\ManyToMany(targetEntity=Classes::class, inversedBy="profs", fetch="EAGER")

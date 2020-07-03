@@ -35,6 +35,19 @@ class Classes
     private $cours;
 
     /**
+     * @return mixed
+     */
+    public function getArchives()
+    {
+        return $this->archives;
+    }
+
+    /**
+     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_classe")
+     */
+    private $archives;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Profs::class, mappedBy="id_classe")
      */
     private $profs;

@@ -16,16 +16,22 @@ class CheckArchive extends AbstractController
 {
     /**
      * Vérifie la date du dernier archivage des cours et lance l'archivage si besoin.
+     * @return bool|string
      */
     public function check()
     {
-        $date = $this->getDoctrine()->getRepository(DateArchive::class)->find(1);
-        $today = new DateTime();
-        if ($date->getDateDerniereArchive()->format('W') < $today->format('W')) {
-            $error = $this->remove($today);
-            if (!$error){
-                $date->setDateDerniereArchive($today);
-
+        $entityManager = $this->getDoctrine()->getManager();
+        $date = $entityManager->getRepository(DateArchive::class)->find(1);
+        $monday = new DateTime();
+        $monday->modify('monday this week');
+        if ($date->getDateDerniereArchive()->format('W') < $monday->format('W')) {
+            $remove = $this->remove($monday);
+            if ($remove){
+                $date->setDateDerniereArchive($monday);
+                $entityManager->flush();
+                return $monday;
+            } else {
+                return false;
             }
         }
     }
@@ -62,12 +68,12 @@ class CheckArchive extends AbstractController
             try {
                 $archive = $this->transformCoursToArchive($cours);
             } catch (ReflectionException $e) {
-                return 'Problème lors de l\'archivage des anciens cours. Veuillez contacter l\'administrateur.';
+                return false;
             }
             $entityManager->persist($archive);
             $entityManager->remove($cours);
         }
         $entityManager->flush();
-        return false;
+        return true;
     }
 }

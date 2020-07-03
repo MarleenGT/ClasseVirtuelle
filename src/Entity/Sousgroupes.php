@@ -31,6 +31,11 @@ class Sousgroupes
     private $cours;
 
     /**
+     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_sousgroupe")
+     */
+    private $archives;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Eleves::class, mappedBy="id_sousgroupe")
      */
     private $eleves;
@@ -150,4 +155,13 @@ class Sousgroupes
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getArchives()
+    {
+        return $this->archives;
+    }
+
 }

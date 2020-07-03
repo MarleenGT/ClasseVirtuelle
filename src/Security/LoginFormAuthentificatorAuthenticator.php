@@ -2,7 +2,6 @@
 
 namespace App\Security;
 
-use App\Entity\DateArchive;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
@@ -93,9 +92,12 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        $error = $this->checkArchive->check();
         $role = $token->getRoleNames()[0];
         $id = $token->getUser()->getId();
+        $check = $this->checkArchive->check();
+        if ($check){
+            $request->getSession()->set('date_archivage', $check);
+        }
         $request->getSession()->set('role', $role);
 
         switch ($role) {

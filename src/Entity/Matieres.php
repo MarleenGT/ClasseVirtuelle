@@ -30,9 +30,22 @@ class Matieres
     private $profs;
 
     /**
+     * @return mixed
+     */
+    public function getArchives()
+    {
+        return $this->archives;
+    }
+
+    /**
      * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_matiere")
      */
     private $cours;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_matiere")
+     */
+    private $archives;
 
     public function __construct()
     {

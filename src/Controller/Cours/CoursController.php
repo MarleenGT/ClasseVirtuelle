@@ -4,6 +4,7 @@
 namespace App\Controller\Cours;
 
 
+use App\Entity\Archives;
 use App\Entity\Cours;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,11 +29,19 @@ class CoursController extends AbstractController
             ]);
         }
         if ($request->isXmlHttpRequest()) {
+            $archivage = $session->get('date_archivage');
+            $debut = $this->getParameter('startTimeTable');
+            $fin = $this->getParameter('endTimeTable');
             $timeLundi = (int)$request->query->get('date');
-            $timeSamedi = (int)($timeLundi + 5 * 24 * 60 * 60 + 60 * 60 * 10);
+            $timeSamedi = (int)($timeLundi + 5 * 24 * 60 * 60 + 60 * 60 * ($fin - $debut));
             $date_lundi = (new DateTime)->setTimestamp($timeLundi);
             $date_samedi = (new DateTime)->setTimestamp($timeSamedi);
-            $query = $this->getDoctrine()->getRepository(Cours::class)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $session->get('id'));
+
+            /**
+             * Vérification de la date d'archivage pour savoir si les cours à afficher sont dans la table Archives ou Cours
+             */
+            $repository = ($archivage < $date_samedi)? Cours::class : Archives::class;
+            $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $session->get('id'));
 
             $mon = [];
             $tue = [];
