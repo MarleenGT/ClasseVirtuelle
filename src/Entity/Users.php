@@ -67,6 +67,11 @@ class Users implements UserInterface
      */
     private $salt;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Admins::class, mappedBy="id_user", cascade={"persist", "remove"})
+     */
+    private $admins;
+
     public function __construct()
     {
         $this->commentaires_concernes = new ArrayCollection();
@@ -266,6 +271,23 @@ class Users implements UserInterface
     public function setSalt(string $salt): self
     {
         $this->salt = $salt;
+
+        return $this;
+    }
+
+    public function getAdmins(): ?Admins
+    {
+        return $this->admins;
+    }
+
+    public function setAdmins(Admins $admins): self
+    {
+        $this->admins = $admins;
+
+        // set the owning side of the relation if necessary
+        if ($admins->getIdUser() !== $this) {
+            $admins->setIdUser($this);
+        }
 
         return $this;
     }

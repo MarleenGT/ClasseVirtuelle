@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
@@ -115,6 +116,10 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
                 break;
             case 'ROLE_PERSONNEL':
                 $query = $this->entityManager->getRepository(Personnels::class)->findOneBy(['id_user' => $id]);
+                $request->getSession()->set('id', $query->getId());
+                break;
+            case 'ROLE_ADMIN':
+                $query = $this->entityManager->getRepository(Admins::class)->findOneBy(['id_user' => $id]);
                 $request->getSession()->set('id', $query->getId());
                 break;
         }

@@ -4,6 +4,7 @@
 namespace App\Form\Utilisateurs;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -21,6 +22,12 @@ class DeleteType extends AbstractType
             ->add('type', HiddenType::class, [
                 'mapped' => false,
                 'data' => $options['type']
+            ])
+            ->add('close', ButtonType::class, [
+                'label' => 'Annuler',
+                'attr' => [
+                    'data-dismiss' => "modal"
+                ]
             ])
             ->add('submit', SubmitType::class, [
                 'label' => "Supprimer"

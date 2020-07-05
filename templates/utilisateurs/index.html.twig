@@ -13,6 +13,9 @@
             <option {% if select is defined and select == 'Personnels' %}selected{% endif %} value="Personnels">
                 Personnels
             </option>
+            <option {% if select is defined and select == 'Admins' %}selected{% endif %} value="Admins">
+                Admins
+            </option>
         </select>
 
         <input type="submit" value="Ajouter">
@@ -38,8 +41,6 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>

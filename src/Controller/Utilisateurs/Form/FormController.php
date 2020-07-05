@@ -3,10 +3,12 @@
 
 namespace App\Controller\Utilisateurs\Form;
 
+use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Entity\Roles;
+use App\Form\Utilisateurs\AdminType;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
@@ -27,40 +29,46 @@ class FormController extends AbstractController
     public function add(Request $request, ActivateAccount $activateAccount)
     {
         if ($request->request->has("typeUtil")) {
-            $util = $_POST["typeUtil"];
-        } elseif ($request->request->has("eleve") || $request->request->has("professeur") || $request->request->has("personnel")) {
-            $util = ucwords(array_key_first($request->request->all()) . 's');
+            $user = $_POST["typeUtil"];
+        } elseif ($request->request->has("add")) {
+            $user = $request->request->get('add')['type'];
         } else {
             return $this->render('utilisateurs/index.html.twig');
         }
 
-        if ($util === 'Eleves') {
-            $util2 = EleveType::class;
-            $class = new Eleves();
-        } elseif ($util === 'Professeurs') {
-            $util2 = ProfesseurType::class;
-            $class = new Profs();
-        } elseif ($util === 'Personnels') {
-            $util2 = PersonnelType::class;
-            $class = new Personnels();
+        if ($user === 'Eleves') {
+            $formType = EleveType::class;
+            $obj = new Eleves();
+        } elseif ($user === 'Professeurs') {
+            $formType = ProfesseurType::class;
+            $obj = new Profs();
+        } elseif ($user === 'Personnels') {
+            $formType = PersonnelType::class;
+            $obj = new Personnels();
+        } elseif ($user === 'Admins') {
+            $formType = AdminType::class;
+            $obj = new Admins();
+        } else {
+            return $this->render('utilisateurs/index.html.twig');
         }
-        $form = $this->createForm($util2, $class);
+        $form = $this->get('form.factory')->createNamed('add', $formType, $obj, [
+            'type' => $user
+        ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $task = $form->getData();
 
             $entityManager = $this->getDoctrine()->getManager();
-            $user = $this->completeUser($task, $util);
-            $error = $activateAccount->sendEmail($user);
-            dump($error);
+            $addUser = $this->completeUser($task, $user);
+            $error = $activateAccount->sendEmail($addUser);
             if ($error) {
                 return $this->render('utilisateurs/index.html.twig', [
-                    'select' => $util,
+                    'select' => $user,
                     'error' => 'L\'email de création de compte n\'a pas pu être envoyé. Veuillez vérifier l\'adresse mail.'
                 ]);
             } else {
-                $entityManager->persist($user);
+                $entityManager->persist($addUser);
                 $entityManager->flush();
                 $this->addFlash('success', 'Utilisateur ajouté!');
             }
@@ -69,7 +77,7 @@ class FormController extends AbstractController
         }
         return $this->render('utilisateurs/add/add.html.twig', [
             'form' => $form->createView(),
-            'typeUtil' => $util
+            'typeUtil' => $user
         ]);
     }
 

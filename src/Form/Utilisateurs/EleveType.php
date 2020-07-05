@@ -7,6 +7,7 @@ use App\Entity\Eleves;
 use App\Entity\Sousgroupes;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -37,13 +38,13 @@ class EleveType extends AbstractType
                 'class' => Classes::class,
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_classe',
-                'expanded'  => true,
+                'expanded' => true,
             ])
             ->add('id_sousgroupe', EntityType::class, [
                 'class' => Sousgroupes::class,
                 'choice_label' => 'nom_sousgroupe',
-                'expanded'  => true,
-                'multiple'  => true,
+                'expanded' => true,
+                'multiple' => true,
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $eleve = $event->getData();
@@ -52,9 +53,15 @@ class EleveType extends AbstractType
                     $form->add('ajout', SubmitType::class, [
                         'label' => "Ajouter"
                     ]);
-                } elseif($form->getName() === "modif"){
+                } elseif ($form->getName() === "modif") {
                     $form->add('submit', SubmitType::class, [
                         'label' => "Modifier"
+                    ])
+                        ->add('close', ButtonType::class, [
+                        'label' => 'Annuler',
+                        'attr' => [
+                            'data-dismiss' => "modal"
+                        ]
                     ]);
                 }
             });

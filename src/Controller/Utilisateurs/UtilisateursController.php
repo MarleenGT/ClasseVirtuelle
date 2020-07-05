@@ -4,6 +4,7 @@
 namespace App\Controller\Utilisateurs;
 
 
+use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
@@ -36,6 +37,8 @@ class UtilisateursController extends AbstractController
                 $query = $this->getDoctrine()->getRepository(Profs::class)->findProfsByPages($limit, $offset, $search);
             } elseif ($user === 'Personnels') {
                 $query = $this->getDoctrine()->getRepository(Personnels::class)->findPersonnelsByPages($limit, $offset, $search);
+            } elseif ($user === 'Admins') {
+                $query = $this->getDoctrine()->getRepository(Admins::class)->findAdminsByPages($limit, $offset, $search);
             } else {
                 return $this->render('utilisateurs/listing.html.twig', [
                     'error' => 'Problème dans la requête'

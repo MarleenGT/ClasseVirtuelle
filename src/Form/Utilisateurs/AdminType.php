@@ -2,7 +2,7 @@
 
 namespace App\Form\Utilisateurs;
 
-use App\Entity\Personnels;
+use App\Entity\Admins;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -12,10 +12,11 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PersonnelType extends AbstractType
+class AdminType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        dump($options);
         $builder
             ->add('id', HiddenType::class, [
                 'mapped' => false,
@@ -30,15 +31,11 @@ class PersonnelType extends AbstractType
                 'mapped' => false,
                 'data' => $options['type']
             ])
-            ->add('poste')
-            ->add('ajout', SubmitType::class, [
-                'label' => "Ajouter"
-            ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                $personnel = $event->getData();
+                $admin = $event->getData();
                 $form = $event->getForm();
 
-                if (!$personnel || null === $personnel->getId()) {
+                if (!$admin || null === $admin->getId()) {
                     $form->add('ajout', SubmitType::class, [
                         'label' => "Ajouter"
                     ]);
@@ -59,7 +56,7 @@ class PersonnelType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Personnels::class,
+            'data_class' => Admins::class,
             'id' => null,
             'type' => ''
         ]);
