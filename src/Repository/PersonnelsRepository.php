@@ -28,7 +28,7 @@ class PersonnelsRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('p')
             ->select($column)
-            ->where("lower(e.nom) LIKE '%".$search."%' OR lower(e.prenom) LIKE '%".$search."%'")
+            ->where("lower(p.nom) LIKE '%".$search."%' OR lower(p.prenom) LIKE '%".$search."%'")
             ->orderBy('p.nom', 'ASC')
             ->groupBy('p.id')
             ->setFirstResult($offset)

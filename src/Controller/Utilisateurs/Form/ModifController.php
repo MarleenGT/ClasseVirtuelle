@@ -68,9 +68,11 @@ class ModifController extends AbstractController
         $prenom = $obj->getPrenom();
         $substrUser = substr($user, 0, strlen($user) - 1);
 
-        return $this->render("utilisateurs/modif.html.twig",[
-            "titre" => "Modification de $nom $prenom ($substrUser)",
-            "form" => $form->createView()
+        return $this->json([
+            "titre" => "Voulez-vous vraiment supprimer $nom $prenom ($substrUser) ?",
+            "form" => $this->render("utilisateurs/delete.html.twig", [
+                "form" => $form->createView()
+            ])
         ]);
     }
 }

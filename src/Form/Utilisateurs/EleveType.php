@@ -48,7 +48,6 @@ class EleveType extends AbstractType
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $eleve = $event->getData();
                 $form = $event->getForm();
-                dump($event);
                 if (!$eleve || null === $eleve->getId()) {
                     $form->add('ajout', SubmitType::class, [
                         'label' => "Ajouter"

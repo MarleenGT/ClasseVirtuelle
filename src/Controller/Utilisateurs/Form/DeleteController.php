@@ -45,7 +45,6 @@ class DeleteController extends AbstractController
             'id' => $id,
             'type' => $user
         ]);
-        dump($request);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -63,9 +62,11 @@ class DeleteController extends AbstractController
         $prenom = $obj->getPrenom();
         $substrUser = substr($user, 0, strlen($user) - 1);
 
-        return $this->render("utilisateurs/delete.html.twig", [
-            "modal" => "Voulez-vous vraiment supprimer $nom $prenom ($substrUser) ?",
-            "submit" => $form->createView()
+        return $this->json([
+            "titre" => "Voulez-vous vraiment supprimer $nom $prenom ($substrUser) ?",
+            "form" => $this->render("utilisateurs/delete.html.twig", [
+                "form" => $form->createView()
+            ])
         ]);
     }
 }

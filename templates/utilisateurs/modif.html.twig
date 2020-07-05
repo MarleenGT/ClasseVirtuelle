@@ -1,16 +1,1 @@
-<div class="modal fade d-block show" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">{{ titre }}</h5>
-            </div>
-            <div class="modal-body">
-                {{ form(form, {'action': path('utilisateurs.modif')}) }}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-primary">Modifier</button>
-            </div>
-        </div>
-    </div>
-</div>
+{{ form(form, {'action': path('utilisateurs.modif')}) }}

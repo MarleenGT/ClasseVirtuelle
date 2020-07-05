@@ -25,8 +25,27 @@
         <button type="button" id="offsetPlus">></button>
         <input id="search" type="search" placeholder="Search" aria-label="Search">
     </form>
+    <div class="modal fade" id="modalCRUD" tabindex="-1" role="dialog" aria-labelledby="modalCRUD" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitre"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="ajax_results">
-        <div id="modalModif"></div>
+
     </div>
 
 {% endblock %}
@@ -40,6 +59,9 @@
         let updateButton = $('.update');
         let deleteButton = $('.delete');
         let search_input = $('#search');
+        let modal = $('#modalCRUD');
+        let modalTitre = $("#modalTitre");
+        let modalBody = $("#modal-body");
 
         let offset = 0;
 
@@ -80,5 +102,28 @@
                 div.html(msg);
             })
         }
+
+        modal.on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget) // Button that triggered the modal
+            let CRUD = button.data('button') // Extract info from data-* attributes
+            let path = "";
+            if (CRUD === "modif") {
+                path = "{{ path('utilisateurs.modif') }}";
+            } else if (CRUD === "suppr") {
+                path = "{{ path('utilisateurs.delete') }}";
+            }
+            $.ajax({
+                url: path,
+                method: "POST",
+                data: {user: button.data('user'), id: button.data('id')}
+            }).done(function (msg) {
+                modalTitre.text(msg.titre)
+                modalBody.html(msg.form.content)
+            })
+        })
+        modal.on('hide.bs.modal', function () {
+            modalTitre.text("")
+            modalBody.html("")
+        })
     </script>
 {% endblock %}

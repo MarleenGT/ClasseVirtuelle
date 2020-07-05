@@ -14,7 +14,6 @@
         {% set col1 = 'Poste' %}
         {% set col2 = '' %}
     {% endif %}
-    <div id="modalDiv"></div>
     <div class="table">
         <div class="tr row">
             <span class=" td col-2 offset-2">Nom</span>
@@ -67,45 +66,15 @@
                         </span>
                 {% endif %}
                 <span class="td col-2">
-                    <button type="button" onclick="modalUpdate(this.value)" class="update"
-                            value="{{ user }}_{{ list.id }}">Modifier</button>
-                    <button type="button" onclick="modalDelete(this.value)" class="delete"
-                            value="{{ user }}_{{ list.id }}">Supprimer</button>
+                    <button type="button"  class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
+                            data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}">Modifier</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
+                            data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}">Supprimer</button>
                 </span>
             </div>
         {% endfor %}
     </div>
 {% endif %}
 <script>
-    function modalUpdate(val) {
-        let user = val.split('_');
-        let modal = $('#modalDiv')
-        $.ajax({
-            url: "{{ path('utilisateurs.modif') }}",
-            method: "POST",
-            data: {user: user[0], id: user[1]}
-        }).done(function (msg) {
-            modal.html(msg);
-        })
 
-        modal.modal('show');
-        $('#updateModal').modal('show');
-    }
-
-    function modalDelete(val) {
-        let user = val.split('_');
-        let modal = $('#modalDiv')
-        $.ajax({
-            url: "{{ path('utilisateurs.delete') }}",
-            method: "POST",
-            data: {user: user[0], id: user[1]}
-        }).done(function (msg) {
-            console.log(modal);
-            console.log(msg);
-            modal.html(msg);
-        })
-
-        modal.modal('show');
-        $('#updateModal').modal('show');
-    }
 </script>

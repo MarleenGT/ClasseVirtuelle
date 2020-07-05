@@ -28,7 +28,7 @@ class CoursRepository extends ServiceEntityRepository
      * @param $id
      * @return cours[] Returns an array of cours objects
      */
-    public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2,int $id) : array
+    public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
     {
         $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
@@ -55,7 +55,7 @@ class CoursRepository extends ServiceEntityRepository
      * @param $heure_fin
      * @return array
      */
-    public function findCoursBySousgroupe(Sousgroupes $sousgroupe,DateTimeInterface $heure_debut,DateTimeInterface $heure_fin) : array
+    public function findCoursBySousgroupe(Sousgroupes $sousgroupe, DateTimeInterface $heure_debut, DateTimeInterface $heure_fin): array
     {
         return $this->createQueryBuilder('c')
             ->leftJoin('c.id_prof', 'p')
@@ -74,7 +74,7 @@ class CoursRepository extends ServiceEntityRepository
      * @param $heure_fin
      * @return array
      */
-    public function findCoursByClasse(Classes $classe,DateTimeInterface $heure_debut,DateTimeInterface $heure_fin) : array
+    public function findCoursByClasse(Classes $classe, DateTimeInterface $heure_debut, DateTimeInterface $heure_fin): array
     {
 //        dump($classe, $heure_fin, $heure_debut);
 //        die();
