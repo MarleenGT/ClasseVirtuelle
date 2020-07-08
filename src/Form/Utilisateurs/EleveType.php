@@ -4,7 +4,6 @@ namespace App\Form\Utilisateurs;
 
 use App\Entity\Classes;
 use App\Entity\Eleves;
-use App\Entity\Sousgroupes;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
@@ -39,12 +38,6 @@ class EleveType extends AbstractType
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_classe',
                 'expanded' => true,
-            ])
-            ->add('id_sousgroupe', EntityType::class, [
-                'class' => Sousgroupes::class,
-                'choice_label' => 'nom_sousgroupe',
-                'expanded' => true,
-                'multiple' => true,
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $eleve = $event->getData();

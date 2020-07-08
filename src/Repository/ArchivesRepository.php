@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Archives;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,7 +26,7 @@ class ArchivesRepository extends ServiceEntityRepository
      * @param $id
      * @return archives[] Returns an array of archives objects
      */
-    public function findCoursByWeekAndByProf($date1, $date2, $id)
+    public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2, int $id)
     {
         $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')

@@ -40,9 +40,9 @@ class CoursController extends AbstractController
             /**
              * Vérification de la date d'archivage pour savoir si les cours à afficher sont dans la table Archives ou Cours
              */
+            dump($archivage, $date_samedi);
             $repository = ($archivage < $date_samedi)? Cours::class : Archives::class;
             $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $session->get('id'));
-
             $mon = [];
             $tue = [];
             $wed = [];
@@ -96,7 +96,8 @@ class CoursController extends AbstractController
     public function index(): Response
     {
         return $this->render('cours/index.html.twig', [
-            'current_menu' => 'cours'
+            'current_menu' => 'cours',
+            'start_hour' => $this->getParameter('startTimeTable')
         ]);
     }
 

@@ -25,7 +25,7 @@
         let plus = $('#datePlus');
         let moins = $('#dateMoins');
         let date = startOfWeek(new Date);
-        date.setHours(8, 0, 0, 0);
+        date.setHours({{ start_hour }}, 0, 0, 0);
         date = Date.parse(date);
 
         $(moins).click(function () {

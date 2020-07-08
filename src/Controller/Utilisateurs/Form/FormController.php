@@ -103,6 +103,8 @@ class FormController extends AbstractController
             return $role->find(2);
         } elseif ($type === 'Personnels') {
             return $role->find(3);
+        } elseif ($type === 'Admins') {
+            return $role->find(4);
         } else {
             return $role->find(1);
         }

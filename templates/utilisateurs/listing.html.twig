@@ -5,79 +5,97 @@
 {% endif %}
 {% if response %}
     {% if user == 'Eleves' %}
-        {% set col1 = 'Classe' %}
-        {% set col2 = 'Sous-groupes' %}
+        {% set col1, col2 = 'Classe', 'Sous-groupes' %}
     {% elseif user == 'Professeurs' %}
-        {% set col1 = 'Classes' %}
-        {% set col2 = 'Matière(s) enseignée(s)' %}
+        {% set col1, col2 = 'Classes', 'Matière(s) enseignée(s)' %}
     {% elseif user == 'Personnels' %}
-        {% set col1 = 'Poste' %}
-        {% set col2 = '' %}
+        {% set col1, col2 = 'Poste', '' %}
+    {% else %}
+        {% set col1, col2 = '', '' %}
     {% endif %}
-    <div class="table">
-        <div class="tr row">
-            <span class=" td col-2 offset-2">Nom</span>
-            <span class=" td col-2">{{ col1 }}</span>
-            <span class=" td col-2">{{ col2 }}</span>
-            <span class=" td col-2"></span>
-        </div>
-        {% for list in response %}
+    <div class="row w-100">
+        <div class="table col-10">
             <div class="tr row">
-                <span class="td nom col-2 offset-2">{{ list.nom }} {{ list.prenom }}</span>
-                {% if user == "Eleves" %}
-                    <span class="td classeEleve col-2">{{ list.classe }}</span>
-                    <div class="td col-2">
-                        {% if list.sousgroupe %}
-                            <ul class="sousgroupe">
-                                {% for sg in list.sousgroupe %}
+                <span class=" td col-2">Nom</span>
+                <span class=" td col-2">{{ col1 }}</span>
+                <span class=" td col-2">{{ col2 }}</span>
+                <span class=" td col-2"></span>
+            </div>
+            {% for list in response %}
+                <div class="tr row" data-id={{ list.id }}>
+                    <span class="td nom col-2">{{ list.nom }} {{ list.prenom }}</span>
+                    {% if user == "Eleves" %}
+                        <span class="td classeEleve col-2">{{ list.classe }}</span>
+                        <div class="td col-2">
+                            {% if list.sousgroupe %}
+                                <ul class="sousgroupe">
+                                    {% for sg in list.sousgroupe %}
+                                        <li>
+                                            {{ sg }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% elseif user == "Professeurs" %}
+                        {% set classe = list.classe|split(',') %}
+                        <div class="td col-2">
+                            <ul class="classeProf">
+                                {% for cl in classe %}
                                     <li>
-                                        {{ sg }}
+                                        {{ cl }}
                                     </li>
                                 {% endfor %}
                             </ul>
-                        {% endif %}
-                    </div>
-                {% elseif user == "Professeurs" %}
-                    {% set classe = list.classe|split(',') %}
-                    <div class="td col-2">
-                        <ul class="classeProf">
-                            {% for cl in classe %}
-                                <li>
-                                    {{ cl }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="td col-2">
-                        <ul class="matiereProf">
-                            {% set matiere = list.matiere|split(',') %}
-                            {% for mat in matiere %}
-                                <li>
-                                    {{ mat }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% elseif user == "Personnels" %}
-                    <div class="td col-2">
-                        <p class="poste">{{ list.poste }}</p>
-                    </div>
-                    <span class="td col-2">
+                        </div>
+                        <div class="td col-2">
+                            <ul class="matiereProf">
+                                {% set matiere = list.matiere|split(',') %}
+                                {% for mat in matiere %}
+                                    <li>
+                                        {{ mat }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% elseif user == "Personnels" %}
+                        <div class="td col-2">
+                            <p class="poste">{{ list.poste }}</p>
+                        </div>
+                        <span class="td col-2">
                         </span>
-                {% elseif user == "Admins" %}
-                    <div class="td col-4">
-                    </div>
-                {% endif %}
-                <span class="td col-2">
-                    <button type="button"  class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
+                    {% elseif user == "Admins" %}
+                        <div class="td col-4">
+                        </div>
+                    {% endif %}
+                    <span class="td col-4">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
                             data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}">Modifier</button>
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
                             data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}">Supprimer</button>
+                    {% if user == "Eleves" %}
+                        <button id="add_{{ list.id }}"
+                                class="btn btn-primary addSousgroupe">Ajouter au sous-groupe</button>
+                    {% endif %}
+                    {% if app.user.roles[0] == 'ROLE_PERSONNEL' %}
+                        {% if user == "Professeurs" %}
+                            <button id="show_{{ list.id }}" class="btn btn-primary profSousgroupe">Ajouter à la liste destinataire</button>
+                        {% endif %}
+                    {% endif %}
                 </span>
-            </div>
-        {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
-{% endif %}
-<script>
 
-</script>
+{% endif %}
+{% block javascripts %}
+    <script>
+        $(".addSousgroupe").bind('click', function () {
+            AddSousgroupe($(this));
+        })
+        $(".profSousgroupe").bind('click', function () {
+            AddProfSousgroupe($(this));
+        })
+    </script>
+{% endblock %}

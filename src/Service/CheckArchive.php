@@ -29,11 +29,9 @@ class CheckArchive extends AbstractController
             if ($remove){
                 $date->setDateDerniereArchive($monday);
                 $entityManager->flush();
-                return $monday;
-            } else {
-                return false;
             }
         }
+        return $date->getDateDerniereArchive();
     }
 
     /**
@@ -73,6 +71,7 @@ class CheckArchive extends AbstractController
             $entityManager->persist($archive);
             $entityManager->remove($cours);
         }
+
         $entityManager->flush();
         return true;
     }

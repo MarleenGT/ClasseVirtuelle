@@ -72,11 +72,17 @@ class Users implements UserInterface
      */
     private $admins;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, mappedBy="Visibilite")
+     */
+    private $sousgroupes_visibles;
+
     public function __construct()
     {
         $this->commentaires_concernes = new ArrayCollection();
         $this->commentaires_ecrits = new ArrayCollection();
         $this->sousgroupes = new ArrayCollection();
+        $this->sousgroupes_visibles = new ArrayCollection();
     }
 
 
@@ -287,6 +293,34 @@ class Users implements UserInterface
         // set the owning side of the relation if necessary
         if ($admins->getIdUser() !== $this) {
             $admins->setIdUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Sousgroupes[]
+     */
+    public function getSousgroupesVisibles(): Collection
+    {
+        return $this->sousgroupes_visibles;
+    }
+
+    public function addSousgroupesVisible(Sousgroupes $sousgroupesVisible): self
+    {
+        if (!$this->sousgroupes_visibles->contains($sousgroupesVisible)) {
+            $this->sousgroupes_visibles[] = $sousgroupesVisible;
+            $sousgroupesVisible->addVisibilite($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSousgroupesVisible(Sousgroupes $sousgroupesVisible): self
+    {
+        if ($this->sousgroupes_visibles->contains($sousgroupesVisible)) {
+            $this->sousgroupes_visibles->removeElement($sousgroupesVisible);
+            $sousgroupesVisible->removeVisibilite($this);
         }
 
         return $this;

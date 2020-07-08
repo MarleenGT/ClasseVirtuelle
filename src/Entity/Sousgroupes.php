@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SousgroupesRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -46,14 +47,26 @@ class Sousgroupes
     private $nom_sousgroupe;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\ManyToMany(targetEntity=Users::class, inversedBy="sousgroupes_visibles")
      */
-    private $global;
+    private $Visibilite;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $validite;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $date_creation;
+
 
     public function __construct()
     {
         $this->cours = new ArrayCollection();
         $this->eleves = new ArrayCollection();
+        $this->Visibilite = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -144,24 +157,62 @@ class Sousgroupes
         return $this;
     }
 
-    public function getGlobal(): ?bool
-    {
-        return $this->global;
-    }
-
-    public function setGlobal(bool $global): self
-    {
-        $this->global = $global;
-
-        return $this;
-    }
-
     /**
      * @return mixed
      */
     public function getArchives()
     {
         return $this->archives;
+    }
+
+    /**
+     * @return Collection|Users[]
+     */
+    public function getVisibilite(): Collection
+    {
+        return $this->Visibilite;
+    }
+
+    public function addVisibilite(Users $visibilite): self
+    {
+        if (!$this->Visibilite->contains($visibilite)) {
+            $this->Visibilite[] = $visibilite;
+        }
+
+        return $this;
+    }
+
+    public function removeVisibilite(Users $visibilite): self
+    {
+        if ($this->Visibilite->contains($visibilite)) {
+            $this->Visibilite->removeElement($visibilite);
+        }
+
+        return $this;
+    }
+
+    public function getValidite(): ?DateTimeInterface
+    {
+        return $this->validite;
+    }
+
+    public function setValidite(DateTimeInterface $validite): self
+    {
+        $this->validite = $validite;
+
+        return $this;
+    }
+
+    public function getDateCreation(): ?DateTimeInterface
+    {
+        return $this->date_creation;
+    }
+
+    public function setDateCreation(DateTimeInterface $date_creation): self
+    {
+        $this->date_creation = $date_creation;
+
+        return $this;
     }
 
 }
