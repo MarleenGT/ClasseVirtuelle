@@ -63,7 +63,8 @@ class ElevesRepository extends ServiceEntityRepository
     public function findElevesBySousgroupe($groupe): array
     {
         return $this->createQueryBuilder('e')
-            ->andWhere('e.id_sousgroupe = :groupe')
+            ->leftJoin('e.id_sousgroupe', 's')
+            ->where('s.id = :groupe')
             ->setParameter('groupe', $groupe->getId())
             ->getQuery()
             ->getResult()

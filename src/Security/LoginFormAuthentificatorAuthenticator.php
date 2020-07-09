@@ -112,7 +112,8 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
                 $query = $this->entityManager->getRepository(Profs::class)->findOneBy(['id_user' => $id]);
                 $request->getSession()->set('id', $query->getId());
                 $request->getSession()->set('classe', $query->getIdClasse());
-                $request->getSession()->set('matiere', $query->getIdMatiere());;
+                $request->getSession()->set('matiere', $query->getIdMatiere());
+                $request->getSession()->set('sousgroupe', $query->getIdUser()->getSousgroupesVisibles());
                 break;
             case 'ROLE_PERSONNEL':
                 $query = $this->entityManager->getRepository(Personnels::class)->findOneBy(['id_user' => $id]);

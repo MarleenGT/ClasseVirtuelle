@@ -5,7 +5,12 @@ namespace App\Controller\Cours;
 
 
 use App\Entity\Archives;
+use App\Entity\Classes;
 use App\Entity\Cours;
+use App\Entity\Eleves;
+use App\Entity\Profs;
+use App\Entity\Sousgroupes;
+use App\Service\CheckSession;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,19 +21,15 @@ class CoursController extends AbstractController
 {
     /**
      * @param Request $request
+     * @param CheckSession $checkSession
      * @return Response
      * @Route("/Cours/ajax", name="cours.ajax", methods={"GET"})
      */
-    public function ajax(Request $request): Response
+    public function ajax(Request $request, CheckSession $checkSession): Response
     {
-        if ($request->hasSession()) {
-            $session = $request->getSession();
-        } else {
-            $this->redirectToRoute('app_logout', [
-                'error' => 'La session a expiré. Veuillez vous reconnecter.'
-            ]);
-        }
+        $session = $checkSession->getSession($request);
         if ($request->isXmlHttpRequest()) {
+            $select = explode("_", $request->query->get('select'));
             $archivage = $session->get('date_archivage');
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
@@ -40,9 +41,20 @@ class CoursController extends AbstractController
             /**
              * Vérification de la date d'archivage pour savoir si les cours à afficher sont dans la table Archives ou Cours
              */
-            dump($archivage, $date_samedi);
+            $role = $this->getUser()->getRoles()[0];
             $repository = ($archivage < $date_samedi)? Cours::class : Archives::class;
-            $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $session->get('id'));
+            if ($role === "ROLE_ELEVE"){
+                $eleve = $this->getDoctrine()->getRepository(Eleves::class)->findOneBy(['id_user' => $this->getUser()->getId()]);
+                $query = $this->findCoursForEleve($eleve, $repository, $date_lundi, $date_samedi);
+            } else {
+                if ($select[0] === 'pr'){
+                    $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $select[1]);
+                } elseif ($select[0] === "cl"){
+                    $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByClasse($date_lundi, $date_samedi, $select[1]);
+                } elseif ($select[0] === "sg"){
+                    $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndBySousgroupe($date_lundi, $date_samedi, $select[1]);
+                }
+            }
             $mon = [];
             $tue = [];
             $wed = [];
@@ -95,9 +107,22 @@ class CoursController extends AbstractController
      */
     public function index(): Response
     {
+        $role = $this->getUser()->getRoles()[0];
+        if ($role === 'ROLE_PERSONNEL' || $role === 'ROLE_ADMIN'){
+            $liste_classe = $this->getDoctrine()->getRepository(Classes::class)->findAll();
+            $liste_sousgroupe = $this->getDoctrine()->getRepository(Sousgroupes::class)->findAll();
+            $liste_prof = $this->getDoctrine()->getRepository(Profs::class)->findAll();
+        } else {
+            $liste_classe = [];
+            $liste_sousgroupe = [];
+            $liste_prof = [];
+        }
         return $this->render('cours/index.html.twig', [
             'current_menu' => 'cours',
-            'start_hour' => $this->getParameter('startTimeTable')
+            'start_hour' => $this->getParameter('startTimeTable'),
+            'liste_classe' => $liste_classe,
+            'liste_sousgroupe' => $liste_sousgroupe,
+            'liste_prof' => $liste_prof
         ]);
     }
 
@@ -108,5 +133,25 @@ class CoursController extends AbstractController
         }
         $parts = explode(':', $val);
         return $parts[0] + floor(($parts[1] / 60) * 100) / 100;
+    }
+
+    private function findCoursForEleve(Eleves $eleve, $repository, $heure_debut, $heure_fin): array
+    {
+        $query = [];
+        $classe = $eleve->getIdClasse();
+        $sousgroupeArray = $eleve->getIdSousgroupe();
+
+        $repo = $this->getDoctrine()->getRepository($repository);
+        $queryClasse = $repo->findCoursByClasse($classe, $heure_debut, $heure_fin);
+        foreach ($queryClasse as $cours){
+            $query[] = $cours;
+        }
+        foreach ($sousgroupeArray as $sousgroupe){
+            $querySousgroupe = $repo->findCoursBySousgroupe($sousgroupe, $heure_debut, $heure_fin);
+            foreach ($querySousgroupe as $cours){
+                $query[] = $cours;
+            }
+        }
+        return $query;
     }
 }

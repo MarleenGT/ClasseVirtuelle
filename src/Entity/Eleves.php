@@ -6,7 +6,6 @@ use App\Repository\ElevesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ElevesRepository::class)
@@ -37,13 +36,13 @@ class Eleves
     private $prenom;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="eleves")
+     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="eleves", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
     private $id_classe;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, inversedBy="eleves")
+     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, inversedBy="eleves", fetch="EAGER")
      */
     private $id_sousgroupe;
 

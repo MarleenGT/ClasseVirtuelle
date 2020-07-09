@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Archives;
+use App\Entity\Classes;
+use App\Entity\Sousgroupes;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -42,15 +44,59 @@ class ArchivesRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /*
-    public function findOneBySomeField($value): ?Archives
+    /**
+     * Les méthodes ci-dessous servent lors de l'ajout d'un cours pour détecter les collisions possibles et pour
+     * déterminer quels cours concernent l'élève au moment de l'affichage de son emploi du temps
+     */
+
+    /**
+     * @param $sousgroupe
+     * @param $heure_debut
+     * @param $heure_fin
+     * @return array
+     */
+    public function findCoursBySousgroupe(Sousgroupes $sousgroupe, DateTimeInterface $heure_debut, DateTimeInterface $heure_fin): array
     {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.id_prof', 'p')
+            ->where('c.heure_debut < :fin AND c.heure_fin > :debut')
+            ->setParameter('debut', $heure_debut)
+            ->setParameter('fin', $heure_fin)
+            ->andWhere('c.id_sousgroupe = :sousgroupe')
+            ->setParameter('sousgroupe', $sousgroupe)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult();
     }
-    */
+
+    /**
+     * @param $classe
+     * @param $heure_debut
+     * @param $heure_fin
+     * @return array
+     */
+    public function findCoursByClasse(Classes $classe, DateTimeInterface $heure_debut, DateTimeInterface $heure_fin): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.id_prof', 'p')
+            ->where('c.heure_debut < :fin AND c.heure_fin > :debut')
+            ->setParameter('debut', $heure_debut)
+            ->setParameter('fin', $heure_fin)
+            ->andWhere('c.id_classe = :classe')
+            ->setParameter('classe', $classe)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $date
+     * @return array
+     */
+    public function findCoursToArchive($date): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.heure_fin < :date')
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult();
+    }
 }

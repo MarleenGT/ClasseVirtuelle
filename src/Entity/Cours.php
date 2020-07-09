@@ -60,6 +60,11 @@ class Cours
      */
     private $date;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $lien;
+
 
     public function getId(): ?int
     {
@@ -158,6 +163,18 @@ class Cours
     public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getLien(): ?string
+    {
+        return $this->lien;
+    }
+
+    public function setLien(string $lien): self
+    {
+        $this->lien = $lien;
 
         return $this;
     }

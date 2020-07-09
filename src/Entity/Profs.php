@@ -65,6 +65,11 @@ class Profs
 
     private $type = 'Professeurs';
 
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $civilite;
+
     public function __construct()
     {
         $this->id_matiere = new ArrayCollection();
@@ -208,6 +213,18 @@ class Profs
     public function setType(string $type)
     {
         $this->type = $type;
+        return $this;
+    }
+
+    public function getCivilite(): ?string
+    {
+        return $this->civilite;
+    }
+
+    public function setCivilite(?string $civilite): self
+    {
+        $this->civilite = $civilite;
+
         return $this;
     }
 }

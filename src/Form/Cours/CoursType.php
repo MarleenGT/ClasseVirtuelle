@@ -10,7 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sousgroupes;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -22,18 +21,34 @@ class CoursType extends AbstractType
     {
         $builder
             ->add('id_prof', HiddenType::class)
-            ->add('id_matiere'
-                , ChoiceType::class, [
-                    'choices' => $options['matieres']
-                    , 'choice_label' => function (Matieres $matiere) {
-                        return $matiere ? $matiere->getNomMatiere() : '';
-                    }]
-            )
+            ->add('typeChoice', ChoiceType::class, [
+                'choices' => [
+                    'Classe' => 'classe',
+                    'Sous-groupe' => 'sousgroupe'
+                ],
+                'label' => 'Pour : ',
+                'mapped' => false,
+                'expanded' => true
+            ])
             ->add('id_classe'
                 , ChoiceType::class, [
                     'choices' => $options['classes']
                     , 'choice_label' => function (Classes $classe) {
                         return $classe ? $classe->getNomClasse() : '';
+                    }]
+            )
+            ->add('id_sousgroupe'
+                , ChoiceType::class, [
+                    'choices' => $options['sousgroupes']
+                    , 'choice_label' => function (Sousgroupes $sousgroupe) {
+                        return $sousgroupe ? $sousgroupe->getNomSousgroupe() : '';
+                    }]
+            )
+            ->add('id_matiere'
+                , ChoiceType::class, [
+                    'choices' => $options['matieres']
+                    , 'choice_label' => function (Matieres $matiere) {
+                        return $matiere ? $matiere->getNomMatiere() : '';
                     }]
             )
             ->add('date', DateType::class, [
@@ -48,23 +63,19 @@ class CoursType extends AbstractType
                 'mapped' => false,
                 'widget' => 'single_text'
             ])
-            ->add('id_sousgroupe', EntityType::class, [
-                'class' => Sousgroupes::class,
-                'choice_label' => 'nom_sousgroupe',
-                'expanded' => true,
-            ])
+            ->add('lien')
             ->add('commentaire')
             ->add('submit', SubmitType::class, [
                 'label' => "Ajouter"
             ]);
-        dump($builder->get('id_matiere'));
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'matieres' => null,
-            'classes' => null
+            'classes' => null,
+            'sousgroupes' => null
         ]);
     }
 }
