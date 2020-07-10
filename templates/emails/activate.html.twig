@@ -1,5 +1,5 @@
 <h1>Bonjour {{ nom ~ ' ' ~ prenom }}!</h1>
 
 <p>
-    Pour activer votre compte sur Classe Virtuelle, veuillez suivre ce <a href="{{ path('account.change', {'email': address, 'token': token}) }}">lien</a>.
+    Pour activer votre compte sur Classe Virtuelle, veuillez suivre ce <a href="{{ url('account.change', {'email': address, 'token': token}) }}">lien</a>.
 </p>

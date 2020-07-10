@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+{% block title 'Listes' %}
+{% block body %}
+    <div class="d-flex justify-content-around">
+        <div id="divClasses">
+            <h2>Classes</h2>
+            <ul id="listeClasses">
+                {% for cl in classes %}
+                    <li>
+                        <span>{{ cl.nomClasse }}</span>
+                        <button class="showEleveClasse" data-id="{{ cl.id }}">Ouvrir la liste d'élèves</button>
+                        <ul class="eleveClasse" data-id="{{ cl.id }}">
+                            {% for eleve in cl.eleves %}
+                                <li>{{ eleve.nom }} {{ eleve.prenom }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="divSousgroupe">
+            {% if role == "ROLE_PROF" %}  <h2>Sous-groupes créés</h2> {% endif %}
+            {% if role != "ROLE_PROF" %} <h2>Sous-groupes</h2>  {% endif %}
+            <ul id="listeSousgroupe">
+                {% for sg in sousgroupes %}
+                    <li>
+                        <span>{{ sg.nomSousgroupe }}</span>
+                        <button class="showEleveSousgroupe" data-id="{{ sg.id }}">Ouvrir la liste d'élèves</button>
+                        <ul class="eleveSousgroupe" data-id="{{ sg.id }}">
+                            {% for eleve in sg.eleves %}
+                                <li>{{ eleve.nom }} {{ eleve.prenom }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        let showEleveSousgroupeList = $(".showEleveSousgroupe");
+        let eleveSousgroupeList = $(".eleveSousgroupe")
+        let showEleveClasseList = $(".showEleveClasse");
+        let eleveClasseList = $(".eleveClasse")
+        $(document).ready(function () {
+            eleveClasseList.hide();
+            eleveSousgroupeList.hide();
+            showEleveClasseList.click(function () {
+                let id = this.dataset.id;
+                let list = $('ul[data-id=' + id + ']')
+                list.toggle();
+                if (list.is(":visible")) {
+                    this.innerText = 'Fermer la liste d\'élèves';
+                } else {
+                    this.innerText = 'Ouvrir la liste d\'élèves';
+                }
+            })
+            showEleveSousgroupeList.click(function () {
+                let id = this.dataset.id;
+                let list = $('ul[data-id=' + id + ']')
+                list.toggle();
+                if (list.is(":visible")) {
+                    this.innerText = 'Fermer la liste d\'élèves';
+                } else {
+                    this.innerText = 'Ouvrir la liste d\'élèves';
+                }
+            })
+        });
+    </script>
+{% endblock %}

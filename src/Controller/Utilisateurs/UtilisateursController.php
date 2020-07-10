@@ -44,10 +44,6 @@ class UtilisateursController extends AbstractController
                     'error' => 'Problème dans la requête'
                 ]);
             }
-            dump($this->render('utilisateurs/listing.html.twig', [
-                'response' => $query,
-                'user' => $user
-            ]));
             return $this->render('utilisateurs/listing.html.twig', [
                 'response' => $query,
                 'user' => $user

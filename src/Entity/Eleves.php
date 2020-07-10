@@ -20,7 +20,7 @@ class Eleves
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity=Users::class, cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\OneToOne(targetEntity=Users::class, cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $id_user;
@@ -36,13 +36,13 @@ class Eleves
     private $prenom;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="eleves", fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="eleves")
      * @ORM\JoinColumn(nullable=false)
      */
     private $id_classe;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, inversedBy="eleves", fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, inversedBy="eleves")
      */
     private $id_sousgroupe;
 
@@ -74,7 +74,6 @@ class Eleves
     {
         return $this->nom;
     }
-
     public function setNom(string $nom): self
     {
         $this->nom = $nom;

@@ -19,9 +19,9 @@ class SousgroupesRepository extends ServiceEntityRepository
         parent::__construct($registry, Sousgroupes::class);
     }
 
-     /**
-      * @return Sousgroupes[] Returns an array of Sousgroupes objects
-      */
+    /**
+     * @return Sousgroupes[] Returns an array of Sousgroupes objects
+     */
 
     public function findSousgroupesByEleve($eleve): array
     {
@@ -29,20 +29,16 @@ class SousgroupesRepository extends ServiceEntityRepository
             ->Where(':eleve MEMBER OF s.eleves')
             ->setParameter('eleve', $eleve)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
 
 
-    /*
-    public function findOneBySomeField($value): ?Sousgroupes
+    public function getSousgroupesCreesByProf($prof)
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
+            ->where('s.id_createur = :id')
+            ->setParameter('id', $prof->getId())
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult();
     }
-    */
 }

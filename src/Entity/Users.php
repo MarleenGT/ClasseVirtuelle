@@ -63,11 +63,6 @@ class Users implements UserInterface
     private $actif = 0;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $salt;
-
-    /**
      * @ORM\OneToOne(targetEntity=Admins::class, mappedBy="id_user", cascade={"persist", "remove"})
      */
     private $admins;
@@ -76,6 +71,11 @@ class Users implements UserInterface
      * @ORM\ManyToMany(targetEntity=Sousgroupes::class, mappedBy="Visibilite", fetch="EAGER")
      */
     private $sousgroupes_visibles;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $token;
 
     public function __construct()
     {
@@ -261,7 +261,7 @@ class Users implements UserInterface
 
     public function getSalt(): ?string
     {
-        return $this->salt;
+        return null;
     }
 
     public function getUsername()
@@ -272,13 +272,6 @@ class Users implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
-    }
-
-    public function setSalt(string $salt): self
-    {
-        $this->salt = $salt;
-
-        return $this;
     }
 
     public function getAdmins(): ?Admins
@@ -322,6 +315,18 @@ class Users implements UserInterface
             $this->sousgroupes_visibles->removeElement($sousgroupesVisible);
             $sousgroupesVisible->removeVisibilite($this);
         }
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
 
         return $this;
     }

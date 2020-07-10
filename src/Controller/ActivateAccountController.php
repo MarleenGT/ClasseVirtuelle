@@ -47,7 +47,9 @@ class ActivateAccountController extends AbstractController
         $token = $session->get('ActivateAccountToken');
         $email = $session->get('ActivateAccountEmail');
         if (null === $token || null === $email) {
-            throw $this->createNotFoundException('Pas d\'email ou de token trouvé pour l\'activation du compte.');
+            return $this->render('errors/exception.html.twig', [
+                'exception' => 'Pas d\'email ou de token trouvé pour l\'activation du compte.'
+            ]);
         }
         if ($email && $token) {
             $query = $this->getDoctrine()->getRepository(Users::class)->findOneBy(['email' => $email]);
@@ -66,7 +68,7 @@ class ActivateAccountController extends AbstractController
                             ->setActif(true);
 
                     } else {
-                        return $this->render("cours/add.html.twig", [
+                        return $this->render("activate_account/activate.html.twig", [
                             "form" => $form->createView(),
                             "error" => "Les 2 mots de passe ne correspondent pas"
                         ]);
@@ -75,9 +77,9 @@ class ActivateAccountController extends AbstractController
                     $entityManager->persist($user);
                     $entityManager->flush();
                     $session->clear();
-                    return $this->redirectToRoute('app_login');
+                    return $this->redirectToRoute('app_logout');
                 }
-                return $this->render("cours/add.html.twig", [
+                return $this->render("activate_account/activate.html.twig", [
                     "form" => $form->createView()
                 ]);
             }

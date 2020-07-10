@@ -22,7 +22,7 @@ class SettingsController extends AbstractController
     public function index()
     {
         return $this->render('settings/settings.html.twig', [
-            'current_menu' => 'settings'
+            'current_menu' => 'settings',
         ]);
     }
 

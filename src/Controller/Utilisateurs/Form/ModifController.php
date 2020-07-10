@@ -10,6 +10,7 @@ use App\Entity\Profs;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
+use App\Service\ActivateAccount;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,10 +20,11 @@ class ModifController extends AbstractController
 {
     /**
      * @param Request $request
+     * @param ActivateAccount $activateAccount
      * @return Response
      * @Route("/Utilisateurs/Modif", name="utilisateurs.modif")
      */
-    public function modif(Request $request)
+    public function modif(Request $request, ActivateAccount $activateAccount)
     {
         if (isset($request->request->all()['modif'])) {
             $modif = $request->request->all()['modif'];
@@ -58,7 +60,16 @@ class ModifController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($obj);
             $entityManager->flush();
-
+            if ($form->getClickedButton() && 'sendEmail' === $form->getClickedButton()->getName()){
+                $error = $activateAccount->sendEmail($obj);
+                if ($error){
+                    return $this->render("utilisateurs/index.html.twig", [
+                        "select" => $user,
+                        'user' => $user,
+                        'error' => $error
+                    ]);
+                }
+            }
             return $this->render("utilisateurs/index.html.twig", [
                 "select" => $user,
                 'user' => $user,
@@ -69,8 +80,8 @@ class ModifController extends AbstractController
         $substrUser = substr($user, 0, strlen($user) - 1);
 
         return $this->json([
-            "titre" => "Voulez-vous vraiment supprimer $nom $prenom ($substrUser) ?",
-            "form" => $this->render("utilisateurs/delete.html.twig", [
+            "titre" => "Modification des informations de $nom $prenom ($substrUser) ?",
+            "form" => $this->render("utilisateurs/modif.html.twig", [
                 "form" => $form->createView()
             ])
         ]);

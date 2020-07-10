@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Archives;
 use App\Entity\Classes;
+use App\Entity\Profs;
 use App\Entity\Sousgroupes;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -26,13 +27,11 @@ class ArchivesRepository extends ServiceEntityRepository
      * @param $date1
      * @param $date2
      * @param $id
-     * @return archives[] Returns an array of archives objects
+     * @return Archives[] Returns an array of Archives objects
      */
-    public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2, int $id)
+    public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
     {
-        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
-            ->select($column)
             ->leftjoin('c.id_classe', 'cl')
             ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')
@@ -43,12 +42,54 @@ class ArchivesRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
+    public function findCoursByWeekAndBySousgroupe(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftjoin('c.id_sousgroupe', 'sg')
+            ->leftjoin('c.id_matiere', 'm')
+            ->where('c.heure_debut BETWEEN :lundi AND :samedi')
+            ->setParameter('lundi', $date1)
+            ->setParameter('samedi', $date2)
+            ->andWhere('c.id_sousgroupe = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+    }
+    public function findCoursByWeekAndByClasse(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftjoin('c.id_classe', 'cl')
+            ->leftjoin('c.id_matiere', 'm')
+            ->where('c.heure_debut BETWEEN :lundi AND :samedi')
+            ->setParameter('lundi', $date1)
+            ->setParameter('samedi', $date2)
+            ->andWhere('c.id_classe = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+    }
     /**
      * Les méthodes ci-dessous servent lors de l'ajout d'un cours pour détecter les collisions possibles et pour
      * déterminer quels cours concernent l'élève au moment de l'affichage de son emploi du temps
      */
 
+    /**
+     * @param Profs $prof
+     * @param DateTimeInterface $heure_debut
+     * @param DateTimeInterface $heure_fin
+     * @return array
+     */
+    public function findCoursByProf(Profs $prof, DateTimeInterface $heure_debut, DateTimeInterface $heure_fin): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.heure_debut < :fin AND c.heure_fin > :debut')
+            ->setParameter('debut', $heure_debut)
+            ->setParameter('fin', $heure_fin)
+            ->andWhere('c.id_prof = :prof')
+            ->setParameter('prof', $prof)
+            ->getQuery()
+            ->getResult();
+    }
     /**
      * @param $sousgroupe
      * @param $heure_debut
@@ -83,19 +124,6 @@ class ArchivesRepository extends ServiceEntityRepository
             ->setParameter('fin', $heure_fin)
             ->andWhere('c.id_classe = :classe')
             ->setParameter('classe', $classe)
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * @param $date
-     * @return array
-     */
-    public function findCoursToArchive($date): array
-    {
-        return $this->createQueryBuilder('c')
-            ->where('c.heure_fin < :date')
-            ->setParameter('date', $date)
             ->getQuery()
             ->getResult();
     }

@@ -1,5 +1,8 @@
 {% extends 'base.html.twig' %}
 {% block title 'Ajout '~typeUtil %}
 {% block body %}
+    {% if error is defined %}
+        <h2>{{ error }}</h2>
+    {% endif %}
     {{ form(form) }}
 {% endblock %}

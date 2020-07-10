@@ -23,7 +23,7 @@ class ActivateAccount
 
     public function sendEmail($task)
     {
-        $id = $task->getIdUser()->getIdentifiant();
+        $token = $task->getIdUser()->getToken();
         $email = (new TemplatedEmail())
             ->from($this->address)
             ->to($task->getIdUser()->getEmail())
@@ -33,7 +33,7 @@ class ActivateAccount
                 'address' => $task->getIdUser()->getEmail(),
                 'nom' => $task->getNom(),
                 'prenom' => $task->getPrenom(),
-                'token' => $id
+                'token' => $token
             ]);
         try {
             $this->mailer->send($email);

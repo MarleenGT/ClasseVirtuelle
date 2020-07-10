@@ -65,10 +65,12 @@ class CoursController extends AbstractController
             $fin = $this->getParameter('endTimeTable');
 
             foreach ($query as $cours) {
-                $date = strtolower($cours['heure_debut']->format('D'));
-                $cours['float_debut'] = ($this->hours_tofloat($cours['heure_debut']->format('H:i')) - $debut) * ($fin - $debut);
-                $cours['float_fin'] = ($this->hours_tofloat($cours['heure_fin']->format('H:i')) - $debut) * ($fin - $debut);
-                ${$date}[] = $cours;
+                $coursArray = [];
+                $coursArray['cours'] = $cours;
+                $date = strtolower($cours->getHeureDebut()->format('D'));
+                $coursArray['float_debut'] = ($this->hours_tofloat($cours->getHeureDebut()->format('H:i')) - $debut) * ($fin - $debut);
+                $coursArray['float_fin'] = ($this->hours_tofloat($cours->getHeureFin()->format('H:i')) - $debut) * ($fin - $debut);
+                ${$date}[] = $coursArray;
             }
             $hours = [];
 

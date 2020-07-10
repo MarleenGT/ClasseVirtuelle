@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Users;
-use App\Form\ChangePasswordFormType;
+use App\Form\ActivateAccount\ChangeIdentifiantType;
 use App\Form\ResetPasswordRequestFormType;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -110,7 +110,7 @@ class ResetPasswordController extends AbstractController
         }
 
         // The token is valid; allow the user to change their password.
-        $form = $this->createForm(ChangePasswordFormType::class);
+        $form = $this->createForm(ChangeIdentifiantType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -122,8 +122,7 @@ class ResetPasswordController extends AbstractController
                 $user,
                 $form->get('plainPassword')->getData()
             );
-
-            $user->setMdp($encodedPassword);
+            $user->setMdp($encodedPassword)->setIdentifiant($form->get('identifiant')->getData());
             $this->getDoctrine()->getManager()->flush();
 
             // The session is cleaned up after the password has been changed.
@@ -163,9 +162,9 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('test@gmail.com', 'ClasseVirtuelleBot'))
+            ->from(new Address('test@gmail.com', 'ClasseVirtuelle'))
             ->to($user->getEmail())
-            ->subject('Your password reset request')
+            ->subject('Réinitialisation du mot de passe')
             ->htmlTemplate('reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,

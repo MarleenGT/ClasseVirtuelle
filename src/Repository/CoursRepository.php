@@ -31,9 +31,7 @@ class CoursRepository extends ServiceEntityRepository
      */
     public function findCoursByWeekAndByProf(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
     {
-        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
-            ->select($column)
             ->leftjoin('c.id_classe', 'cl')
             ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')
@@ -46,9 +44,7 @@ class CoursRepository extends ServiceEntityRepository
     }
     public function findCoursByWeekAndBySousgroupe(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
     {
-        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'sg.nom_sousgroupe as sousgroupe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
-            ->select($column)
             ->leftjoin('c.id_sousgroupe', 'sg')
             ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')
@@ -61,9 +57,7 @@ class CoursRepository extends ServiceEntityRepository
     }
     public function findCoursByWeekAndByClasse(DateTimeInterface $date1, DateTimeInterface $date2, int $id): array
     {
-        $column = ['c.heure_debut', 'c.heure_fin', 'm.nom_matiere as matiere', 'cl.nom_classe as classe', 'c.commentaire'];
         return $this->createQueryBuilder('c')
-            ->select($column)
             ->leftjoin('c.id_classe', 'cl')
             ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')

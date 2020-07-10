@@ -5,7 +5,6 @@
 {% block title 'Emploi du temps' %}
 
 {% block body %}
-    {% set role = app.session.get('role') %}
     <div class="{% if role != 'ROLE_ELEVE' %}row{% endif %}">
         {% if role != 'ROLE_ELEVE' %}
             <div class="col-2">

@@ -8,11 +8,13 @@ use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Entity\Roles;
+use App\Entity\Users;
 use App\Form\Utilisateurs\AdminType;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
 use App\Service\ActivateAccount;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,9 +60,21 @@ class FormController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $task = $form->getData();
-
             $entityManager = $this->getDoctrine()->getManager();
             $addUser = $this->completeUser($task, $user);
+            if (is_string($addUser)){
+                return $this->render('utilisateurs/index.html.twig', [
+                    'error' => "Erreur lors de l'ajout de l'utilisateur : $addUser"
+                ]);
+            }
+            $query = $this->getDoctrine()->getRepository(Users::class)->findBy(['email' => $addUser->getIdUser()->getEmail()]);
+            if ($query){
+                return $this->render('utilisateurs/add/add.html.twig', [
+                    'form' => $form->createView(),
+                    'typeUtil' => $user,
+                    "error" => "L'email renseigné est déjà utilisé."
+                ]);
+            }
             $error = $activateAccount->sendEmail($addUser);
             if ($error) {
                 return $this->render('utilisateurs/index.html.twig', [
@@ -69,7 +83,16 @@ class FormController extends AbstractController
                 ]);
             } else {
                 $entityManager->persist($addUser);
-                $entityManager->flush();
+                try {
+                    $entityManager->flush();
+                } catch (Exception $e) {
+                    return $this->render('utilisateurs/add/add.html.twig', [
+                        'form' => $form->createView(),
+                        'typeUtil' => $user,
+                        "error" => "Erreur lors de l'ajout de l'utilisateur."
+                    ]);
+                }
+
                 $this->addFlash('success', 'Utilisateur ajouté!');
             }
 
@@ -83,16 +106,27 @@ class FormController extends AbstractController
 
     public function completeUser($task, $type)
     {
-        $identifiant = bin2hex(random_bytes(10));
-        $salt = bin2hex(random_bytes(10));
-        $password = bin2hex(random_bytes(10));
+        try {
+            $identifiant = bin2hex(random_bytes(20));
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        try {
+            $password = bin2hex(random_bytes(20));
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        try {
+            $token = bin2hex(random_bytes(20));
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
         $role = $this->getRoleFromTable($type);
-        $task
-            ->getIdUser()
+        $task->getIdUser()
             ->setIdentifiant($identifiant)
             ->setMdp($password)
             ->setIdRole($role)
-            ->setSalt($salt);
+            ->setToken($token);
         return $task;
     }
 
