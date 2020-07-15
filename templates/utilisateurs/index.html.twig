@@ -89,7 +89,6 @@
         let profList = $("#profSousgroupeList");
         let offset = 0;
         let sousgroupeButton = $("button[name = 'sousgroupeAdd']")
-        let temps =
 
             $(moins).click(function () {
                 offset -= 1;
@@ -110,6 +109,7 @@
             AJAX();
         })
         $(select).change(function () {
+            offset = 0;
             AJAX();
         })
         $(limit).change(function () {

@@ -29,10 +29,6 @@ class Roles
      */
     private $users;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Droits::class, mappedBy="id_role")
-     */
-    private $droits;
 
     public function __construct()
     {
@@ -83,34 +79,6 @@ class Roles
             if ($user->getIdRole() === $this) {
                 $user->setIdRole(null);
             }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|droits[]
-     */
-    public function getDroits(): Collection
-    {
-        return $this->droits;
-    }
-
-    public function addDroit(droits $droit): self
-    {
-        if (!$this->droits->contains($droit)) {
-            $this->droits[] = $droit;
-            $droit->addIdRole($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDroit(droits $droit): self
-    {
-        if ($this->droits->contains($droit)) {
-            $this->droits->removeElement($droit);
-            $droit->removeIdRole($this);
         }
 
         return $this;

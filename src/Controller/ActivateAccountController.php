@@ -47,14 +47,11 @@ class ActivateAccountController extends AbstractController
         $token = $session->get('ActivateAccountToken');
         $email = $session->get('ActivateAccountEmail');
         if (null === $token || null === $email) {
-            return $this->render('errors/exception.html.twig', [
-                'exception' => 'Pas d\'email ou de token trouvé pour l\'activation du compte.'
-            ]);
+            return $this->render('security/login.html.twig');
         }
         if ($email && $token) {
             $query = $this->getDoctrine()->getRepository(Users::class)->findOneBy(['email' => $email]);
-            $identifiant = $query->getIdentifiant();
-
+            $identifiant = $query->getToken();
             if (hash_equals($token, $identifiant)) {
                 $form = $this->createForm(ChangeIdentifiantType::class, $query);
                 $form->handleRequest($request);

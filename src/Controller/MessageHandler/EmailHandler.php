@@ -1,13 +1,16 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Controller\MessageHandler;
 
+
+use App\Controller\Message\Email;
+use App\Repository\UsersRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class ActivateAccount
+class EmailHandler implements MessageHandlerInterface
 {
     private $address;
     private $mailer;
@@ -17,25 +20,21 @@ class ActivateAccount
         $this->mailer = $mailer;
         $this->address = $address;
     }
-
-    public function sendEmail($task)
+    public function __invoke(Email $email)
     {
-        $token = $task->getIdUser()->getToken();
+        $user =  $email->getTask()->getIdUser();
+        $token = $user->getToken();
         $email = (new TemplatedEmail())
             ->from($this->address)
-            ->to($task->getIdUser()->getEmail())
+            ->to($user->getEmail())
             ->subject('Activation de compte Classe Virtuelle')
             ->htmlTemplate('emails/activate.html.twig')
             ->context([
-                'address' => $task->getIdUser()->getEmail(),
-                'nom' => $task->getNom(),
-                'prenom' => $task->getPrenom(),
+                'address' => $user->getEmail(),
+                'nom' => $email->getTask()->getNom(),
+                'prenom' => $email->getTask()->getPrenom(),
                 'token' => $token
             ]);
-        try {
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface $e) {
-            return $e;
-        }
     }
 }

@@ -3,32 +3,35 @@
 
 namespace App\Controller\Utilisateurs\Form;
 
+use App\Controller\Message\Email;
+use App\Controller\MessageHandler\EmailHandler;
 use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
-use App\Entity\Roles;
 use App\Entity\Users;
 use App\Form\Utilisateurs\AdminType;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
-use App\Service\ActivateAccount;
+use App\Service\CompleteUser;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-class FormController extends AbstractController
+class AddController extends AbstractController
 {
     /**
      * @param Request $request
-     * @param ActivateAccount $activateAccount
+     * @param EmailHandler $emailHandler
+     * @param CompleteUser $completeUser
      * @return Response
      * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
      */
-    public function add(Request $request, ActivateAccount $activateAccount)
+    public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus)
     {
         if ($request->request->has("typeUtil")) {
             $user = $_POST["typeUtil"];
@@ -61,7 +64,7 @@ class FormController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $task = $form->getData();
             $entityManager = $this->getDoctrine()->getManager();
-            $addUser = $this->completeUser($task, $user);
+            $addUser = $completeUser->completeUser($task, $user);
             if (is_string($addUser)){
                 return $this->render('utilisateurs/index.html.twig', [
                     'error' => "Erreur lors de l'ajout de l'utilisateur : $addUser"
@@ -75,13 +78,16 @@ class FormController extends AbstractController
                     "error" => "L'email renseigné est déjà utilisé."
                 ]);
             }
-            $error = $activateAccount->sendEmail($addUser);
-            if ($error) {
-                return $this->render('utilisateurs/index.html.twig', [
-                    'select' => $user,
-                    'error' => 'L\'email de création de compte n\'a pas pu être envoyé. Veuillez vérifier l\'adresse mail.'
-                ]);
-            } else {
+            $email = new Email();
+            $email->setTask($addUser);
+            $messageBus->dispatch($email);
+
+//            if ($error) {
+//                return $this->render('utilisateurs/index.html.twig', [
+//                    'select' => $user,
+//                    'error' => 'L\'email de création de compte n\'a pas pu être envoyé. Veuillez vérifier l\'adresse mail.'
+//                ]);
+//            } else {
                 $entityManager->persist($addUser);
                 try {
                     $entityManager->flush();
@@ -94,7 +100,7 @@ class FormController extends AbstractController
                 }
 
                 $this->addFlash('success', 'Utilisateur ajouté!');
-            }
+//            }
 
             return $this->redirectToRoute('utilisateurs.index');
         }
@@ -104,43 +110,4 @@ class FormController extends AbstractController
         ]);
     }
 
-    public function completeUser($task, $type)
-    {
-        try {
-            $identifiant = bin2hex(random_bytes(20));
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-        try {
-            $password = bin2hex(random_bytes(20));
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-        try {
-            $token = bin2hex(random_bytes(20));
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-        $role = $this->getRoleFromTable($type);
-        $task->getIdUser()
-            ->setIdentifiant($identifiant)
-            ->setMdp($password)
-            ->setIdRole($role)
-            ->setToken($token);
-        return $task;
-    }
-
-    public function getRoleFromTable($type)
-    {
-        $role = $this->getDoctrine()->getRepository(Roles::class);
-        if ($type === 'Professeurs') {
-            return $role->find(2);
-        } elseif ($type === 'Personnels') {
-            return $role->find(3);
-        } elseif ($type === 'Admins') {
-            return $role->find(4);
-        } else {
-            return $role->find(1);
-        }
-    }
 }

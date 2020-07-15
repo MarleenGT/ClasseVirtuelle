@@ -26,8 +26,41 @@
                 <button type="submit">Changer son email</button>
             </form>
         </li>
-
+        {% if role == "ROLE_ADMIN" %}
+            <li><label for="importSelect">Importer une liste de :</label>
+                <select id="importSelect">
+                    <option name="importClasses">Classes</option>
+                    <option name="importEleves">Élèves</option>
+                    <option name="importProfs">Professeurs</option>
+                </select>
+                <form id="importSelectType" enctype="multipart/form-data" method="POST" action="{{ path('import.import') }}"></form>
+                <p id="caution"></p>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 {% block javascripts %}
+    <script>
+        let importSelect = $("#importSelect");
+        let div = $("#importSelectType");
+        let caution = $("#caution");
+        let file = div.children()
+
+        importSelect.on("change", addInput);
+        $(document).ready(addInput);
+
+        function addInput(){
+            let option = $("option:selected").attr('name');
+            let str = "<input type='file' accept='text/csv' id="+option+" name="+option+"><button type='submit'>Importer le document</button>"
+            // let file = $("#"+option).files();
+            div.html(str);
+            if (option === 'importEleves'){
+                caution.html("Attention : Si une liste d'élèves est importée avec des champs indispensables non remplis (nom, prenom, classe et email), les élèves posant problème ne seront pas ajoutés.");
+            } else if (option === 'importProfs'){
+                caution.html("Attention : Si une liste de professeurs est importée avec des champs indispensables non remplis (nom, prenom, classe et email), les professeurs posant problème ne seront pas ajoutés.");
+            } else {
+                caution.html("");
+            }
+        }
+    </script>
 {% endblock %}

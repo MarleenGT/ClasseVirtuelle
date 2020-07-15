@@ -14,7 +14,8 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: lazy
+            anonymous: true
+            lazy: true
             provider: users_in_memory
             guard:
                 authenticators:
@@ -35,4 +36,5 @@ security:
     access_control:
          - { path: /login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
          - { path: /reset-password, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+         - { path: /Activate, roles: IS_AUTHENTICATED_ANONYMOUSLY }
          - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
