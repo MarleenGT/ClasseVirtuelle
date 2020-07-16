@@ -19,6 +19,7 @@ use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -31,7 +32,7 @@ class AddController extends AbstractController
      * @return Response
      * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
      */
-    public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus)
+    public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus, MailerInterface $mailer)
     {
         if ($request->request->has("typeUtil")) {
             $user = $_POST["typeUtil"];
@@ -81,6 +82,8 @@ class AddController extends AbstractController
             $email = new Email();
             $email->setTask($addUser);
             $messageBus->dispatch($email);
+            $mail = new EmailHandler('test@test.test', $mailer);
+            $mail($email);
 
 //            if ($error) {
 //                return $this->render('utilisateurs/index.html.twig', [
