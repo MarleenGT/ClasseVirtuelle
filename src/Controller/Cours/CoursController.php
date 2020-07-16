@@ -7,6 +7,7 @@ namespace App\Controller\Cours;
 use App\Entity\Archives;
 use App\Entity\Classes;
 use App\Entity\Cours;
+use App\Entity\DateArchive;
 use App\Entity\Eleves;
 use App\Entity\Profs;
 use App\Entity\Sousgroupes;
@@ -30,7 +31,8 @@ class CoursController extends AbstractController
         $session = $checkSession->getSession($request);
         if ($request->isXmlHttpRequest()) {
             $select = explode("_", $request->query->get('select'));
-            $archivage = $session->get('date_archivage');
+            $archivage = $this->getDoctrine()->getRepository(DateArchive::class)->find(1);
+            dump($archivage);
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
             $timeLundi = (int)$request->query->get('date');

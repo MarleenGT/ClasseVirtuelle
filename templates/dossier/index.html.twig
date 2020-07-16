@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+{% block title 'Dossier de '~eleve.prenom~' '~eleve.nom  %}
+{% block body %}
+    {{ dump() }}
+<div class="row">
+
+    <div class="col-3">
+        <div>NOM : {{ eleve.nom }}</div>
+        <div>PRENOM : {{ eleve.prenom }}</div>
+        <div>CLASSE : {{ eleve.idClasse }}</div>
+
+        <button id="toggleCom">Ajouter un commentaire</button>
+        {{ form(form) }}
+    </div>
+    <div class="col-9">
+        <ul id="commentaires">
+            {% for com in commentaires %}
+                <li>
+                    <div>
+                        <p>Ecrit par : {{ com.idAuteur }}</p>
+                        <p>Le : {{ com.date|date("d/m/Y") }} à {{ com.date|date("H:i") }}</p>
+                        <p>{{ com.commentaire }}</p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        toggleCom = $("#toggleCom");
+        form = $("form[name='commentaire']");
+        toggleCom.bind('click', function () {
+            form.toggle();
+            if (form.is(":visible")){
+                toggleCom.text('Annuler');
+            } else {
+                toggleCom.text('Ajouter un commentaire');
+            }
+        })
+        $(document).ready(function () {
+            form.hide();
+        })
+    </script>
+
+{% endblock %}

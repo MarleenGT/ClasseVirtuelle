@@ -93,6 +93,12 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.3"
     },
+    "league/uri-parser": {
+        "version": "1.4.1"
+    },
+    "masterminds/html5": {
+        "version": "2.7.3"
+    },
     "monolog/monolog": {
         "version": "2.0.2"
     },
@@ -567,6 +573,18 @@
         "files": [
             "./config/packages/reset_password.yaml"
         ]
+    },
+    "tgalopin/html-sanitizer": {
+        "version": "1.4.0"
+    },
+    "tgalopin/html-sanitizer-bundle": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "26a72f38eede2c53b5d3ccbed5c150e10a93268d"
+        }
     },
     "twig/extra-bundle": {
         "version": "v3.0.3"

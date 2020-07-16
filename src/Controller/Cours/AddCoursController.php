@@ -30,9 +30,19 @@ class AddCoursController extends AbstractController
     public function add(Request $request, CheckSession $checkSession): Response
     {
         $session = $checkSession->getSession($request);
+
+        /**
+         * Préparation de tableau de matières pour le formulaire
+         */
+        $matieres = [];
+        foreach ($session->get('matiere')->getValues() as $matiere) {
+            $matieres[] = $matiere->getNomMatiere();
+        }
+        $matieres[] = 'Autre';
+
         $cours = new Cours();
         $form = $this->createForm(CoursType::class, $cours, [
-            'matieres' => $session->get('matiere')->getValues(),
+            'matieres' => $matieres,
             'classes' => $session->get('classe')->getValues(),
             'sousgroupes' => $session->get('sousgroupe')->getValues(),
         ]);
@@ -41,7 +51,15 @@ class AddCoursController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('id'));
             $obj = $form->getData();
+            dump($form);
 
+            /**
+             * Ajout de la matière si la selection de la matière dans le formulaire est Autre.
+             */
+
+            if ($form->get('matiere')->getData() === "Autre") {
+                $obj->setMatiere($form->get('autre')->getData());
+            }
             /**
              * Création des objets DateTime pour le début et fin du cours
              */
@@ -92,17 +110,6 @@ class AddCoursController extends AbstractController
                 ]);
             }
 
-            /**
-             * Partie nécessaire pour que les entités Classes et Matières de l'entité Cours soient les mêmes
-             * que celles du prof. Sinon, Doctrine cherche à rajouter des entités supplémentaires dans les tables.
-             */
-            $id_matiere = $obj->getIdMatiere()->getId();
-            foreach ($prof->getIdMatiere()->getValues() as $matiere) {
-                if ($matiere->getId() === $id_matiere) {
-                    $obj->setIdMatiere($matiere);
-                    break;
-                }
-            }
             if ($type === 'classe') {
                 $id_classe = $obj->getIdClasse()->getId();
                 foreach ($prof->getIdClasse()->getValues() as $classe) {
@@ -125,7 +132,10 @@ class AddCoursController extends AbstractController
             try {
                 $verif = $this->verifCours($obj);
             } catch (Exception $e) {
-
+                return $this->render("cours/add.html.twig", [
+                    "form" => $form->createView(),
+                    "error" => "Problème dans la vérification des cours"
+                ]);
             }
 
             if (count($verif['classe']) > 0 || count($verif['sousgroupe']) > 0 || count($verif['prof']) > 0) {

@@ -40,6 +40,11 @@ class Commentaires
      */
     private $commentaire;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $global;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +94,18 @@ class Commentaires
     public function setCommentaire(string $commentaire): self
     {
         $this->commentaire = $commentaire;
+
+        return $this;
+    }
+
+    public function getGlobal(): ?bool
+    {
+        return $this->global;
+    }
+
+    public function setGlobal(bool $global): self
+    {
+        $this->global = $global;
 
         return $this;
     }

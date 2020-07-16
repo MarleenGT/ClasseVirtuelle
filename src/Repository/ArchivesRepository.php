@@ -33,7 +33,6 @@ class ArchivesRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->leftjoin('c.id_classe', 'cl')
-            ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')
             ->setParameter('lundi', $date1)
             ->setParameter('samedi', $date2)
@@ -46,7 +45,6 @@ class ArchivesRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->leftjoin('c.id_sousgroupe', 'sg')
-            ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')
             ->setParameter('lundi', $date1)
             ->setParameter('samedi', $date2)
@@ -59,7 +57,6 @@ class ArchivesRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->leftjoin('c.id_classe', 'cl')
-            ->leftjoin('c.id_matiere', 'm')
             ->where('c.heure_debut BETWEEN :lundi AND :samedi')
             ->setParameter('lundi', $date1)
             ->setParameter('samedi', $date2)

@@ -16,7 +16,6 @@ class CheckArchive extends AbstractController
 {
     /**
      * Vérifie la date du dernier archivage des cours et lance l'archivage si besoin.
-     * @return bool|string
      */
     public function check()
     {
@@ -31,7 +30,6 @@ class CheckArchive extends AbstractController
                 $entityManager->flush();
             }
         }
-        return $date->getDateDerniereArchive();
     }
 
     /**
@@ -57,6 +55,7 @@ class CheckArchive extends AbstractController
 
     /**
      * @param DateTime $today
+     * @return bool
      */
     private function remove(DateTime $today)
     {

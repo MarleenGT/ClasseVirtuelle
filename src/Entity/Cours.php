@@ -50,10 +50,9 @@ class Cours
     private $commentaire;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Matieres::class, inversedBy="cours")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\Column(type="string", length=40)
      */
-    private $id_matiere;
+    private $matiere;
 
     /**
      * @ORM\Column(type="datetime")
@@ -143,17 +142,17 @@ class Cours
         return $this;
     }
 
-    public function getIdMatiere(): ?matieres
+    public function getMatiere(): ?string
     {
-        return $this->id_matiere;
+        return $this->matiere;
     }
 
-    public function setIdMatiere(?matieres $id_matiere): self
+    public function setMatiere(string $matiere): self
     {
-        $this->id_matiere = $id_matiere;
-
+        $this->matiere = $matiere;
         return $this;
     }
+
 
     public function getDate(): ?DateTimeInterface
     {

@@ -51,10 +51,6 @@ class Sousgroupes
      */
     private $Visibilite;
 
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $validite;
 
     /**
      * @ORM\Column(type="date")
@@ -187,18 +183,6 @@ class Sousgroupes
         if ($this->Visibilite->contains($visibilite)) {
             $this->Visibilite->removeElement($visibilite);
         }
-
-        return $this;
-    }
-
-    public function getValidite(): ?DateTimeInterface
-    {
-        return $this->validite;
-    }
-
-    public function setValidite(DateTimeInterface $validite): self
-    {
-        $this->validite = $validite;
 
         return $this;
     }

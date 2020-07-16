@@ -44,13 +44,7 @@ class AddSousGroupe extends AbstractController
                 'error' => 'Aucun professeur n\'a été ajouté dans le sous-groupe.'
             ]);
         }
-        try {
-            $temps_validite = new DateInterval("P".(int)$request->request->get('temps')."D");
-        } catch (Exception $e) {
-            return $this->json([
-                'error' => 'Problème lors de la vérification du temps de validité du sous-groupe.'
-            ]);
-        }
+
         if ($request->isXmlHttpRequest()) {
             $entityManager = $this->getDoctrine()->getManager();
             $createur = $this->getUser();
@@ -69,10 +63,7 @@ class AddSousGroupe extends AbstractController
                 }
             }
             $date_creation = new DateTime();
-            $date_validite = new DateTime();
-            $date_validite->add($temps_validite);
-            dump($date_validite, $date_creation);
-            $sousgroupe->setDateCreation($date_creation)->setValidite($date_validite);
+            $sousgroupe->setDateCreation($date_creation);
             $entityManager->persist($sousgroupe);
             $entityManager->flush();
             return $this->json([

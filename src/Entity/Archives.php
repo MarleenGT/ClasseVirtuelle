@@ -50,10 +50,9 @@ class Archives
     private $id_sousgroupe;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Matieres::class, inversedBy="archives")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\Column(type="string", length=40)
      */
-    private $id_matiere;
+    private $matiere;
 
     /**
      * @ORM\Column(type="datetime")
@@ -137,15 +136,14 @@ class Archives
         return $this;
     }
 
-    public function getIdMatiere(): ?int
+    public function getMatiere(): ?string
     {
-        return $this->id_matiere;
+        return $this->matiere;
     }
 
-    public function setIdMatiere(int $id_matiere): self
+    public function setMatiere(string $matiere): self
     {
-        $this->id_matiere = $id_matiere;
-
+        $this->matiere = $matiere;
         return $this;
     }
 

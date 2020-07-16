@@ -32,7 +32,7 @@ class AddController extends AbstractController
      * @return Response
      * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
      */
-    public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus, MailerInterface $mailer)
+    public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus)
     {
         if ($request->request->has("typeUtil")) {
             $user = $_POST["typeUtil"];
@@ -82,8 +82,6 @@ class AddController extends AbstractController
             $email = new Email();
             $email->setTask($addUser);
             $messageBus->dispatch($email);
-            $mail = new EmailHandler('test@test.test', $mailer);
-            $mail($email);
 
 //            if ($error) {
 //                return $this->render('utilisateurs/index.html.twig', [
@@ -101,7 +99,6 @@ class AddController extends AbstractController
                         "error" => "Erreur lors de l'ajout de l'utilisateur."
                     ]);
                 }
-
                 $this->addFlash('success', 'Utilisateur ajouté!');
 //            }
 

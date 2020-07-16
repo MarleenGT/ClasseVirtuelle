@@ -30,24 +30,6 @@ class Matieres
     private $profs;
 
     /**
-     * @return mixed
-     */
-    public function getArchives()
-    {
-        return $this->archives;
-    }
-
-    /**
-     * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_matiere")
-     */
-    private $cours;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_matiere")
-     */
-    private $archives;
-
-    /**
      * @ORM\Column(type="string", length=10)
      */
     private $libelle;
@@ -98,37 +80,6 @@ class Matieres
         if ($this->profs->contains($prof)) {
             $this->profs->removeElement($prof);
             $prof->removeIdMatiere($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Cours[]
-     */
-    public function getCours(): Collection
-    {
-        return $this->cours;
-    }
-
-    public function addCour(Cours $cour): self
-    {
-        if (!$this->cours->contains($cour)) {
-            $this->cours[] = $cour;
-            $cour->setIdMatiere($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCour(Cours $cour): self
-    {
-        if ($this->cours->contains($cour)) {
-            $this->cours->removeElement($cour);
-            // set the owning side to null (unless already changed)
-            if ($cour->getIdMatiere() === $this) {
-                $cour->setIdMatiere(null);
-            }
         }
 
         return $this;

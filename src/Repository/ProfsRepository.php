@@ -25,7 +25,7 @@ class ProfsRepository extends ServiceEntityRepository
 
     public function findProfsByPages($limit, $offset, $search)
     {
-        $column = ['p.id', 'p.nom', 'p.prenom', 'GROUP_CONCAT(DISTINCT c.nom_classe) as classe', 'GROUP_CONCAT(DISTINCT m.nom_matiere) as matiere'];
+        $column = ['p.id', 'p.nom', 'p.prenom', 'p.civilite', 'GROUP_CONCAT(DISTINCT c.nom_classe) as classe', 'GROUP_CONCAT(DISTINCT m.nom_matiere) as matiere'];
 
         return $this->createQueryBuilder('p')
             ->select($column)

@@ -4,9 +4,9 @@
 namespace App\Form\Cours;
 
 use App\Entity\Classes;
-use App\Entity\Matieres;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sousgroupes;
@@ -19,6 +19,7 @@ class CoursType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        dump($options['matieres']);
         $builder
             ->add('id_prof', HiddenType::class)
             ->add('typeChoice', ChoiceType::class, [
@@ -44,12 +45,17 @@ class CoursType extends AbstractType
                         return $sousgroupe ? $sousgroupe->getNomSousgroupe() : '';
                     }]
             )
-            ->add('id_matiere'
+            ->add('matiere'
                 , ChoiceType::class, [
                     'choices' => $options['matieres']
-                    , 'choice_label' => function (Matieres $matiere) {
-                        return $matiere ? $matiere->getNomMatiere() : '';
+                    , 'choice_label' => function ($matiere) {
+                        return $matiere;
                     }]
+            )
+            ->add('autre',
+                TextType::class, [
+                    'mapped' => false
+                ]
             )
             ->add('date', DateType::class, [
                 'mapped' => false,

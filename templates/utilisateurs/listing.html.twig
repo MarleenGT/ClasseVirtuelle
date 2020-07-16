@@ -13,17 +13,18 @@
     {% else %}
         {% set col1, col2 = '', '' %}
     {% endif %}
-    <div class="row w-100">
-        <div class="table col-10">
+    <div class="w-100">
+        <div class="table">
             <div class="tr row">
                 <span class=" td col-2">Nom</span>
                 <span class=" td col-2">{{ col1 }}</span>
                 <span class=" td col-2">{{ col2 }}</span>
                 <span class=" td col-2"></span>
-            </div>
+            </div>{{ dump(response) }}
             {% for list in response %}
+
                 <div class="tr row" data-id={{ list.id }}>
-                    <span class="td nom col-2">{{ list.nom }} {{ list.prenom }}</span>
+                    <span class="td nom col-2">{% if user == "Professeurs" %}{{list.civilite}}{% endif %} {{ list.nom }} {{ list.prenom }}</span>
                     {% if user == "Eleves" %}
                         <span class="td classeEleve col-2">{{ list.classe }}</span>
                         <div class="td col-2">
@@ -69,20 +70,28 @@
                         </div>
                     {% endif %}
                     <span class="td col-4">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
-                            data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}">Modifier</button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCRUD"
-                            data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}">Supprimer</button>
-                    {% if user == "Eleves" %}
-                        <button id="add_{{ list.id }}"
-                                class="btn btn-primary addSousgroupe">Ajouter au sous-groupe</button>
-                    {% endif %}
-                    {% if app.user.roles[0] == 'ROLE_PERSONNEL' %}
-                        {% if user == "Professeurs" %}
-                            <button id="show_{{ list.id }}" class="btn btn-primary profSousgroupe">Ajouter à la liste destinataire</button>
+                        {% if user == "Eleves" %}
+                            <form method="POST"
+                                  action="{{ path('dossier.index', {id: list.id, nom: list.nom, prenom: list.prenom}) }}">
+                                <button type="submit" data-id="{{ list.id }}">Dossier</button>
+                            </form>
+
                         {% endif %}
-                    {% endif %}
-                </span>
+                        <button type="button" class="" data-toggle="modal" data-target="#modalCRUD"
+                                data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}">Modifier</button>
+                        <button type="button" class="" data-toggle="modal" data-target="#modalCRUD"
+                                data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}">Supprimer</button>
+                        {% if user == "Eleves" %}
+                            <button id="add_{{ list.id }}"
+                                    class="addSousgroupe">Ajouter au sous-groupe</button>
+                        {% endif %}
+                        {% if app.user.roles[0] == 'ROLE_PERSONNEL' or app.user.roles[0] == 'ROLE_ADMIN' %}
+                            {% if user == "Professeurs" %}
+                                <button id="show_{{ list.id }}"
+                                        class="profSousgroupe">Ajouter à la liste destinataire</button>
+                            {% endif %}
+                        {% endif %}
+                    </span>
                 </div>
             {% endfor %}
         </div>
@@ -91,6 +100,17 @@
 {% endif %}
 {% block javascripts %}
     <script>
+        $("#sousgroupeToggle").bind('click', function () {
+            let field = $(".sousgroupeField")
+            field.toggle();
+            if (field.is(":visible")) {
+                $(".addSousgroupe").show();
+                $(".profSousgroupe").show();
+            } else {
+                $(".addSousgroupe").hide();
+                $(".profSousgroupe").hide();
+            }
+        })
         $(".addSousgroupe").bind('click', function () {
             AddSousgroupe($(this));
         })
