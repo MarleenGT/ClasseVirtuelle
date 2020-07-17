@@ -19,7 +19,6 @@ class CoursType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        dump($options['matieres']);
         $builder
             ->add('id_prof', HiddenType::class)
             ->add('typeChoice', ChoiceType::class, [
@@ -54,7 +53,8 @@ class CoursType extends AbstractType
             )
             ->add('autre',
                 TextType::class, [
-                    'mapped' => false
+                    'mapped' => false,
+                    'required' => false
                 ]
             )
             ->add('date', DateType::class, [

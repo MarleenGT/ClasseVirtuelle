@@ -30,20 +30,16 @@ class AddCoursController extends AbstractController
     public function add(Request $request, CheckSession $checkSession): Response
     {
         $session = $checkSession->getSession($request);
-
         /**
          * Préparation de tableau de matières pour le formulaire
          */
-        $matieres = [];
-        foreach ($session->get('matiere')->getValues() as $matiere) {
-            $matieres[] = $matiere->getNomMatiere();
-        }
+        $matieres = $session->get('matiere');
         $matieres[] = 'Autre';
 
         $cours = new Cours();
         $form = $this->createForm(CoursType::class, $cours, [
             'matieres' => $matieres,
-            'classes' => $session->get('classe')->getValues(),
+            'classes' => $session->get('classe'),
             'sousgroupes' => $session->get('sousgroupe')->getValues(),
         ]);
         $form->handleRequest($request);
@@ -51,7 +47,6 @@ class AddCoursController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('id'));
             $obj = $form->getData();
-            dump($form);
 
             /**
              * Ajout de la matière si la selection de la matière dans le formulaire est Autre.

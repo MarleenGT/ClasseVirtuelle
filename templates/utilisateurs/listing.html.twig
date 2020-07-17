@@ -1,5 +1,5 @@
 {% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/listing.css') }}">{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Utilisateurs/listing.css') }}">{% endblock %}
 {% if error is defined %}
     <div class="error">{{ error }}</div>
 {% endif %}
@@ -13,6 +13,7 @@
     {% else %}
         {% set col1, col2 = '', '' %}
     {% endif %}
+
     <div class="w-100">
         <div class="table">
             <div class="tr row">
@@ -20,7 +21,7 @@
                 <span class=" td col-2">{{ col1 }}</span>
                 <span class=" td col-2">{{ col2 }}</span>
                 <span class=" td col-2"></span>
-            </div>{{ dump(response) }}
+            </div>
             {% for list in response %}
 
                 <div class="tr row" data-id={{ list.id }}>

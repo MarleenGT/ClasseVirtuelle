@@ -20,7 +20,7 @@ class Profs
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity=Users::class, cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\OneToOne(targetEntity=Users::class, cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $id_user;
@@ -36,7 +36,7 @@ class Profs
     private $prenom;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Matieres::class, inversedBy="profs", fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity=Matieres::class, inversedBy="profs")
      */
     private $id_matiere;
 
@@ -59,7 +59,7 @@ class Profs
     }
 
     /**
-     * @ORM\ManyToMany(targetEntity=Classes::class, inversedBy="profs", fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity=Classes::class, inversedBy="profs")
      */
     private $id_classe;
 

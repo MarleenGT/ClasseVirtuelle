@@ -4,7 +4,6 @@
 namespace App\Controller\Utilisateurs\Form;
 
 use App\Controller\Message\Email;
-use App\Controller\MessageHandler\EmailHandler;
 use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
@@ -19,7 +18,6 @@ use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -27,8 +25,8 @@ class AddController extends AbstractController
 {
     /**
      * @param Request $request
-     * @param EmailHandler $emailHandler
      * @param CompleteUser $completeUser
+     * @param MessageBusInterface $messageBus
      * @return Response
      * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
      */

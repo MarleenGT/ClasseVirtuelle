@@ -28,11 +28,9 @@ class CoursController extends AbstractController
      */
     public function ajax(Request $request, CheckSession $checkSession): Response
     {
-        $session = $checkSession->getSession($request);
         if ($request->isXmlHttpRequest()) {
             $select = explode("_", $request->query->get('select'));
-            $archivage = $this->getDoctrine()->getRepository(DateArchive::class)->find(1);
-            dump($archivage);
+            $archivage = $this->getDoctrine()->getRepository(DateArchive::class)->find(1)->getDateDerniereArchive();
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
             $timeLundi = (int)$request->query->get('date');
@@ -50,7 +48,12 @@ class CoursController extends AbstractController
                 $query = $this->findCoursForEleve($eleve, $repository, $date_lundi, $date_samedi);
             } else {
                 if ($select[0] === 'pr'){
-                    $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $select[1]);
+                    if ($role === "ROLE_PROF"){
+                        $profId = $this->getDoctrine()->getRepository(Profs::class)->findOneBy(['id_user' => $this->getUser()->getId()])->getId();
+                    } else {
+                        $profId = $select[1];
+                    }
+                    $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByProf($date_lundi, $date_samedi, $profId);
                 } elseif ($select[0] === "cl"){
                     $query = $this->getDoctrine()->getRepository($repository)->findCoursByWeekAndByClasse($date_lundi, $date_samedi, $select[1]);
                 } elseif ($select[0] === "sg"){
@@ -81,7 +84,7 @@ class CoursController extends AbstractController
                     'error' => 'Problème dans les paramètres d\'affichage. Contactez l\'administrateur.'
                 ]);
             }
-            for ($i = $debut; $i <= $fin; $i++) {
+            for ($i = $debut; $i < $fin; $i++) {
                 $hours[] = $i.'h';
             }
             return $this->render('cours/content.html.twig', [

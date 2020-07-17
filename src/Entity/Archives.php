@@ -64,12 +64,12 @@ class Archives
         return $this->id;
     }
 
-    public function getIdProf(): ?int
+    public function getIdProf(): ?Profs
     {
         return $this->id_prof;
     }
 
-    public function setIdProf(int $id_prof): self
+    public function setIdProf(Profs $id_prof): self
     {
         $this->id_prof = $id_prof;
 
@@ -112,24 +112,24 @@ class Archives
         return $this;
     }
 
-    public function getIdClasse(): ?int
+    public function getIdClasse(): ?Classes
     {
         return $this->id_classe;
     }
 
-    public function setIdClasse(?int $id_classe): self
+    public function setIdClasse(?Classes $id_classe): self
     {
         $this->id_classe = $id_classe;
 
         return $this;
     }
 
-    public function getIdSousgroupe(): ?int
+    public function getIdSousgroupe(): ?Sousgroupes
     {
         return $this->id_sousgroupe;
     }
 
-    public function setIdSousgroupe(?int $id_sousgroupe): self
+    public function setIdSousgroupe(?Sousgroupes $id_sousgroupe): self
     {
         $this->id_sousgroupe = $id_sousgroupe;
 

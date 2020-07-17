@@ -19,10 +19,10 @@ class MatieresRepository extends ServiceEntityRepository
         parent::__construct($registry, Matieres::class);
     }
 
-    // /**
-    //  * @return matieres[] Returns an array of Matieres objects
-    //  */
-    /*
+     /**
+      * @return matieres[] Returns an array of Matieres objects
+      */
+
     public function findByExampleField($value)
     {
         return $this->createQueryBuilder('m')
@@ -34,5 +34,5 @@ class MatieresRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
-    */
+
 }

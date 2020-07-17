@@ -1,17 +1,16 @@
 {% extends 'base.html.twig' %}
 {% block stylesheets %}
-    <link href="">
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Cours/affichage_emploi_du_temps.css') }}">
 {% endblock %}
 {% block title 'Emploi du temps' %}
-
 {% block body %}
-    <div class="{% if role != 'ROLE_ELEVE' %}row{% endif %}">
+    <div class="container-fluid">
         {% if role != 'ROLE_ELEVE' %}
-            <div class="col-2">
-
+            <div class="cours_head">
                 {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
                     <div id="selectDiv">
-                        <input type="radio" name="select" id="selectChoice1" value="select_prof"><label for="selectChoice1">Professeurs</label>
+                        <input type="radio" name="select" id="selectChoice1" value="select_prof"><label
+                                for="selectChoice1">Professeurs</label>
                         <input type="radio" name="select" id="selectChoice2" value="select_classe"><label
                                 for="selectChoice2">Classes</label>
                         <input type="radio" name="select" id="selectChoice3" value="select_sousgroupe"><label
@@ -20,44 +19,49 @@
                     <label for="select">Choix de l'emploi du temps à afficher</label>
                     <select id="select">
                         {% for prof in liste_prof %}
-                            <option value="pr_{{ prof.id }}" class="select_prof">{{ prof.civilite }} {{ prof.nom }} {{ prof.prenom }}</option>
+                            <option value="pr_{{ prof.id }}"
+                                    class="select_prof">{{ prof.civilite }} {{ prof.nom }} {{ prof.prenom }}</option>
                         {% endfor %}
                         {% for classe in liste_classe %}
                             <option value="cl_{{ classe.id }}" class="select_classe">{{ classe.nomClasse }}</option>
                         {% endfor %}
                         {% for sousgroupe in liste_sousgroupe %}
-                            <option value="sg_{{ sousgroupe.id }}" class="select_sousgroupe">{{ sousgroupe.nomSousgroupe }}</option>
+                            <option value="sg_{{ sousgroupe.id }}"
+                                    class="select_sousgroupe">{{ sousgroupe.nomSousgroupe }}</option>
                         {% endfor %}
                     </select>
                 {% endif %}
                 {% if role == 'ROLE_PROF' %}
-                    <form action="{{ path('cours.add') }}" method="post">
-                        <button type="submit" name="ajouter">Ajouter un cours</button>
-                    </form>
-                    <label for="select">Choix de l'emploi du temps à afficher</label>
-                    <select id="select">
-                        <option value="pr_{{ app.session.get('id') }}">Emploi du temps personnel</option>
-                        <optgroup label="Classes">
-                            {% for classe in app.session.get('classe') %}
-                                <option value="cl_{{ classe.id }}">{{ classe.nomClasse }}</option>
-                            {% endfor %}
-                        </optgroup>
-                        <optgroup label="Sous-groupes">
-                            {% for sousgroupe in app.session.get('sousgroupe') %}
-                                <option value="sg_{{ sousgroupe.id }}">{{ sousgroupe.nomSousgroupe }}</option>
-                            {% endfor %}
-                        </optgroup>
-                    </select>
+                    <div>
+                        <label for="select">Choix de l'emploi du temps à afficher</label>
+                        <select id="select">
+                            <option value="pr_{{ app.session.get('id') }}">Emploi du temps personnel</option>
+                            <optgroup label="Classes">
+                                {% for classe in app.session.get('classe') %}
+                                    <option value="cl_{{ classe.id }}">{{ classe.nomClasse }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="Sous-groupes">
+                                {% for sousgroupe in app.session.get('sousgroupe') %}
+                                    <option value="sg_{{ sousgroupe.id }}">{{ sousgroupe.nomSousgroupe }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select>
+                    </div>
+                        <form action="{{ path('cours.add') }}" method="post">
+                            <button class="btn-primary btn" type="submit" name="ajouter">Ajouter un cours</button>
+                        </form>
                 {% endif %}
             </div>
+            <div class="semaine_btn">
+                <button class="btn btn-secondary" type="button" id="dateMoins"><</button>
+                <button class="btn btn-secondary" type="button" id="datePlus">></button>
+            </div>
         {% endif %}
-        <div id="calendrier" class="{% if role != 'ROLE_ELEVE' %}col-10{% endif %}">
-        </div>
-        <div class="{% if role != 'ROLE_ELEVE' %}offset-2{% endif %}">
-            <button type="button" id="dateMoins">Semaine précédente</button>
-            <button type="button" id="datePlus">Semaine suivante</button>
+        <div id="calendrier">
         </div>
     </div>
+
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -81,6 +85,7 @@
             AJAX();
         })
         select.on('change', AJAX)
+
         function AJAX() {
             $.ajax({
                 url: "{{ path('cours.ajax') }}",
@@ -91,6 +96,7 @@
 
             })
         }
+
         $(document).ready(function () {
             {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
             radioProf.prop('checked', true);
@@ -101,15 +107,16 @@
             {% endif %}
             AJAX();
         })
-        $("#selectDiv").on('change', function(button){
+        $("#selectDiv").on('change', function (button) {
             changeSelect(button);
         })
+
         function changeSelect(button) {
             let value = button.target.value;
             let array = ['select_prof', 'select_classe', 'select_sousgroupe']
-            array.forEach(function(elem){
-                let classCheck = $("."+elem);
-                if (elem === value){
+            array.forEach(function (elem) {
+                let classCheck = $("." + elem);
+                if (elem === value) {
                     classCheck.show()
                     classCheck.first().attr("selected", true);
                 } else {
@@ -119,6 +126,7 @@
             })
             AJAX();
         }
+
         function startOfWeek(date) {
             let diff = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
             return new Date(date.setDate(diff));

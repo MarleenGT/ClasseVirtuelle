@@ -1,30 +1,31 @@
-<h1>Emploi du temps du {{ date_lundi|date("d/m") }} au {{ date_samedi|date("d/m") }}</h1>
-{#{{ dump(lundi, mardi, mercredi, jeudi, vendredi, samedi, debut_affichage) }}#}
-{{ dump() }}
+{% block stylesheets %}
+{#    <link rel="stylesheet" type="text/css" href="{{ asset('css/Cours/affichage_emploi_du_temps.css') }}">#}
+{% endblock %}
+{% set role = app.session.get('role') %}
+<h1 class="titre_edt">Emploi du temps du {{ date_lundi|date("d/m") }} au {{ date_samedi|date("d/m") }}</h1>
 <table class="emploiDuTemps w-100">
     <thead>
     <tr>
-        <td></td>
-        <td>Lundi</td>
-        <td>Mardi</td>
-        <td>Mercredi</td>
-        <td>Jeudi</td>
-        <td>Vendredi</td>
-        <td>Samedi</td>
+        <td class="colonne_heure"></td>
+        <td class="jour">Lundi</td>
+        <td class="jour">Mardi</td>
+        <td class="jour">Mercredi</td>
+        <td class="jour">Jeudi</td>
+        <td class="jour">Vendredi</td>
+        <td class="jour">Samedi</td>
     </tr>
     </thead>
     <tbody>
     {% set jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'] %}
     <tr>
-        <td>{{ hours[0] }}</td>
+        <td class="heure">{{ hours[0] }}</td>
         {% for jour in jours %}
-            <td id="{{ jour }}" rowspan="0" style="position: relative">
-                <div style="position: absolute; top: 0; bottom: 0; left: 0; right: 0">
+            <td class="colonne_jour" id="{{ jour }}" rowspan="0" style="position: relative">
+                <div class="contenu {{ jour }}" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0">
                     {% for cours in _context[jour] %}
-
-                    <div class="cours" style="width: 100%; position: absolute; top: {{ cours.float_debut }}%; height: {{ cours.float_fin - cours.float_debut }}%;">
-                        {{ cours.float_debut ~ cours.float_fin }}
-                    </div>
+                        <div class="cours" style="width: 100%; position: absolute; top: {{ cours.float_debut }}%; height: {{ cours.float_fin - cours.float_debut }}%;">
+                            <p>{{ cours['cours'].matiere }} de {{ cours['cours'].heureDebut|date("H:i") }} à {{ cours['cours'].heureFin|date("H:i") }}{% if role != "ROLE_ELEVE" %} ({{ cours['cours'].idProf.nom }} {{ cours['cours'].idProf.prenom }}) {% endif %}</p>
+                        </div>
                 {% endfor %}
                 </div>
             </td>
@@ -32,9 +33,24 @@
         {% for key, hour in hours %}
         <tr>
             {% if key > 0 %}
-                <td>{{ hour }}</td>
+                <td class="heure">{{ hour }}</td>
             {% endif %}
         </tr>
     {% endfor %}
     </tbody>
 </table>
+
+{#{% block javascripts %}#}
+{#    <script>#}
+{#        let plus = $('#datePlus');#}
+{#        let moins = $('#dateMoins');#}
+{#        $(moins).click(function () {#}
+{#            date -= 7 * 24 * 60 * 60 * 1000;#}
+{#            AJAX();#}
+{#        })#}
+{#        $(plus).click(function () {#}
+{#            date += 7 * 24 * 60 * 60 * 1000;#}
+{#            AJAX();#}
+{#        })#}
+{#    </script>#}
+{#{% endblock %}#}
