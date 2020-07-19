@@ -1,8 +1,6 @@
-{% block stylesheets %}
-{#    <link rel="stylesheet" type="text/css" href="{{ asset('css/Cours/affichage_emploi_du_temps.css') }}">#}
-{% endblock %}
+
 {% set role = app.session.get('role') %}
-<h1 class="titre_edt">Emploi du temps du {{ date_lundi|date("d/m") }} au {{ date_samedi|date("d/m") }}</h1>
+
 <table class="emploiDuTemps w-100">
     <thead>
     <tr>

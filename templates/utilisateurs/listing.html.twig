@@ -1,5 +1,8 @@
 {% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/Utilisateurs/listing.css') }}">{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Utilisateurs/listing.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+{% endblock %}
 {% if error is defined %}
     <div class="error">{{ error }}</div>
 {% endif %}
@@ -25,7 +28,7 @@
             {% for list in response %}
 
                 <div class="tr row" data-id={{ list.id }}>
-                    <span class="td nom col-2">{% if user == "Professeurs" %}{{list.civilite}}{% endif %} {{ list.nom }} {{ list.prenom }}</span>
+                    <span class="td nom col-2">{% if user == "Professeurs" %}{{ list.civilite }}{% endif %} {{ list.nom }} {{ list.prenom }}</span>
                     {% if user == "Eleves" %}
                         <span class="td classeEleve col-2">{{ list.classe }}</span>
                         <div class="td col-2">
@@ -72,24 +75,30 @@
                     {% endif %}
                     <span class="td col-4">
                         {% if user == "Eleves" %}
-                            <form method="POST"
+                            <form class="d-inline" method="POST"
                                   action="{{ path('dossier.index', {id: list.id, nom: list.nom, prenom: list.prenom}) }}">
-                                <button type="submit" data-id="{{ list.id }}">Dossier</button>
+                                <button class="btn btn-outline-info" type="submit" data-id="{{ list.id }}"><i
+                                            class="fas fa-folder-open"></i></button>
                             </form>
 
                         {% endif %}
-                        <button type="button" class="" data-toggle="modal" data-target="#modalCRUD"
-                                data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}">Modifier</button>
-                        <button type="button" class="" data-toggle="modal" data-target="#modalCRUD"
-                                data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}">Supprimer</button>
+                        <button class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#modalCRUD"
+                                data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}"><i
+                                    class="fas fa-user-edit"></i></button>
+                        <button class="btn btn-outline-danger" type="button" data-toggle="modal"
+                                data-target="#modalCRUD"
+                                data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}"><i
+                                    class="fas fa-user-slash"></i></button>
                         {% if user == "Eleves" %}
                             <button id="add_{{ list.id }}"
-                                    class="addSousgroupe">Ajouter au sous-groupe</button>
+                                    class="addSousgroupe btn btn-outline-secondary"><i
+                                        class="fas fa-user-plus"></i></button>
                         {% endif %}
                         {% if app.user.roles[0] == 'ROLE_PERSONNEL' or app.user.roles[0] == 'ROLE_ADMIN' %}
                             {% if user == "Professeurs" %}
                                 <button id="show_{{ list.id }}"
-                                        class="profSousgroupe">Ajouter à la liste destinataire</button>
+                                        class="profSousgroupe btn btn-outline-secondary"><i
+                                            class="fas fa-user-plus"></i></button>
                             {% endif %}
                         {% endif %}
                     </span>
@@ -101,22 +110,26 @@
 {% endif %}
 {% block javascripts %}
     <script>
-        $("#sousgroupeToggle").bind('click', function () {
-            let field = $(".sousgroupeField")
-            field.toggle();
-            if (field.is(":visible")) {
-                $(".addSousgroupe").show();
-                $(".profSousgroupe").show();
-            } else {
-                $(".addSousgroupe").hide();
-                $(".profSousgroupe").hide();
+        indexUtil:{
+            listingCours = {
+                index: {
+                    toggleSG: $("#sousgroupeToggle"),
+                    fieldSG: $(".sousgroupeField"),
+                    addSG: $(".addSousgroupe"),
+                    profSG: $(".profSousgroupe")
+                },
+                method: {
+                    initialize: function () {
+                        listingCours.index.addSG.bind('click', function () {
+                            indexUtil.method.addSousgroupe($(this));
+                        });
+                        listingCours.index.profSG.bind('click', function () {
+                            indexUtil.method.addProfSousgroupe($(this));
+                        });
+                    }
+                }
             }
-        })
-        $(".addSousgroupe").bind('click', function () {
-            AddSousgroupe($(this));
-        })
-        $(".profSousgroupe").bind('click', function () {
-            AddProfSousgroupe($(this));
-        })
+        }
+        listingCours.method.initialize();
     </script>
 {% endblock %}

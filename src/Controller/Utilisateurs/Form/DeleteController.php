@@ -20,7 +20,7 @@ class DeleteController extends AbstractController
      * @return Response
      * @Route("/Utilisateurs/Delete", name="utilisateurs.delete", methods={"POST"})
      */
-    public function deleteUser(Request $request)
+    public function delete(Request $request)
     {
         if (isset($request->request->all()['delete'])) {
             $delete = $request->request->all()['delete'];

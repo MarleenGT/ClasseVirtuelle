@@ -4,37 +4,34 @@
 {% endblock %}
 {% block title 'Emploi du temps' %}
 {% block body %}
-    <div class="container-fluid">
-        {% if role != 'ROLE_ELEVE' %}
-            <div class="cours_head">
+    <div class="container-fluid d-flex flex-column">
+        <div id="optionsDiv" class="row">
                 {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
-                    <div id="selectDiv">
-                        <input type="radio" name="select" id="selectChoice1" value="select_prof"><label
-                                for="selectChoice1">Professeurs</label>
-                        <input type="radio" name="select" id="selectChoice2" value="select_classe"><label
-                                for="selectChoice2">Classes</label>
-                        <input type="radio" name="select" id="selectChoice3" value="select_sousgroupe"><label
-                                for="selectChoice3">Sous-groupes</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-secondary" id="choixEdt" type="button"></button>
+                        </div>
+                        <label hidden for="selectEdt">Choix de l'emploi du temps</label>
+                        <select class="custom-select" id="selectEdt">
+                            {% for prof in liste_prof %}
+                                <option value="pr_{{ prof.id }}"
+                                        class="select_prof">{{ prof.civilite }} {{ prof.nom }} {{ prof.prenom }}</option>
+                            {% endfor %}
+                            {% for classe in liste_classe %}
+                                <option value="cl_{{ classe.id }}" class="select_classe">{{ classe.nomClasse }}</option>
+                            {% endfor %}
+                            {% for sousgroupe in liste_sousgroupe %}
+                                <option value="sg_{{ sousgroupe.id }}"
+                                        class="select_sousgroupe">{{ sousgroupe.nomSousgroupe }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <label for="select">Choix de l'emploi du temps à afficher</label>
-                    <select id="select">
-                        {% for prof in liste_prof %}
-                            <option value="pr_{{ prof.id }}"
-                                    class="select_prof">{{ prof.civilite }} {{ prof.nom }} {{ prof.prenom }}</option>
-                        {% endfor %}
-                        {% for classe in liste_classe %}
-                            <option value="cl_{{ classe.id }}" class="select_classe">{{ classe.nomClasse }}</option>
-                        {% endfor %}
-                        {% for sousgroupe in liste_sousgroupe %}
-                            <option value="sg_{{ sousgroupe.id }}"
-                                    class="select_sousgroupe">{{ sousgroupe.nomSousgroupe }}</option>
-                        {% endfor %}
-                    </select>
-                {% endif %}
-                {% if role == 'ROLE_PROF' %}
-                    <div>
-                        <label for="select">Choix de l'emploi du temps à afficher</label>
-                        <select id="select">
+                {% elseif role == 'ROLE_PROF' %}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="select">Choix de l'emploi du temps</label>
+                        </div>
+                        <select class="custom-select" id="selectEdt">
                             <option value="pr_{{ app.session.get('id') }}">Emploi du temps personnel</option>
                             <optgroup label="Classes">
                                 {% for classe in app.session.get('classe') %}
@@ -48,88 +45,134 @@
                             </optgroup>
                         </select>
                     </div>
-                        <form action="{{ path('cours.add') }}" method="post">
-                            <button class="btn-primary btn" type="submit" name="ajouter">Ajouter un cours</button>
-                        </form>
+                    <form action="{{ path('cours.add') }}" method="post">
+                        <button class="btn-primary btn" type="submit" name="ajouter">Ajouter un cours</button>
+                    </form>
                 {% endif %}
+        </div>
+        <div class="jumbotron jumbotron-fluid">
+            <div class="row">
+                {% if role != "ROLE_ELEVE" %}
+                <div class="col-2 d-flex justify-content-center">
+                    <button class="btn btn-info" id="options">Options</button>
+                </div>
+                {% endif %}
+                <h1 class="titre_edt {% if role == "ROLE_ELEVE" %}offset-2{% endif %} col-8"></h1>
+                <div class="semaine_btn col-2">
+                    <button class="btn btn-secondary" type="button" id="dateMoins"><</button>
+                    <button class="btn btn-secondary" type="button" id="datePlus">></button>
+                </div>
             </div>
-            <div class="semaine_btn">
-                <button class="btn btn-secondary" type="button" id="dateMoins"><</button>
-                <button class="btn btn-secondary" type="button" id="datePlus">></button>
+            <div id="calendrier">
             </div>
-        {% endif %}
-        <div id="calendrier">
         </div>
     </div>
-
 {% endblock %}
 {% block javascripts %}
     <script>
-        let div = $('#calendrier');
-        let plus = $('#datePlus');
-        let moins = $('#dateMoins');
-        let date = startOfWeek(new Date);
-        let radioProf = $("#selectChoice1");
-        let selectClasse = $(".select_classe");
-        let selectSousgroupe = $(".select_sousgroupe");
-        let select = $("#select");
-        date.setHours({{ start_hour }}, 0, 0, 0);
-        date = Date.parse(date);
+        let indexCours = {
+            index: {
+                calendrier: $('#calendrier'),
+                plus: $('#datePlus'),
+                moins: $('#dateMoins'),
+                option: {
+                    Prof: $(".select_prof"),
+                    Clas: $(".select_classe"),
+                    Sous: $(".select_sousgroupe"),
+                },
+                btnChoixEdt: $("#choixEdt"),
+                selectEdt: $("#selectEdt"),
+                titreEdt: $(".titre_edt"),
+                options: $("#options"),
+                optionsDiv: $("#optionsDiv"),
+            },
+            param: {
+                date: null,
+                choixCat: ["Classes", "Sous-groupes", "Professeurs"]
+            },
+            method: {
+                initialize: function () {
+                    indexCours.param.date = this.startOfWeek(new Date);
+                    indexCours.index.selectEdt.on('change', this.AJAX);
+                    {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
+                        indexCours.index.selectEdt.children().hide();
+                        indexCours.index.btnChoixEdt.text(indexCours.param.choixCat[0]);
+                        this.changeSelectOption(indexCours.index.btnChoixEdt[0], indexCours.param.choixCat);
+                        indexCours.index.btnChoixEdt.click(function () {
+                            indexCours.method.changeBtnText(this, indexCours.param.choixCat)
+                            indexCours.method.changeSelectOption(this, indexCours.param.choixCat)
+                            indexCours.method.AJAX();
+                        });
+                    {% endif %}
+                    indexCours.index.titreEdt.text(this.getTitre(indexCours.param.date{% if role != 'ROLE_ELEVE' %}, indexCours.index.selectEdt.find("option:selected").text(){% endif %}));
+                    indexCours.index.optionsDiv.hide();
+                    indexCours.index.options.click(function () {
+                        indexCours.index.optionsDiv.toggle();
+                    });
+                    indexCours.index.plus.click(function () {
+                        indexCours.method.changeWeek(1, indexCours.param.date);
+                        indexCours.method.AJAX();
+                    });
+                    indexCours.index.moins.click(function () {
+                        indexCours.method.changeWeek(-1, indexCours.param.date);
+                        indexCours.method.AJAX();
+                    });
+                    this.AJAX();
+                },
+                changeWeek: function (offset, date) {
+                    date.setDate(date.getDate() + offset * 7);
+                },
+                startOfWeek: function (date) {
+                    let diff = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
+                    return new Date(date.setDate(diff));
+                },
+                changeBtnText: function (btn, arr) {
+                    let val = btn.innerText;
+                    let index = arr.indexOf(val);
+                    if (index === arr.length - 1) {
+                        btn.innerText = arr[0];
+                    } else {
+                        btn.innerText = arr[index + 1];
+                    }
+                },
+                changeSelectOption: function (btn, arr) {
+                    let str = btn.innerText;
+                    for (let i = 0; i < arr.length; i++) {
+                        let list = indexCours.index.option[arr[i].substr(0, 4)];
+                        if (str === arr[i]) {
+                            list.show();
+                            list.first().attr("selected", true);
+                        } else {
+                            list.hide();
+                            list.children().removeAttr("selected");
+                        }
+                    }
+                },
+                AJAX: function () {
+                    $.ajax({
+                        url: "{{ path('cours.ajax') }}",
+                        method: "GET",
+                        data: {date: Date.parse(indexCours.param.date) / 1000, select: indexCours.index.selectEdt.val()}
+                    }).done(function (msg) {
+                        indexCours.index.calendrier.html(msg);
+                        indexCours.index.titreEdt.html(indexCours.method.getTitre(indexCours.param.date{% if role != 'ROLE_ELEVE' %}, indexCours.index.selectEdt.find("option:selected").text(){% endif %}));
+                    })
+                },
+                getTitre: function (date, str = null) {
+                    let dateM = new Date(date);
+                    let dateS = new Date();
+                    dateS.setDate(dateM.getDate() + 5);
+                    let dateMonday = dateM.getDate() + "/" + (dateM.getMonth() + 1);
+                    let dateSaturday = dateS.getDate() + "/" + (dateS.getMonth() + 1);
+                    if (str) {
+                        return "Emploi du temps du " + dateMonday + " au " + dateSaturday + " (" + str + ")";
+                    } else {
+                        return "Emploi du temps du " + dateMonday + " au " + dateSaturday;
+                    }
 
-        $(moins).click(function () {
-            date -= 7 * 24 * 60 * 60 * 1000;
-            AJAX();
-        })
-        $(plus).click(function () {
-            date += 7 * 24 * 60 * 60 * 1000;
-            AJAX();
-        })
-        select.on('change', AJAX)
-
-        function AJAX() {
-            $.ajax({
-                url: "{{ path('cours.ajax') }}",
-                method: "GET",
-                data: {date: date / 1000, select: select.val()}
-            }).done(function (msg) {
-                div.html(msg);
-
-            })
-        }
-
-        $(document).ready(function () {
-            {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
-            radioProf.prop('checked', true);
-            select.children("option:selected").removeAttr("selected");
-            $(".select_prof").first().attr("selected", true);
-            selectSousgroupe.hide();
-            selectClasse.hide();
-            {% endif %}
-            AJAX();
-        })
-        $("#selectDiv").on('change', function (button) {
-            changeSelect(button);
-        })
-
-        function changeSelect(button) {
-            let value = button.target.value;
-            let array = ['select_prof', 'select_classe', 'select_sousgroupe']
-            array.forEach(function (elem) {
-                let classCheck = $("." + elem);
-                if (elem === value) {
-                    classCheck.show()
-                    classCheck.first().attr("selected", true);
-                } else {
-                    classCheck.hide()
-                    classCheck.first().removeAttr("selected");
                 }
-            })
-            AJAX();
+            }
         }
-
-        function startOfWeek(date) {
-            let diff = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        }
+        indexCours.method.initialize();
     </script>
 {% endblock %}

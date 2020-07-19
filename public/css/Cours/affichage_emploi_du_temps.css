@@ -37,13 +37,14 @@
     display: flex;
     /*justify-content: space-between;*/
 }
-.titre_edt {
-    text-align: center;
-}
+/*.titre_edt {*/
+/*    text-align: center;*/
+/*}*/
 .semaine_btn {
-    margin-left: 1em;
-    margin-top: 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-#calendrier {
-    margin-top: -2em;
+.semaine_btn > button {
+    margin-left: 0.5em;
 }

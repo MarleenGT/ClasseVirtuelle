@@ -65,217 +65,195 @@
 {% endblock %}
 {% block javascripts %}
     <script>
-        let select = $('#util_select');
-        let div = $('#ajax_results');
-        let plus = $('#offsetPlus');
-        let moins = $('#offsetMoins');
-        let limit = $('#limit');
-        let updateButton = $('.update');
-        let deleteButton = $('.delete');
-        let search_input = $('#search');
-        let modal = $('#modalCRUD');
-        let modalTitre = $("#modalTitre");
-        let modalBody = $("#modal-body");
-        let sousgroupeList = [];
-        let sousgroupeProfList = [];
-        let list = $("#sousgroupeList");
-        let profList = $("#profSousgroupeList");
-        let offset = 0;
-        let sousgroupeButton = $("button[name = 'sousgroupeAdd']")
+        let indexUtil = {
+            index: {
+                select: $('#util_select'),
+                div: $('#ajax_results'),
+                plus: $('#offsetPlus'),
+                moins: $('#offsetMoins'),
+                limit: $('#limit'),
+                updateButton: $('.update'),
+                deleteButton: $('.delete'),
+                search_input: $('#search'),
+                modal: $('#modalCRUD'),
+                modalTitre: $("#modalTitre"),
+                modalBody: $("#modal-body"),
+                list: $("#sousgroupeList"),
+                profList: $("#profSousgroupeList"),
+                sousgroupeButton: $("button[name = 'sousgroupeAdd']"),
+                sousgroupeTitre: $("input[name = 'sousgroupeTitre']").val(),
+                sousgroupeMsg: $('#sousgroupeMsg'),
+            },
+            param: {
+                sousgroupeList: [],
+                sousgroupeProfList: [],
+                offset: 0
+            },
+            method: {
+                initialize: function () {
+                    indexUtil.index.moins.click(function () {
 
-            $(moins).click(function () {
-                offset -= 1;
-                if (offset < 0) {
-                    offset = 0;
-                } else {
-                    AJAX();
+                        if (indexUtil.param.offset > 0) {
+                            indexUtil.param.offset -= 1;
+                            indexUtil.method.AJAX();
+                        }
+                    });
+                    indexUtil.index.plus.click(function () {
+                        if ($(".table").children().length - 1 === parseInt(indexUtil.index.limit.val())) {
+                            indexUtil.param.offset += 1;
+                            indexUtil.method.AJAX();
+                        }
+                    });
+                    indexUtil.index.sousgroupeButton.click(function () {
+                        indexUtil.method.sousgroupeAJAX();
+                    });
+                    indexUtil.index.search_input.keyup(function () {
+                        indexUtil.method.AJAX();
+                    });
+                    indexUtil.index.select.change(function () {
+                        indexUtil.param.offset = 0;
+                        indexUtil.method.AJAX();
+                    });
+                    $(indexUtil.index.limit).change(function () {
+                        indexUtil.param.offset = 0;
+                        indexUtil.method.AJAX();
+                    });
+                    indexUtil.method.AJAX();
+                },
+                sousgroupeAJAX: function () {
+                    {% if app.user.roles[0] == 'ROLE_PROF' %}
+                        indexUtil.param.sousgroupeProfList = [{'id': {{ app.user.id }} }];
+                    {% endif %}
+                    $.ajax({
+                        url: " {{ path('sousgroupe.add') }}",
+                        method: "POST",
+                        data: {
+                            eleves: indexUtil.param.sousgroupeList,
+                            profs: indexUtil.param.sousgroupeProfList,
+                            nom: indexUtil.index.sousgroupeTitre,
+                        }
+                    }).done(function (msg) {
+                        if (msg.error) {
+                            indexUtil.index.sousgroupeMsg.html("<span class='error'>" + msg.error + "</span>");
+                        } else if (msg.success) {
+                            indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
+                        }
+                        indexUtil.index.list.html("");
+                        indexUtil.index.profList.html("");
+                        $("div.selected").removeClass("selected");
+                        $("button.selected").removeClass('selected').text("Ajouter au sous-groupe").off("click").bind('click', function () {
+                            // this.AddSousgroupe($(this));
+                        });
+                    })
+                },
+                AJAX:function () {
+                    let user = "";
+                    {% if role == "ROLE_PROF" %}
+                        user = "Eleves";
+                    {% else %}
+                        user = indexUtil.index.select.children('option:selected').val();
+                    {% endif %}
+                    $.ajax({
+                        url: "{{ path('utilisateurs.ajax') }}",
+                        method: "POST",
+                        data: {user: indexUtil.index.select.val(), limit: indexUtil.index.limit.val(), offset: indexUtil.param.offset, search: indexUtil.index.search_input.val()}
+                    }).done(function (msg) {
+                        indexUtil.index.div.html(msg);
+                        if (indexUtil.index.select.val() === 'Eleves') {
+                            indexUtil.method.checkSousgroupe(indexUtil.param.sousgroupeList);
+                        } else if (indexUtil.index.select.val() === 'Profs') {
+                            indexUtil.method.checkProfSousgroupe(indexUtil.param.sousgroupeProfList);
+                        }
+                    })
+                },
+                appendToList:function (ul, id, nom, classe) {
+                    let li = document.createElement('li');
+                    let span_nom = document.createElement('span');
+                    if (typeof classe !== 'undefined') {
+                        let span_classe = document.createElement('span');
+                        span_classe.classList.add('listClasse');
+                        li.append(span_classe);
+                        span_classe.innerText = classe;
+                        li.id = "list_add_" + id;
+                    } else {
+                        li.id = "list_show_" + id;
+                    }
+                    span_nom.classList.add('listNom')
+                    li.append(span_nom);
+                    ul.append(li);
+                    span_nom.innerText = nom;
+                },
+                checkSousgroupe:function (list) {
+                    list.forEach(function (li) {
+                        let id = li["id"];
+                        let row = $("div[data-id ='" + id + "']");
+                        let button = $("#add_" + id);
+                        row.addClass('selected')
+                        button.addClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
+                            indexUtil.method.removeSousgroupe($(this));
+                        });
+                    })
+                },
+                addSousgroupe:function (button) {
+                    let row = button.parent().parent();
+                    let nom = row.children(".nom").text();
+                    let classe = row.children(".classeEleve").text();
+                    let id = row.data('id');
+                    indexUtil.method.appendToList(indexUtil.index.list, id, nom, classe);
+                    indexUtil.param.sousgroupeList.push({'id': id, 'nom': nom, 'classe': classe});
+                    row.addClass('selected');
+                    button.addClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
+                        console.log(button.addClass('selected').html());
+                        indexUtil.method.removeSousgroupe($(this));
+                    });
+                },
+                removeSousgroupe:function (button) {
+                    let row = button.parent().parent();
+                    let id = row.data('id');
+                    let li = $("#list_add_" + id);
+                    row.removeClass("selected");
+                    button.removeClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
+                        indexUtil.method.addSousgroupe($(this));
+                    });
+                    let index = indexUtil.param.sousgroupeList.findIndex(elem => elem['id'] === id);
+                    indexUtil.param.sousgroupeList.splice(index, 1);
+                    li.remove();
+                },
+                checkProfSousgroupe:function (list) {
+                    list.forEach(function (li) {
+                        let id = li["id"];
+                        let row = $("div[data-id ='" + id + "']");
+                        let button = $("#show_" + id);
+                        row.addClass('selected')
+                        button.addClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
+                            indexUtil.method.removeSousgroupe($(this));
+                        });
+                    })
+                },
+                addProfSousgroupe:function (button) {
+                    let row = button.parent().parent();
+                    let nom = row.children(".nom").text();
+                    let id = row.data('id');
+                    indexUtil.method.appendToList( indexUtil.index.profList, id, nom);
+                    indexUtil.param.sousgroupeProfList.push({'id': id, 'nom': nom});
+                    button.addClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
+                        indexUtil.method.removeProfSousgroupe($(this));
+                    });
+                },
+                removeProfSousgroupe:function (button) {
+                    let row = button.parent().parent();
+                    let id = row.data('id');
+                    let li = $("#list_show_" + id);
+                    row.removeClass("selected");
+                    button.removeClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
+                        indexUtil.method.addProfSousgroupe($(this));
+                    });
+                    let index = indexUtil.param.sousgroupeProfList.findIndex(elem => elem['id'] === id);
+                    indexUtil.param.sousgroupeProfList.splice(index, 1);
+                    li.remove();
                 }
-            })
-        $(plus).click(function () {
-            offset += 1;
-            AJAX();
-        })
-        $(sousgroupeButton).click(function () {
-            sousgroupeAJAX();
-        })
-        $(search_input).keyup(function () {
-            AJAX();
-        })
-        $(select).change(function () {
-            offset = 0;
-            AJAX();
-        })
-        $(limit).change(function () {
-            AJAX();
-
-        })
-        $(document).ready(function () {
-            AJAX();
-        })
-
-        function sousgroupeAJAX() {
-            {% if app.user.roles[0] == 'ROLE_PROF' %}
-            sousgroupeProfList = [{'id': {{ app.user.id }} }];
-            {% endif %}
-            $.ajax({
-                url: " {{ path('sousgroupe.add') }}",
-                method: "POST",
-                data: {
-                    eleves: sousgroupeList,
-                    profs: sousgroupeProfList,
-                    nom: $("input[name = 'sousgroupeTitre']").val(),
-                }
-            }).done(function (msg) {
-                console.log(msg.success)
-                if (msg.error) {
-                    $('#sousgroupeMsg').html("<span class='error'>" + msg.error + "</span>");
-                } else if (msg.success) {
-                    $('#sousgroupeMsg').html("<span class='success'>" + msg.success + "</span>");
-                }
-                list.html("");
-                profList.html("");
-                console.log($(".selected"));
-                $("div.selected").removeClass("selected");
-                $("button.selected").removeClass('selected').text("Ajouter au sous-groupe").off("click").bind('click', function () {
-                    AddSousgroupe($(this));
-                });
-            })
-        }
-
-        function AJAX() {
-            let user = "";
-            {% if role == "ROLE_PROF" %}
-                user = "Eleves";
-            {% else %}
-                user = select.children('option:selected').val();
-            {% endif %}
-            $.ajax({
-                url: "{{ path('utilisateurs.ajax') }}",
-                method: "POST",
-                data: {user: user, limit: limit.val(), offset: offset, search: search_input.val()}
-            }).done(function (msg) {
-                div.html(msg);
-                if (select.val() === 'Eleves') {
-                    checkSousgroupe(sousgroupeList);
-                } else if (select.val() === 'Profs') {
-                    checkProfSousgroupe(sousgroupeProfList);
-                }
-            })
-        }
-
-        modal.on('show.bs.modal', function (event) {
-            let button = $(event.relatedTarget) // Button that triggered the modal
-            let CRUD = button.data('button') // Extract info from data-* attributes
-            let path = "";
-            if (CRUD === "modif") {
-                path = "{{ path('utilisateurs.modif') }}";
-            } else if (CRUD === "suppr") {
-                path = "{{ path('utilisateurs.delete') }}";
             }
-            $.ajax({
-                url: path,
-                method: "POST",
-                data: {user: button.data('user'), id: button.data('id')}
-            }).done(function (msg) {
-                modalTitre.text(msg.titre)
-                modalBody.html(msg.form.content)
-            })
-        })
-        modal.on('hide.bs.modal', function () {
-            modalTitre.text("")
-            modalBody.html("")
-        })
-
-        function AddSousgroupe(button) {
-            let row = button.parent().parent();
-            let nom = row.children(".nom").text();
-            let classe = row.children(".classeEleve").text();
-            let id = row.data('id');
-            appendToList(list, id, nom, classe);
-            sousgroupeList.push({'id': id, 'nom': nom, 'classe': classe});
-            row.addClass('selected')
-            button.addClass('selected').text("Enlever du sous-groupe").off("click").bind('click', function () {
-                RemoveSousgroupe($(this));
-            });
         }
-
-        function RemoveSousgroupe(button) {
-            let row = button.parent().parent();
-            let id = row.data('id');
-            let li = $("#list_add_" + id);
-            row.removeClass("selected");
-            button.removeClass('selected').text("Ajouter au sous-groupe").off("click").bind('click', function () {
-                AddSousgroupe($(this));
-            });
-            let index = sousgroupeList.findIndex(elem => elem['id'] === id);
-            sousgroupeList.splice(index, 1);
-            li.remove();
-        }
-
-        function appendToList(ul, id, nom, classe) {
-            let li = document.createElement('li');
-            let span_nom = document.createElement('span');
-            if (typeof classe !== 'undefined') {
-                let span_classe = document.createElement('span');
-                span_classe.classList.add('listClasse');
-                li.append(span_classe);
-                span_classe.innerText = classe;
-                li.id = "list_add_" + id;
-            } else {
-                li.id = "list_show_" + id;
-            }
-            span_nom.classList.add('listNom')
-            li.append(span_nom);
-            ul.append(li);
-            span_nom.innerText = nom;
-        }
-
-        function checkSousgroupe(list) {
-            list.forEach(function (li) {
-                let id = li["id"];
-                let row = $("div[data-id ='" + id + "']");
-                let button = $("#add_" + id);
-                row.addClass('selected')
-                button.addClass('selected').text("Enlever du sous-groupe").off("click").bind('click', function () {
-                    RemoveSousgroupe($(this));
-                });
-            })
-        }
-
-        function AddProfSousgroupe(button) {
-            let row = button.parent().parent();
-            let nom = row.children(".nom").text();
-            let id = row.data('id');
-            appendToList(profList, id, nom);
-            sousgroupeProfList.push({'id': id, 'nom': nom});
-            button.addClass('selected').text("Enlever de la liste destinataire").off("click").bind('click', function () {
-                RemoveProfSousgroupe($(this));
-            });
-        }
-
-        function checkProfSousgroupe(list) {
-            list.forEach(function (li) {
-                let id = li["id"];
-                let row = $("div[data-id ='" + id + "']");
-                let button = $("#show_" + id);
-                row.addClass('selected')
-                button.addClass('selected').text("Enlever de la liste destinataire").off("click").bind('click', function () {
-                    RemoveSousgroupe($(this));
-                });
-            })
-        }
-
-        function RemoveProfSousgroupe(button) {
-            let row = button.parent().parent();
-            let id = row.data('id');
-            let li = $("#list_show_" + id);
-            row.removeClass("selected");
-            button.removeClass('selected').text("Ajouter à la liste destinataire").off("click").bind('click', function () {
-                AddProfSousgroupe($(this));
-            });
-            let index = sousgroupeProfList.findIndex(elem => elem['id'] === id);
-            sousgroupeProfList.splice(index, 1);
-            li.remove();
-        }
+        indexUtil.method.initialize();
     </script>
 {% endblock %}

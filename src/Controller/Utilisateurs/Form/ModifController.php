@@ -4,27 +4,28 @@
 namespace App\Controller\Utilisateurs\Form;
 
 
+use App\Controller\Message\Email;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
-use App\Service\ActivateAccount;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ModifController extends AbstractController
 {
     /**
      * @param Request $request
-     * @param ActivateAccount $activateAccount
+     * @param MessageBusInterface $messageBus
      * @return Response
      * @Route("/Utilisateurs/Modif", name="utilisateurs.modif")
      */
-    public function modif(Request $request, ActivateAccount $activateAccount)
+    public function modif(Request $request, MessageBusInterface $messageBus)
     {
         if (isset($request->request->all()['modif'])) {
             $modif = $request->request->all()['modif'];
@@ -61,14 +62,9 @@ class ModifController extends AbstractController
             $entityManager->persist($obj);
             $entityManager->flush();
             if ($form->getClickedButton() && 'sendEmail' === $form->getClickedButton()->getName()){
-                $error = $activateAccount->sendEmail($obj);
-                if ($error){
-                    return $this->render("utilisateurs/index.html.twig", [
-                        "select" => $user,
-                        'user' => $user,
-                        'error' => $error
-                    ]);
-                }
+                $email = new Email();
+                $email->setTask($obj);
+                $messageBus->dispatch($email);
             }
             return $this->render("utilisateurs/index.html.twig", [
                 "select" => $user,
