@@ -7,3 +7,24 @@ div.tr, form.tr{
 span.td, div.td{
     display: table-cell;
 }
+.row{
+    padding: 0.5em;
+}
+.row-1{
+    background-color: #f5f5f5;
+}
+.list{
+    border-top: 1px solid #c1c1c1;
+
+}
+.entete{
+    border-bottom: 1px solid #c1c1c1;
+    background-color: #a2c8e7;
+    font-size: 1.3rem;
+}
+.col01, .col02, .col03{
+    border-right: 1px solid #c1c1c1;
+}
+.col02 ul, .col03 ul{
+    list-style: none;
+}

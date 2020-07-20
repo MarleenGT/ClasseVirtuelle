@@ -11,29 +11,37 @@
 {% endblock %}
 {% block javascripts %}
     <script>
-
-        let typeChoice = $("#cours_typeChoice");
-        let sousgroupe = $("#cours_id_sousgroupe").parent('div');
-        let classe = $("#cours_id_classe").parent('div');
-        let matiere = $("#cours_matiere");
-        let autre = $("#cours_autre").parent('div');
-        typeChoice.on('change', function () {
-            sousgroupe.toggle();
-            classe.toggle()
-        })
-        $(document).ready(function (){
-            $("#cours_typeChoice_0").prop('checked', true);
-            sousgroupe.toggle();
-            checkMatiere()
-        })
-        matiere.on('change', checkMatiere);
-        function checkMatiere(){
-            let option = matiere.children("option:selected").val();
-            if (option === "Autre"){
-                autre.show();
-            } else {
-                autre.hide();
+        let addCours = {
+            index:{
+                typeChoice:$("#cours_typeChoice"),
+                sousgroupe:$("#cours_id_sousgroupe").parent('div'),
+                classe:$("#cours_id_classe").parent('div'),
+                matiere:$("#cours_matiere"),
+                autre:$("#cours_autre").parent('div'),
+                radioClasse:$("#cours_typeChoice_0")
+            },
+            method:{
+                initialize:function(){
+                    addCours.index.typeChoice.on('change', function () {
+                        addCours.index.sousgroupe.toggle();
+                        addCours.index.classe.toggle();
+                    });
+                    addCours.index.matiere.on('change', addCours.method.checkMatiere);
+                    addCours.index.radioClasse.prop('checked', true);
+                    console.log(addCours.index.autre)
+                    addCours.index.sousgroupe.hide();
+                    this.checkMatiere();
+                },
+                checkMatiere:function(){
+                    let option = addCours.index.matiere.children("option:selected").text();
+                    if (option === "Autre"){
+                        addCours.index.autre.show();
+                    } else {
+                        addCours.index.autre.hide();
+                    }
+                }
             }
         }
+        addCours.method.initialize();
     </script>
 {% endblock %}

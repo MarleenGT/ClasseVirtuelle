@@ -52,7 +52,7 @@
     </div>
     <button id="sousgroupeToggle">Sous-groupe</button>
     <div class="row">
-        <div id="ajax_results" class="d-flex col-10"></div>
+        <div id="ajax_results" class="d-flex col"></div>
         <div class="sousgroupeField col-2">
             <div id="sousgroupeMsg"></div>
             <label for="sousgroupeTitre">Entrez le nom du sous-groupe</label>
@@ -92,7 +92,6 @@
             method: {
                 initialize: function () {
                     indexUtil.index.moins.click(function () {
-
                         if (indexUtil.param.offset > 0) {
                             indexUtil.param.offset -= 1;
                             indexUtil.method.AJAX();
@@ -114,7 +113,7 @@
                         indexUtil.param.offset = 0;
                         indexUtil.method.AJAX();
                     });
-                    $(indexUtil.index.limit).change(function () {
+                    indexUtil.index.limit.change(function () {
                         indexUtil.param.offset = 0;
                         indexUtil.method.AJAX();
                     });
@@ -122,7 +121,7 @@
                 },
                 sousgroupeAJAX: function () {
                     {% if app.user.roles[0] == 'ROLE_PROF' %}
-                        indexUtil.param.sousgroupeProfList = [{'id': {{ app.user.id }} }];
+                    indexUtil.param.sousgroupeProfList = [{'id': {{ app.user.id }} }];
                     {% endif %}
                     $.ajax({
                         url: " {{ path('sousgroupe.add') }}",
@@ -141,22 +140,22 @@
                         indexUtil.index.list.html("");
                         indexUtil.index.profList.html("");
                         $("div.selected").removeClass("selected");
-                        $("button.selected").removeClass('selected').text("Ajouter au sous-groupe").off("click").bind('click', function () {
-                            // this.AddSousgroupe($(this));
+                        $("button.selected").removeClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
+                            indexUtil.method.addSousgroupe($(this));
                         });
                     })
                 },
                 AJAX:function () {
                     let user = "";
                     {% if role == "ROLE_PROF" %}
-                        user = "Eleves";
+                    user = "Eleves";
                     {% else %}
-                        user = indexUtil.index.select.children('option:selected').val();
+                    user = indexUtil.index.select.children('option:selected').val();
                     {% endif %}
                     $.ajax({
                         url: "{{ path('utilisateurs.ajax') }}",
                         method: "POST",
-                        data: {user: indexUtil.index.select.val(), limit: indexUtil.index.limit.val(), offset: indexUtil.param.offset, search: indexUtil.index.search_input.val()}
+                        data: {user: user, limit: indexUtil.index.limit.val(), offset: indexUtil.param.offset, search: indexUtil.index.search_input.val()}
                     }).done(function (msg) {
                         indexUtil.index.div.html(msg);
                         if (indexUtil.index.select.val() === 'Eleves') {
@@ -203,7 +202,6 @@
                     indexUtil.param.sousgroupeList.push({'id': id, 'nom': nom, 'classe': classe});
                     row.addClass('selected');
                     button.addClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
-                        console.log(button.addClass('selected').html());
                         indexUtil.method.removeSousgroupe($(this));
                     });
                 },
