@@ -1,0 +1,54 @@
+#optionsField, .eleve-list > p, .prof-list > p {
+    background-color: #e8d9b2;
+}
+
+#optionsField {
+    padding-top: 1rem;
+}
+
+#sousgroupeList, #profSousgroupeList {
+    list-style: none;
+    padding: 0;
+    position: relative;
+    top: -0.5rem;
+}
+
+#sousgroupeList > li, #profSousgroupeList > li {
+    padding-bottom: 0.2rem;
+    padding-left: 1rem;
+}
+
+#sousgroupeList > li:not(:first-of-type),
+#profSousgroupeList > li:not(:first-of-type) {
+    border-top: 1px solid #929292;
+}
+
+.eleve-list, .prof-list {
+    border: 1px black solid;
+    margin-bottom: 2rem;
+}
+
+.eleve-list > p, .prof-list > p {
+    display: inline;
+    position: relative;
+    left: 1rem;
+    top: -1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+#offsetMoins, #offsetPlus {
+    font-weight: bolder;
+}
+
+#limit-select {
+    margin-bottom: 3rem;
+}
+#sousgroupeInput {
+    margin-bottom: 2rem;
+}
+.listClasse {
+    margin-right: 0.2rem;
+    padding-right: 0.2rem;
+    border-right: 1px solid #929292;
+}

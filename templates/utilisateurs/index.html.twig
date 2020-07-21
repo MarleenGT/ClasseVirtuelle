@@ -1,70 +1,111 @@
 {% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Utilisateurs/index.css') }}">
+{% endblock %}
 {% block title 'Utilisateurs' %}
 {% block body %}
-
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ message }}
+    <div class="container-fluid">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <form method="POST" action="{{ path('utilisateurs.add') }}">
+            {% if role == "ROLE_PERSONNEL" or role == "ROLE_ADMIN" %}
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="util_select">Utilisateurs</label>
+                    </div>
+                    <select id="util_select" name="typeUtil" class="custom-select">
+                        <option {% if select is defined and select == 'Eleves' %}selected{% endif %} value="Eleves">
+                            Eleves
+                        </option>
+                        <option {% if select is defined and select == 'Professeurs' %}selected{% endif %}
+                                value="Professeurs">
+                            Professeurs
+                        </option>
+                        <option {% if select is defined and select == 'Personnels' %}selected{% endif %}
+                                value="Personnels">
+                            Personnels
+                        </option>
+                        <option {% if select is defined and select == 'Admins' %}selected{% endif %} value="Admins">
+                            Admins
+                        </option>
+                    </select>
+                    <div class="input-group-append">
+                        <input class="btn btn-outline-secondary" type="submit" value="Ajouter">
+                    </div>
+                </div>
+            {% endif %}
+        </form>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button type="button" class="btn btn-info" id="offsetMoins"><</button>
+                <button type="button" class="btn btn-info" id="offsetPlus">></button>
+                <label class="input-group-text" for="search">Recherche</label>
+            </div>
+            <input class="form-control" id="search" type="search" placeholder="Recherche" aria-label="Recherche">
+            <div class="input-group-append">
+                <button class="btn btn-primary" id="optionsToggle">Options</button>
+            </div>
         </div>
-    {% endfor %}
-    <form method="POST" action="{{ path('utilisateurs.add') }}">
-        {% if role == "ROLE_PERSONNEL" or role == "ROLE_ADMIN" %}
-            <select id="util_select" name="typeUtil">
-                <option {% if select is defined and select == 'Eleves' %}selected{% endif %} value="Eleves">Eleves
-                </option>
-                <option {% if select is defined and select == 'Professeurs' %}selected{% endif %} value="Professeurs">
-                    Professeurs
-                </option>
-                <option {% if select is defined and select == 'Personnels' %}selected{% endif %} value="Personnels">
-                    Personnels
-                </option>
-                <option {% if select is defined and select == 'Admins' %}selected{% endif %} value="Admins">
-                    Admins
-                </option>
-            </select>
-            <input type="submit" value="Ajouter">
-        {% endif %}
-        <select id="limit" name="limit">
-            <option value="15">15</option>
-            <option value="30">30</option>
-            <option value="45">45</option>
-        </select>
-        <button type="button" id="offsetMoins"><</button>
-        <button type="button" id="offsetPlus">></button>
-        <input id="search" type="search" placeholder="Search" aria-label="Search">
-    </form>
-    <div class="modal fade" id="modalCRUD" tabindex="-1" role="dialog" aria-labelledby="modalCRUD" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitre"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modal-body">
-
-                </div>
-                <div class="modal-footer">
+        <div class="modal fade" id="modalCRUD" tabindex="-1" role="dialog" aria-labelledby="modalCRUD"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitre"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <button id="sousgroupeToggle">Sous-groupe</button>
-    <div class="row">
-        <div id="ajax_results" class="d-flex col"></div>
-        <div class="sousgroupeField col-2">
-            <div id="sousgroupeMsg"></div>
-            <label for="sousgroupeTitre">Entrez le nom du sous-groupe</label>
-            <input required type="text" name="sousgroupeTitre" id="sousgroupeTitre" placeholder="Nom du sous-groupe">
-            <ul id="sousgroupeList"></ul>
-            <ul id="profSousgroupeList"></ul>
-            <button type="button" name="sousgroupeAdd">Créer le sous-groupe</button>
+        <div class="row m-0 p-0">
+            <div id="ajax_results" class="d-flex col"></div>
+            <div id="optionsField" class="col-3">
+                <div class="input-group" id="limit-select">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="limit">Limite de résultats</label>
+                    </div>
+                    <select class="custom-select" name="limit" id="limit">
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+                <div id="sousgroupeMsg"></div>
+                <div class="input-group" id="sousgroupeInput">
+                    <label for="sousgroupeTitre" hidden>Entrez le nom du sous-groupe</label>
+                    <input required type="text" class="form-control" name="sousgroupeTitre" id="sousgroupeTitre"
+                           placeholder="Nom du sous-groupe">
+                    <div class="input-group-prepend">
+                        <button type="button" class="btn btn-secondary" name="sousgroupeAdd">Créer</button>
+                    </div>
+                </div>
+                <div class="eleve-list">
+                    <p>Éleves :</p>
+                    <ul id="sousgroupeList"></ul>
+                </div>
+                {% if role == "ROLE_PERSONNEL" or role == "ROLE_ADMIN" %}
+                <div class="prof-list">
+                    <p>Professeurs :</p>
+                    <ul id="profSousgroupeList"></ul>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}
 {% block javascripts %}
     <script>
+        let modifUser = {};
+        let lisingUtil = {};
         let indexUtil = {
             index: {
                 select: $('#util_select'),
@@ -83,6 +124,8 @@
                 sousgroupeButton: $("button[name = 'sousgroupeAdd']"),
                 sousgroupeTitre: $("input[name = 'sousgroupeTitre']").val(),
                 sousgroupeMsg: $('#sousgroupeMsg'),
+                optionsToggle: $("#optionsToggle"),
+                optionsField: $("#optionsField"),
             },
             param: {
                 sousgroupeList: [],
@@ -118,6 +161,34 @@
                         indexUtil.method.AJAX();
                     });
                     indexUtil.method.AJAX();
+                    indexUtil.index.modal.on('show.bs.modal', function (event) {
+                        let button = $(event.relatedTarget) // Button that triggered the modal
+                        let CRUD = button.data('button') // Extract info from data-* attributes
+                        let path = "";
+                        if (CRUD === "modif") {
+                            path = "{{ path('utilisateurs.modif') }}";
+                        } else if (CRUD === "suppr") {
+                            path = "{{ path('utilisateurs.delete') }}";
+                        }
+                        $.ajax({
+                            url: path,
+                            method: "POST",
+                            data: {user: button.data('user'), id: button.data('id')}
+                        }).done(function (msg) {
+                            indexUtil.index.modalTitre.text(msg.titre)
+                            indexUtil.index.modalBody.html(msg.form.content)
+                        })
+                    });
+                    indexUtil.index.modal.on('hide.bs.modal', function () {
+                        indexUtil.index.modalTitre.text("")
+                        indexUtil.index.modalBody.html("")
+                    });
+                    indexUtil.index.optionsField.hide();
+                    indexUtil.index.optionsToggle.click(function () {
+                        indexUtil.index.optionsField.toggle();
+                        listingUtil.index.addSG.toggle();
+                        listingUtil.index.profSG.toggle();
+                    });
                 },
                 sousgroupeAJAX: function () {
                     {% if app.user.roles[0] == 'ROLE_PROF' %}
@@ -145,7 +216,7 @@
                         });
                     })
                 },
-                AJAX:function () {
+                AJAX: function () {
                     let user = "";
                     {% if role == "ROLE_PROF" %}
                     user = "Eleves";
@@ -155,7 +226,12 @@
                     $.ajax({
                         url: "{{ path('utilisateurs.ajax') }}",
                         method: "POST",
-                        data: {user: user, limit: indexUtil.index.limit.val(), offset: indexUtil.param.offset, search: indexUtil.index.search_input.val()}
+                        data: {
+                            user: user,
+                            limit: indexUtil.index.limit.val(),
+                            offset: indexUtil.param.offset,
+                            search: indexUtil.index.search_input.val()
+                        }
                     }).done(function (msg) {
                         indexUtil.index.div.html(msg);
                         if (indexUtil.index.select.val() === 'Eleves') {
@@ -165,10 +241,10 @@
                         }
                     })
                 },
-                appendToList:function (ul, id, nom, classe) {
+                appendToList: function (ul, id, nom, classe = null) {
                     let li = document.createElement('li');
                     let span_nom = document.createElement('span');
-                    if (typeof classe !== 'undefined') {
+                    if (classe) {
                         let span_classe = document.createElement('span');
                         span_classe.classList.add('listClasse');
                         li.append(span_classe);
@@ -182,7 +258,7 @@
                     ul.append(li);
                     span_nom.innerText = nom;
                 },
-                checkSousgroupe:function (list) {
+                checkSousgroupe: function (list) {
                     list.forEach(function (li) {
                         let id = li["id"];
                         let row = $("div[data-id ='" + id + "']");
@@ -193,7 +269,7 @@
                         });
                     })
                 },
-                addSousgroupe:function (button) {
+                addSousgroupe: function (button) {
                     let row = button.parent().parent();
                     let nom = row.children(".nom").text();
                     let classe = row.children(".classeEleve").text();
@@ -205,7 +281,7 @@
                         indexUtil.method.removeSousgroupe($(this));
                     });
                 },
-                removeSousgroupe:function (button) {
+                removeSousgroupe: function (button) {
                     let row = button.parent().parent();
                     let id = row.data('id');
                     let li = $("#list_add_" + id);
@@ -217,7 +293,7 @@
                     indexUtil.param.sousgroupeList.splice(index, 1);
                     li.remove();
                 },
-                checkProfSousgroupe:function (list) {
+                checkProfSousgroupe: function (list) {
                     list.forEach(function (li) {
                         let id = li["id"];
                         let row = $("div[data-id ='" + id + "']");
@@ -228,17 +304,17 @@
                         });
                     })
                 },
-                addProfSousgroupe:function (button) {
+                addProfSousgroupe: function (button) {
                     let row = button.parent().parent();
                     let nom = row.children(".nom").text();
                     let id = row.data('id');
-                    indexUtil.method.appendToList( indexUtil.index.profList, id, nom);
+                    indexUtil.method.appendToList(indexUtil.index.profList, id, nom);
                     indexUtil.param.sousgroupeProfList.push({'id': id, 'nom': nom});
                     button.addClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
                         indexUtil.method.removeProfSousgroupe($(this));
                     });
                 },
-                removeProfSousgroupe:function (button) {
+                removeProfSousgroupe: function (button) {
                     let row = button.parent().parent();
                     let id = row.data('id');
                     let li = $("#list_show_" + id);

@@ -1,0 +1,171 @@
+{% extends 'base.html.twig' %}
+{% block title 'Réglages' %}
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Settings/index.css') }}">
+{% endblock %}
+{% block body %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    <div id="reglages">
+        <div id="details-compte" class="row">
+            <div id="liste-details" class="offset-1 col-lg-4 col-sm-10">
+                <p class="titre-details-compte">Détails du compte</p>
+                <ul class="list-group">
+                    <li class="list-group-item" id="list_id">Identifiant</li>
+                    <li class="list-group-item" id="list_mdp">Mot de passe</li>
+                    <li class="list-group-item" id="list_email">Email</li>
+                </ul>
+            </div>
+            <div id="form-compte" class="offset-lg-2 offset-1 col-lg-4 col-sm-10">
+                {% if error is defined %}
+                    {{ error }}
+                {% endif %}
+                <div id="formId">
+                    {{ form_start(formId) }}
+                    <div class="row mb-4">
+                        {{ form_label(formId.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formId.children.plainPassword.children.plainPassword) }}
+                    </div>
+                    <div class="row mb-4">
+                        {{ form_label(formId.identifiant, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formId.identifiant) }}
+                    </div>
+                    <div class="row">
+                        {{ form_widget(formId.submit) }}
+                    </div>
+                    {{ form_end(formId) }}
+                </div>
+                <div id="formMdp">
+                    {{ form_start(formMdp) }}
+                    <div class="row mb-4">
+                        {{ form_label(formMdp.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formMdp.children.plainPassword.children.plainPassword) }}
+                    </div>
+                    <div class="row mb-4">
+                        {{ form_label(formMdp.children.changedPassword.children.first, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formMdp.children.changedPassword.children.first) }}
+                    </div>
+                    <div class="row mb-4">
+                        {{ form_label(formMdp.children.changedPassword.children.second, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formMdp.children.changedPassword.children.second) }}
+                    </div>
+                    <div class="row">
+                        {{ form_widget(formMdp.submit) }}
+                    </div>
+                    {{ form_end(formMdp) }}
+                </div>
+                <div id="formEmail">
+                    {{ form_start(formEmail) }}
+                    <div class="row mb-4">
+                        {{ form_label(formEmail.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formEmail.children.plainPassword.children.plainPassword) }}
+                    </div>
+                    <div class="row mb-4">
+                        {{ form_label(formEmail.email, null, {'label_attr': {'class': 'col-sm-12'}}) }}
+                        {{ form_widget(formEmail.email) }}
+                    </div>
+                    <div class="row">
+                        {{ form_widget(formEmail.submit) }}
+                    </div>
+                    {{ form_end(formEmail) }}
+                </div>
+            </div>
+        </div>
+        {% if role == "ROLE_ADMIN" %}
+            <div id="importRow" class="row offset-1 col-10 mt-5">
+                <p class="titre-import">Importer un fichier (.csv)</p>
+                <form id="import" class="offset-1 col-10" enctype="multipart/form-data" method="POST"
+                      action="{{ path('import.import') }}">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label hidden for="importSelect">Type de fichier</label>
+                            <button id="importSelect" class="btn btn-primary" type="button"></button>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="importSelectType" lang="fr"
+                                   name="importSelectType">
+                            <label class="custom-file-label" for="importSelectType">Fichier à importer </label>
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-info" type="submit">Importer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        let indexSettings = {
+            index: {
+                importSelect: $("#importSelect"),
+                div: $("#importSelectType"),
+                caution: $("#caution"),
+                form: {
+                    Id: $("#formId"),
+                    Mdp: $("#formMdp"),
+                    Email: $("#formEmail"),
+                },
+                list: {
+                    Id: $("#list_id"),
+                    Mdp: $("#list_mdp"),
+                    Email: $("#list_email"),
+                }
+            },
+            param: {
+                fileType: [
+                    "Classes",
+                    "Professeurs",
+                    "Élèves"
+                ]
+            },
+            method: {
+                initialize: function () {
+                    indexSettings.index.importSelect.text(indexSettings.param.fileType[0]);
+                    indexSettings.index.importSelect.click(function () {
+                        indexSettings.method.changeButtonText(this, indexSettings.param.fileType);
+                        console.log(indexSettings.index.div[0].value)
+                    });
+                    jQuery.each(indexSettings.index.form, function (key, value) {
+                        $(value).hide();
+                    });
+                    jQuery.each(indexSettings.index.list, function (key, value) {
+                        value.on("click", function () {
+                            indexSettings.method.addActive($(this));
+                            indexSettings.method.showForm(indexSettings.index.form[key]);
+                        })
+                    });
+                    $("input[type=file]").change(function (e) {
+                        $(this).next('.custom-file-label').text(e.target.files[0].name);
+                    })
+                },
+                changeButtonText: function (btn, arr) {
+                    let text = btn.innerText;
+                    let index = arr.indexOf(text);
+                    if (index === arr.length - 1) {
+                        btn.innerText = arr[0];
+                    } else {
+                        btn.innerText = arr[index + 1];
+                    }
+                },
+                addActive: function (listItem) {
+                    jQuery.each(indexSettings.index.list, function () {
+                        this.removeClass("active");
+                    })
+                    listItem.addClass("active");
+                },
+                showForm: function (formItem) {
+                    jQuery.each(indexSettings.index.form, function () {
+                        this.hide();
+                    })
+                    formItem.show();
+                }
+            }
+        }
+        indexSettings.method.initialize();
+    </script>
+{% endblock %}

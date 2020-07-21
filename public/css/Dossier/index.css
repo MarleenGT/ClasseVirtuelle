@@ -1,0 +1,28 @@
+#commentaires {
+    border: 1px solid black;
+    list-style: none;
+    padding: 1em 0 0 0;
+}
+#commentaires>li {
+    padding: 1em 0.5em 1em 0.5em;
+}
+.row-1 {
+    background-color: #f1f2f6;
+}
+.titre-commentaires {
+    background-color: white;
+    position: absolute;
+    top: -1em;
+    left: 2em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+.cadre-commentaire {
+    background-color: #e6e8f1;
+    padding: 0.5em;
+}
+.zone-commentaire {
+    margin: 1em 0 1em 0;
+    background-color: #d2dce3;
+    padding: 0.5em;
+}

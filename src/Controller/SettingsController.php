@@ -21,8 +21,16 @@ class SettingsController extends AbstractController
      */
     public function index()
     {
-        return $this->render('settings/settings.html.twig', [
+        $user = $this->getUser();
+        $formId = $this->createForm(ChangeIdType::class, $user);
+        $formMdp = $this->createForm(ChangePasswordType::class);
+        $formEmail = $this->createForm(ChangeEmailType::class, $user);
+
+        return $this->render('settings/index.html.twig', [
             'current_menu' => 'settings',
+            'formId' => $formId->createView(),
+            'formMdp' => $formMdp->createView(),
+            'formEmail' => $formEmail->createView()
         ]);
     }
 
@@ -42,9 +50,9 @@ class SettingsController extends AbstractController
             $entityManager->persist($task);
             $entityManager->flush();
             $this->addFlash('success', 'Identifiant modifié');
-            return $this->render("settings/settings.html.twig");
+            return $this->render("settings/index.html.twig");
         }
-        return $this->render('settings/change.html.twig', [
+        return $this->render('settings/index.html.twig', [
             'change' => 'Identifiant',
             'form' => $form->createView()
         ]);
@@ -74,22 +82,22 @@ class SettingsController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
                 $this->addFlash('success', 'Mot de passe modifié');
-                return $this->render("settings/settings.html.twig");
+                return $this->render("index.html.twig");
             } elseif (!($passwordEncoder->isPasswordValid($user, $plainPassword))) {
-                return $this->render('settings/change.html.twig', [
+                return $this->render('settings/index.html.twig', [
                     'change' => 'Mot de passe',
                     'form' => $form->createView(),
                     'error' => 'Le mot de passe actuel n\'est pas valide'
                 ]);
             } else {
-                return $this->render('settings/change.html.twig', [
+                return $this->render('settings/index.html.twig', [
                     'change' => 'Mot de passe',
                     'form' => $form->createView(),
                     'error' => 'Les deux nouveaux mots de passe ne correspondent pas'
                 ]);
             }
         }
-        return $this->render('settings/change.html.twig', [
+        return $this->render('settings/index.html.twig', [
             'change' => 'Mot de passe',
             'form' => $form->createView()
         ]);
@@ -115,9 +123,9 @@ class SettingsController extends AbstractController
                 $entityManager->flush();
             }
             $this->addFlash('success', 'Email modifié');
-            return $this->render("settings/settings.html.twig");
+            return $this->render("settings/index.html.twig");
         }
-        return $this->render('settings/change.html.twig', [
+        return $this->render('settings/index.html.twig', [
             'change' => 'Identifiant',
             'form' => $form->createView()
         ]);

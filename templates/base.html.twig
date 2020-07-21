@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Welcome!{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     {% block stylesheets %}{% endblock %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -27,12 +27,6 @@
                         <a class="nav-link {% if current_menu is defined and current_menu == 'utilisateurs' %}active{% endif %}"
                            href="{{ path('utilisateurs.index') }}">Utilisateurs</a>
                     </li>
-                {% endif %}
-                {% if role != 'ROLE_ELEVE' %}
-                <li class="nav-item">
-                    <a class="nav-link {% if current_menu is defined and current_menu == 'listes' %}active{% endif %}"
-                       href="{{ path('listes.index') }}">Listes</a>
-                </li>
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link {% if current_menu is defined and current_menu == 'settings' %}active{% endif %}"

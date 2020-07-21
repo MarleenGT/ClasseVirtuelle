@@ -1,47 +1,64 @@
 {% extends 'base.html.twig' %}
-{% block title 'Dossier de '~eleve.prenom~' '~eleve.nom  %}
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Dossier/index.css') }}">
+{% endblock %}
+{% block title 'Dossier de '~eleve.prenom~' '~eleve.nom %}
 {% block body %}
     {{ dump() }}
-<div class="row">
-
-    <div class="col-3">
-        <div>NOM : {{ eleve.nom }}</div>
-        <div>PRENOM : {{ eleve.prenom }}</div>
-        <div>CLASSE : {{ eleve.idClasse }}</div>
-
-        <button id="toggleCom">Ajouter un commentaire</button>
-        {{ form(form) }}
+    <div class="row">
+        <div class="row col-3 align-self-start">
+            <div class="offset-2 col-10">NOM : {{ eleve.nom }}</div>
+            <div class="offset-2 col-10">PRENOM : {{ eleve.prenom }}</div>
+            <div class="offset-2 col-10">CLASSE : {{ eleve.idClasse }}</div>
+            <div class="offset-2 col-10 zone-commentaire">
+                {{ form_start(form) }}
+                <div class="col-12 mb-2">
+                    <label for="{{ form.commentaire.vars.id }}">
+                        {{ form.commentaire.vars.label }}
+                    </label>
+                    {{ form_widget(form.commentaire) }}
+                </div>
+                <div class="col-12 mb-2">
+                    {{ form_label(form.global) }}
+                    {{ form_widget(form.global) }}
+                </div>
+                <div class="offset-2 mb-2">
+                    {{ form_widget(form.submit) }}
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+        <div class="col-9">
+            <ul id="commentaires">
+                <p class="titre-commentaires">Commentaires :</p>
+                {% for com in commentaires %}
+                    <li class="{% if loop.index is divisible by(2) %} row-2 {% else %} row-1 {% endif %}">
+                        <div>
+                            <p>Ecrit par : {{ com.idAuteur }}</p>
+                            <p>Le : {{ com.date|date("d/m/Y") }} à {{ com.date|date("H:i") }}</p>
+                            <p class="cadre-commentaire overflow-hidden">{{ com.commentaire }}</p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <div class="col-9">
-        <ul id="commentaires">
-            {% for com in commentaires %}
-                <li>
-                    <div>
-                        <p>Ecrit par : {{ com.idAuteur }}</p>
-                        <p>Le : {{ com.date|date("d/m/Y") }} à {{ com.date|date("H:i") }}</p>
-                        <p>{{ com.commentaire }}</p>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
 {% endblock %}
 {% block javascripts %}
     <script>
-        toggleCom = $("#toggleCom");
-        form = $("form[name='commentaire']");
-        toggleCom.bind('click', function () {
-            form.toggle();
-            if (form.is(":visible")){
-                toggleCom.text('Annuler');
-            } else {
-                toggleCom.text('Ajouter un commentaire');
-            }
-        })
-        $(document).ready(function () {
-            form.hide();
-        })
+        // toggleCom = $("#toggleCom");
+        // form = $("form[name='commentaire']");
+        // toggleCom.bind('click', function () {
+        //     form.toggle();
+        //     if (form.is(":visible")){
+        //         toggleCom.text('Annuler');
+        //     } else {
+        //         toggleCom.text('Ajouter un commentaire');
+        //     }
+        // })
+        // $(document).ready(function () {
+        //     form.hide();
+        // })
     </script>
 
 {% endblock %}

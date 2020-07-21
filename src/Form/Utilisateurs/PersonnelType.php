@@ -31,13 +31,9 @@ class PersonnelType extends AbstractType
                 'data' => $options['type']
             ])
             ->add('poste')
-            ->add('ajout', SubmitType::class, [
-                'label' => "Ajouter"
-            ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $personnel = $event->getData();
                 $form = $event->getForm();
-
                 if (!$personnel || null === $personnel->getId()) {
                     $form->add('ajout', SubmitType::class, [
                         'label' => "Ajouter"

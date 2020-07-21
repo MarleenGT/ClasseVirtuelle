@@ -14,18 +14,15 @@
 }
 .colonne_heure {
     width: 4%;
-    /*border-bottom: 1px black solid;*/
 }
 .jour {
     width: 16%;
     border-left: 2px solid white;
     text-align: center;
     text-transform: uppercase;
-    /*padding-left: 1em;*/
 }
 .colonne_jour {
     border-left: 2px solid white;
-    /*border-top: 1px solid black;*/
 }
 .lundi, .mercredi, .vendredi {
     background-color: #a7abbb;
@@ -35,11 +32,7 @@
 }
 .cours_head {
     display: flex;
-    /*justify-content: space-between;*/
 }
-/*.titre_edt {*/
-/*    text-align: center;*/
-/*}*/
 .semaine_btn {
     display: flex;
     justify-content: center;

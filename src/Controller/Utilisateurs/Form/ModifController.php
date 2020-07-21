@@ -5,9 +5,11 @@ namespace App\Controller\Utilisateurs\Form;
 
 
 use App\Controller\Message\Email;
+use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
+use App\Form\Utilisateurs\AdminType;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
@@ -44,6 +46,9 @@ class ModifController extends AbstractController
         } elseif ($user === 'Personnels') {
             $obj = $this->getDoctrine()->getRepository(Personnels::class)->find($id);
             $formType = PersonnelType::class;
+         }elseif ($user === 'Admins') {
+            $obj = $this->getDoctrine()->getRepository(Admins::class)->find($id);
+            $formType = AdminType::class;
         } else {
             return $this->render('utilisateurs/index.html.twig', [
                 'error' => 'Le type d\'utilisateur (Eleves, Professeurs ou Personnels) est incorrect'
@@ -76,7 +81,7 @@ class ModifController extends AbstractController
         $substrUser = substr($user, 0, strlen($user) - 1);
 
         return $this->json([
-            "titre" => "Modification des informations de $nom $prenom ($substrUser) ?",
+            "titre" => "Modification des informations de $nom $prenom ($substrUser)",
             "form" => $this->render("utilisateurs/modif.html.twig", [
                 "form" => $form->createView()
             ])

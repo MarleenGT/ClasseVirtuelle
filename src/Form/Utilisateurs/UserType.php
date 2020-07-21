@@ -22,7 +22,7 @@ class UserType extends AbstractType
                 $form = $event->getForm();
                 if ($user && !$user->getActif()) {
                     $form->add('sendEmail', SubmitType::class, [
-                        'label' => "Renvoyer l'email de confirmation"
+                        'label' => "Modifier et renvoyer l'email de confirmation"
                     ]);
                 }
             });

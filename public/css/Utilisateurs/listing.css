@@ -28,3 +28,6 @@ span.td, div.td{
 .col02 ul, .col03 ul{
     list-style: none;
 }
+.profSousgroupe, .addSousgroupe{
+    margin-left: 1rem;
+}

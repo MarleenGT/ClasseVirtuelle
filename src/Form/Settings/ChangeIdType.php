@@ -11,6 +11,10 @@ class ChangeIdType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('plainPassword', ActualPasswordType::class, [
+                'label' => false,
+                'mapped' => false
+            ])
             ->add('identifiant')
             ->add('submit', SubmitType::class, [
                 'label' => "Valider"

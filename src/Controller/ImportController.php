@@ -33,7 +33,6 @@ class ImportController extends AbstractController
      */
     public function import(Request $request, CompleteUser $completeUser, ImportCsv $importCsv, MessageBusInterface $messageBus)
     {
-        $str = "";
         $files = $request->files->all();
         $array = array_reverse($files);
         $str = file_get_contents(array_pop($array)->getPathname());
@@ -102,7 +101,7 @@ class ImportController extends AbstractController
                 $this->addFlash('success', 'Éleves importés !');
         };
         $em->flush();
-        return $this->render('settings/settings.html.twig', [
+        return $this->render('settings/index.html.twig', [
             'error' => $str
         ]);
 

@@ -16,10 +16,10 @@ class CommentaireType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('commentaire', TextareaType::class, [
-            'label' => false
+            'label' => 'Écrire un commentaire :',
         ])
             ->add('global', CheckboxType::class, [
-                'label' => 'Visible :',
+                'label' => 'Visible par tous',
                 'required' => false
             ])
             ->add('submit', SubmitType::class, [

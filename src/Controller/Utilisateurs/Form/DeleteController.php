@@ -4,6 +4,7 @@
 namespace App\Controller\Utilisateurs\Form;
 
 
+use App\Entity\Admins;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
@@ -37,6 +38,8 @@ class DeleteController extends AbstractController
             $obj = $this->getDoctrine()->getRepository(Profs::class)->find($id);
         } elseif ($user === 'Personnels') {
             $obj = $this->getDoctrine()->getRepository(Personnels::class)->find($id);
+        } elseif ($user === 'Admins') {
+            $obj = $this->getDoctrine()->getRepository(Admins::class)->find($id);
         } else {
             return $this->render('utilisateurs/index.html.twig');
         }

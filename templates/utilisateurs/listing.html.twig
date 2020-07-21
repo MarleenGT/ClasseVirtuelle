@@ -16,7 +16,6 @@
     {% else %}
         {% set col1, col2 = '', '' %}
     {% endif %}
-
     <div class="w-100">
         <div class="table">
             <div class="tr row entete">
@@ -26,9 +25,8 @@
                 <span class="td col-2">Options</span>
             </div>
             {% for list in response %}
-                <div class="tr row list {% if loop.index is divisible by(2) %}row-2{% endif %}
-                                        {% if loop.index is not divisible by(2) %}row-1{% endif %}" data-id={{ list.id }}>
-                    <span class="td nom col-4 col01">{% if user == "Professeurs" %}{{ list.civilite }}{% endif %} {{ list.nom }} {{ list.prenom }}</span>
+                <div class="tr row list {% if loop.index is divisible by(2) %}row-2{% else %}row-1{% endif %}" data-id={{ list.id }}>
+                    <span class="td nom col-4 col01">{% if user == "Professeurs" %}{{ list.civilite }}{% endif %} {{ list.nom|upper }} {{ list.prenom|title }}</span>
                     {% if user == "Eleves" %}
                         <span class="td classeEleve col-2 col02">{{ list.classe }}</span>
                         <div class="td col-2 col03">
@@ -108,30 +106,29 @@
             {% endfor %}
         </div>
     </div>
-
 {% endif %}
 {% block javascripts %}
     <script>
-        indexUtil:{
-            listingCours = {
+            listingUtil = {
                 index: {
-                    toggleSG: $("#sousgroupeToggle"),
-                    fieldSG: $(".sousgroupeField"),
                     addSG: $(".addSousgroupe"),
                     profSG: $(".profSousgroupe")
                 },
                 method: {
                     initialize: function () {
-                        listingCours.index.addSG.bind('click', function () {
+                        listingUtil.index.addSG.bind('click', function () {
                             indexUtil.method.addSousgroupe($(this));
                         });
-                        listingCours.index.profSG.bind('click', function () {
+                        listingUtil.index.profSG.bind('click', function () {
                             indexUtil.method.addProfSousgroupe($(this));
                         });
+                        if (!indexUtil.index.optionsField.is(":visible")){
+                            listingUtil.index.addSG.hide();
+                            listingUtil.index.profSG.hide();
+                        }
                     }
                 }
-            }
         }
-        listingCours.method.initialize();
+        listingUtil.method.initialize();
     </script>
 {% endblock %}

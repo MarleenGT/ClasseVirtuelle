@@ -1,1 +1,72 @@
-{{ form(form, {'action': path('utilisateurs.modif')}) }}
+{{ form_start(form) }}
+<div class="my-custom-class-for-errors">
+    {{ form_errors(form) }}
+</div>
+{% set user = form.type.vars.value %}
+<div class="row">
+    {{ form_label(form.nom, null, {'label_attr': {'class': 'col-12'}}) }}
+    {{ form_widget(form.nom) }}
+</div>
+<div class="row">
+    {{ form_label(form.prenom, null, {'label_attr': {'class': 'col-12'}}) }}
+    {{ form_widget(form.prenom) }}
+</div>
+<div class="row">
+    {{ form_label(form.id_user.children.email, null, {'label_attr': {'class': 'col-12'}}) }}
+    {{ form_widget(form.id_user.children.email) }}
+    <div class="mt-2 pl-5">
+        {{ form_widget(form.id_user.children.sendEmail) }}
+    </div>
+
+</div>
+{% if user == 'Eleves' %}
+    <div class="row">
+        {{ form_label(form.id_classe, "Classe", {'label_attr': {'class': 'col-12'}}) }}
+        {{ form_widget(form.id_classe) }}
+    </div>
+{% elseif user == 'Professeurs' %}
+    <div class="row">
+        <label for="{{ form.id_classe.vars.id }}"
+               class="{{ form.id_classe.vars.required ? 'required' }} col-12">Classe(s) enseignée(s)</label>
+        {{ form_widget(form.id_classe) }}
+    </div>
+    <div class="row">
+        <label for="{{ form.id_matiere.vars.id }}"
+               class="{{ form.id_matiere.vars.required ? 'required' }} col-12">Matière(s) enseignée(s)</label>
+        {{ form_widget(form.id_matiere) }}
+    </div>
+{% elseif user == 'Personnels' %}
+    <div class="row">
+        <label for="{{ form.poste.vars.id }}"
+               class="{{ form.poste.vars.required ? 'required' }} col-12">Poste</label>
+        {{ form_widget(form.poste) }}
+    </div>
+{% endif %}
+<div class="row d-flex justify-content-center">
+    <div class="m-2">
+        {{ form_widget(form.close) }}
+    </div>
+    <div class="m-2">
+        {{ form_widget(form.submit) }}
+    </div>
+</div>
+{{ form_end(form) }}
+{% block javascripts %}
+    {#    <script>#}
+    {#        modifUser = {#}
+    {#            index:{#}
+    {#                user: $("#modif_id_user")#}
+    {#            },#}
+    {#            method:{#}
+    {#                initialize: function () {#}
+    {#                    modifUser.index.user.parent().parent().children()[0].remove();#}
+    {#                    modifUser.index.user.parent().parent().children()[0].classList.remove("col-sm-10");#}
+    {#                    modifUser.index.user.parent().parent().children()[0].classList.add("col-sm-12");#}
+    {#                    modifUser.index.user.children()[0].classList.add("p-0");#}
+    {#                    console.log(modifUser.index.user.children())#}
+    {#                }#}
+    {#            }#}
+    {#        }#}
+    {#        modifUser.method.initialize();#}
+    {#    </script>#}
+{% endblock %}
