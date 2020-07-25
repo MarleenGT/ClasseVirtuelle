@@ -14,9 +14,11 @@
 <div class="row">
     {{ form_label(form.id_user.children.email, null, {'label_attr': {'class': 'col-12'}}) }}
     {{ form_widget(form.id_user.children.email) }}
-    <div class="mt-2 pl-5">
-        {{ form_widget(form.id_user.children.sendEmail) }}
-    </div>
+    {% if form.id_user.children.sendEmail is defined %}
+        <div class="mt-2 pl-5">
+            {{ form_widget(form.id_user.children.sendEmail) }}
+        </div>
+    {% endif %}
 
 </div>
 {% if user == 'Eleves' %}

@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\DateArchive;
 use App\Form\Settings\ChangeEmailType;
 use App\Form\Settings\ChangeIdType;
 use App\Form\Settings\ChangePasswordType;
+use DateTime;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,16 +24,13 @@ class SettingsController extends AbstractController
      */
     public function index()
     {
-        $user = $this->getUser();
-        $formId = $this->createForm(ChangeIdType::class, $user);
-        $formMdp = $this->createForm(ChangePasswordType::class);
-        $formEmail = $this->createForm(ChangeEmailType::class, $user);
+        $form = $this->usersForm();
 
         return $this->render('settings/index.html.twig', [
             'current_menu' => 'settings',
-            'formId' => $formId->createView(),
-            'formMdp' => $formMdp->createView(),
-            'formEmail' => $formEmail->createView()
+            'formId' => $form["formId"]->createView(),
+            'formMdp' => $form["formMdp"]->createView(),
+            'formEmail' => $form["formEmail"]->createView(),
         ]);
     }
 
@@ -82,7 +82,7 @@ class SettingsController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
                 $this->addFlash('success', 'Mot de passe modifié');
-                return $this->render("index.html.twig");
+                return $this->render("settings/index.html.twig");
             } elseif (!($passwordEncoder->isPasswordValid($user, $plainPassword))) {
                 return $this->render('settings/index.html.twig', [
                     'change' => 'Mot de passe',
@@ -117,7 +117,7 @@ class SettingsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $task = $form->getData();
             $plainPassword = $form->all()['plainPassword']->getData();
-            if ($passwordEncoder->isPasswordValid($task, $plainPassword)){
+            if ($passwordEncoder->isPasswordValid($task, $plainPassword)) {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($task);
                 $entityManager->flush();
@@ -129,5 +129,102 @@ class SettingsController extends AbstractController
             'change' => 'Identifiant',
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route ("/Purge", name="reglages.purgeTables")
+     */
+    public function purgeTables()
+    {
+        $tables = [
+            'archives',
+            'classes',
+            'commentaires',
+            'cours',
+            'date_archive',
+            'eleves',
+            'eleves_sousgroupes',
+            'matieres',
+            'messenger_messages',
+            'personnels',
+            'profs',
+            'profs_classes',
+            'profs_matieres',
+            'reset_password_request',
+            'sousgroupes',
+            'sousgroupes_users',
+            'users'
+        ];
+        $error = [];
+        $str = "";
+        $em = $this->getDoctrine()->getManager();
+        $connection = $em->getConnection();
+        $connection->prepare('SET FOREIGN_KEY_CHECKS=0')->execute();
+        foreach ($tables as $table) {
+            $query = 'delete from ' . $table;
+            if ($table === 'users') {
+                $query .= ' where id_role_id != 4';
+            }
+            try {
+                $connection->prepare($query)->execute();
+                $connection->query('ALTER TABLE ' . $table . ' AUTO_INCREMENT = 1')->execute();
+            } catch (Exception $e) {
+                $connection->rollback();
+                $error[] = $table;
+            }
+        }
+        if (!in_array('date_archive', $error)) {
+            $monday = new DateTime();
+            $monday->modify('monday this week');
+            $date = new DateArchive();
+            $date->setDateDerniereArchive($monday);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($date);
+            $entityManager->flush();
+        }
+        $connection->prepare('SET FOREIGN_KEY_CHECKS=1')->execute();
+
+        if (count($error) > 0) {
+            $str = "Les tables ";
+            $strTable = "";
+            foreach ($error as $item) {
+                $strTable .= $item . ", ";
+            }
+            $str = $str . substr($strTable, 0, -2) . " n'ont pas pu être vidées.";
+        }
+
+        $form = $this->usersForm();
+        $this->addFlash('success', 'Base de données purgée !');
+
+        return $this->render('settings/index.html.twig', [
+            'current_menu' => 'settings',
+            'formId' => $form["formId"]->createView(),
+            'formMdp' => $form["formMdp"]->createView(),
+            'formEmail' => $form["formEmail"]->createView(),
+            'purgeError' => $str
+        ]);
+    }
+
+    public function usersForm()
+    {
+
+        $formId = $this->createForm(ChangeIdType::class, [
+            'action' => $this->generateUrl('reglages.changeId'),
+            'method' => 'POST',
+        ]);
+        $formMdp = $this->createForm(ChangePasswordType::class, [
+            'action' => $this->generateUrl('reglages.changePassword'),
+            'method' => 'POST',
+        ]);
+        $formEmail = $this->createForm(ChangeEmailType::class, [
+            'action' => $this->generateUrl('reglages.changeEmail'),
+            'method' => 'POST',
+        ]);
+
+        return [
+            "formId" => $formId,
+            "formMdp" => $formMdp,
+            "formEmail" => $formEmail
+        ];
     }
 }

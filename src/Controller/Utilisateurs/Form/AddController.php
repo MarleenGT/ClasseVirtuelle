@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AddController extends AbstractController
 {
@@ -78,7 +79,9 @@ class AddController extends AbstractController
                 ]);
             }
             $email = new Email();
+            $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
             $email->setTask($addUser);
+            $email->setUrl($url);
             $messageBus->dispatch($email);
 
 //            if ($error) {

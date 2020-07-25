@@ -95,7 +95,45 @@
                     </div>
                 </form>
             </div>
+            <div id="purgeRow">
+                <p class="titre-purge">Purger les données</p>
+                {% if purgeError is defined and purgeError|length > 0 %}
+                    <p class="purgeError">{{ purgeError }}</p>
+                {% endif %}
+                <div class="d-flex">
+                    <p class="caution-purge">Attention : cette opération va purger l'ensemble des tables de la base de données</p>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#purgeModal">
+                        Purger
+                    </button>
+                </div>
+
+            </div>
         {% endif %}
+    </div>
+    <div class="modal fade" id="purgeModal" tabindex="-1" role="dialog" aria-labelledby="purgeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="purgeModalLabel">Vider la base de données</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Cette opération va vider chacune des tables de la base de données à l'exception de la table rôles et date de la dernière archive.
+                        A l'issue de cette opération, seuls les administrateurs pourront se connecter.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{{ path('reglages.purgeTables') }}">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger" id="purgeButton">Purger</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 {% block javascripts %}
@@ -103,7 +141,8 @@
         let indexSettings = {
             index: {
                 importSelect: $("#importSelect"),
-                div: $("#importSelectType"),
+                purgeButton: $("#purgeButton"),
+                input: $("#importSelectType"),
                 caution: $("#caution"),
                 form: {
                     Id: $("#formId"),
@@ -126,9 +165,10 @@
             method: {
                 initialize: function () {
                     indexSettings.index.importSelect.text(indexSettings.param.fileType[0]);
+                    indexSettings.index.input.attr("name", indexSettings.param.fileType[0])
                     indexSettings.index.importSelect.click(function () {
                         indexSettings.method.changeButtonText(this, indexSettings.param.fileType);
-                        console.log(indexSettings.index.div[0].value)
+                        indexSettings.index.input.attr("name", this.innerText)
                     });
                     jQuery.each(indexSettings.index.form, function (key, value) {
                         $(value).hide();
@@ -141,7 +181,7 @@
                     });
                     $("input[type=file]").change(function (e) {
                         $(this).next('.custom-file-label').text(e.target.files[0].name);
-                    })
+                    });
                 },
                 changeButtonText: function (btn, arr) {
                     let text = btn.innerText;

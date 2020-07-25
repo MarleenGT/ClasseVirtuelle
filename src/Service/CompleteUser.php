@@ -42,6 +42,7 @@ class CompleteUser extends AbstractController
             ->setMdp($password)
             ->setIdRole($role)
             ->setToken($token);
+
         return $task;
     }
 

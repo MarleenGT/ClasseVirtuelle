@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ModifController extends AbstractController
 {
@@ -56,19 +57,24 @@ class ModifController extends AbstractController
         }
         $form = $this->get('form.factory')->createNamed('modif',$formType, $obj, [
             'id' => $id,
-            'type' => $user
+            'type' => $user,
+            'action' => $this->generateUrl('utilisateurs.modif')
         ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $obj = $form->getData();
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($obj);
             $entityManager->flush();
+
             if ($form->getClickedButton() && 'sendEmail' === $form->getClickedButton()->getName()){
                 $email = new Email();
+                $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
                 $email->setTask($obj);
+                $email->setUrl($url);
                 $messageBus->dispatch($email);
             }
             return $this->render("utilisateurs/index.html.twig", [

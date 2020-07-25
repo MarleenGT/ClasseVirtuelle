@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @Route("/Importer")
@@ -38,17 +39,20 @@ class ImportController extends AbstractController
         $str = file_get_contents(array_pop($array)->getPathname());
         $str = filter_var(str_replace(";", ",", $str), FILTER_SANITIZE_STRING);
         $em = $this->getDoctrine()->getManager();
+
         switch (array_key_first($files)) {
-            case "importClasses":
+
+            case "Classes":
                 $classes = $importCsv->import($str, ['NOM']);
                 foreach ($classes as $class) {
                     $obj = new Classes();
-                    $obj->setNomClasse($class);
+                    $obj->setNomClasse($class["NOM"]);
                     $em->persist($obj);
                 }
                 $this->addFlash('success', 'Classes importées !');
                 break;
-            case "importProfs":
+
+            case "Professeurs":
                 $profs = $importCsv->import($str, ['NOM', 'PRENOM', 'EMAIL'], ['CIVILITE', 'DISCIPLINE']);
                 $list_matiere = [];
                 foreach ($profs as $prof) {
@@ -75,13 +79,15 @@ class ImportController extends AbstractController
                     }
                     $obj = $completeUser->completeUser($obj, "Professeurs");
                     $email = new Email();
+                    $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
                     $email->setTask($obj);
+                    $email->setUrl($url);
                     $messageBus->dispatch($email);
-                    $em->persist($obj);
                 }
                 $this->addFlash('success', 'Professeurs importés !');
                 break;
-            case "importEleves":
+
+            case "Élèves":
                 $eleves = $importCsv->import($str, ['NOM', 'PRENOM', 'EMAIL', 'CLASSES']);
                 foreach ($eleves as $eleve) {
                     $obj = new Eleves();
@@ -101,9 +107,8 @@ class ImportController extends AbstractController
                 $this->addFlash('success', 'Éleves importés !');
         };
         $em->flush();
-        return $this->render('settings/index.html.twig', [
-            'error' => $str
-        ]);
+
+        return $this->forward('App\Controller\SettingsController::index');
 
     }
 
