@@ -79,6 +79,19 @@
                         <option value="45">45</option>
                     </select>
                 </div>
+                {% if role == "ROLE_ADMIN" %}
+                    {{ form_start(form) }}
+                    <div class="input-group mb-5">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="addClasse">Ajouter une classe</label>
+                        </div>
+                        {{ form_widget(form.nom_classe, {'attr': {'class': 'form_control', 'placeholder': form.nom_classe.vars.label }}) }}
+                        <div class="input-group-append">
+                            <input type="submit" class="btn btn-primary" value="Ajouter">
+                        </div>
+                    </div>
+                    {{ form_end(form) }}
+                {% endif %}
                 <div id="sousgroupeMsg"></div>
                 <div class="input-group" id="sousgroupeInput">
                     <label for="sousgroupeTitre" hidden>Entrez le nom du sous-groupe</label>
@@ -93,10 +106,10 @@
                     <ul id="sousgroupeList"></ul>
                 </div>
                 {% if role == "ROLE_PERSONNEL" or role == "ROLE_ADMIN" %}
-                <div class="prof-list">
-                    <p>Professeurs :</p>
-                    <ul id="profSousgroupeList"></ul>
-                </div>
+                    <div class="prof-list">
+                        <p>Professeurs :</p>
+                        <ul id="profSousgroupeList"></ul>
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -194,8 +207,9 @@
                     {% if app.user.roles[0] == 'ROLE_PROF' %}
                     indexUtil.param.sousgroupeProfList = [{'id': {{ app.user.id }} }];
                     {% endif %}
+                    console.log(indexUtil.param.sousgroupeList, indexUtil.param.sousgroupeProfList)
                     $.ajax({
-                        url: " {{ path('sousgroupe.add') }}",
+                        url: "{{ path('sousgroupe.add') }}",
                         method: "POST",
                         data: {
                             eleves: indexUtil.param.sousgroupeList,
@@ -203,6 +217,7 @@
                             nom: indexUtil.index.sousgroupeTitre,
                         }
                     }).done(function (msg) {
+                        console.table(msg)
                         if (msg.error) {
                             indexUtil.index.sousgroupeMsg.html("<span class='error'>" + msg.error + "</span>");
                         } else if (msg.success) {

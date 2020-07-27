@@ -95,14 +95,14 @@
                     </div>
                 </form>
             </div>
-            <div id="purgeRow">
+            <div id="purgeRow" class="row offset-1 col-10 mt-5 pb-3">
                 <p class="titre-purge">Purger les données</p>
                 {% if purgeError is defined and purgeError|length > 0 %}
                     <p class="purgeError">{{ purgeError }}</p>
                 {% endif %}
-                <div class="d-flex">
-                    <p class="caution-purge">Attention : cette opération va purger l'ensemble des tables de la base de données</p>
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#purgeModal">
+                <div class="row offset-1 col-10">
+                    <p class="caution-purge col-8 p-1">Attention : cette opération va purger l'ensemble des tables de la base de données</p>
+                    <button type="button" class="btn btn-danger offset-2" data-toggle="modal" data-target="#purgeModal">
                         Purger
                     </button>
                 </div>
@@ -121,7 +121,7 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        Cette opération va vider chacune des tables de la base de données à l'exception de la table rôles et date de la dernière archive.
+                        Cette opération va vider chacune des tables de la base de données à l'exception des tables rôles et administrateurs.<br>
                         A l'issue de cette opération, seuls les administrateurs pourront se connecter.
                     </p>
                 </div>
@@ -130,7 +130,6 @@
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
                         <button type="submit" class="btn btn-danger" id="purgeButton">Purger</button>
                     </form>
-
                 </div>
             </div>
         </div>

@@ -19,17 +19,17 @@ class Cours
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="cours")
+     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="cours", fetch="EAGER")
      */
     private $id_classe;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Sousgroupes::class, inversedBy="cours")
+     * @ORM\ManyToOne(targetEntity=Sousgroupes::class, inversedBy="cours", fetch="EAGER")
      */
     private $id_sousgroupe;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Profs::class, inversedBy="cours")
+     * @ORM\ManyToOne(targetEntity=Profs::class, inversedBy="cours", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
     private $id_prof;

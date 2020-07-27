@@ -5,9 +5,11 @@ namespace App\Controller\Utilisateurs;
 
 
 use App\Entity\Admins;
+use App\Entity\Classes;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
+use App\Form\Classes\AddClasseType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,13 +59,42 @@ class UtilisateursController extends AbstractController
     }
 
     /**
+     * @param Request $request
      * @return Response
      * @Route("/Utilisateurs", name="utilisateurs.index")
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return $this->render('utilisateurs/index.html.twig', [
+        $role = $this->getUser()->getRoles()[0];
+        $options = [
             'current_menu' => 'utilisateurs'
-        ]);
+        ];
+
+        /**
+         * Si l'utilisateur est un administrateur, création du formulaire d'ajout d'une classe
+         */
+        if ($role === 'ROLE_ADMIN') {
+            $cla = new Classes();
+            $form = $this->createForm(AddClasseType::class, $cla);
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $classe = $form->getData();
+
+                /**
+                 * Vérification si la classe à ajouter existe déjà
+                 */
+                $query = $this->getDoctrine()->getRepository(Classes::class)->findOneBy(['nom_classe' => $classe->getNomClasse()]);
+                if (!$query){
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($classe);
+                    $em->flush();
+                    $this->addFlash('success', 'Classe ajoutée !');
+                } else {
+                    $this->addFlash('danger', 'La classe à ajouter existe déjà.');
+                }
+            }
+            $options['form'] = $form->createView();
+        }
+        return $this->render('utilisateurs/index.html.twig', $options);
     }
 }

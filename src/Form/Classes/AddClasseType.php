@@ -1,29 +1,24 @@
 <?php
 
 
-namespace App\Form\Commentaire;
+namespace App\Form\Classes;
 
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class CommentaireType extends AbstractType
+class AddClasseType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('commentaire', TextareaType::class, [
-            'label' => 'Écrire un commentaire :',
+        $builder->add('nom_classe', TextType::class, [
+            'label' => 'Nom de la classe',
         ])
-            ->add('global', CheckboxType::class, [
-                'label' => 'Visible par tous',
-                'required' => false
-            ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Enregistrer'
+                'label' => 'Ajouter'
             ]);
     }
 

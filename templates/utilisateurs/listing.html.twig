@@ -82,6 +82,7 @@
                             </form>
 
                         {% endif %}
+                        {% if app.user.roles[0] == 'ROLE_PERSONNEL' or app.user.roles[0] == 'ROLE_ADMIN' %}
                         <button class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#modalCRUD"
                                 data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}"><i
                                     class="fas fa-user-edit"></i></button>
@@ -89,6 +90,7 @@
                                 data-target="#modalCRUD"
                                 data-button="suppr" data-user="{{ user }}" data-id="{{ list.id }}"><i
                                     class="fas fa-user-slash"></i></button>
+                        {% endif %}
                         {% if user == "Eleves" %}
                             <button id="add_{{ list.id }}"
                                     class="addSousgroupe btn btn-outline-secondary"><i

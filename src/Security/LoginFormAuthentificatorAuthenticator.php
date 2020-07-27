@@ -96,7 +96,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
         $role = $token->getRoleNames()[0];
         $id = $token->getUser()->getId();
 
-//        $this->checkArchive->check();
+        $this->checkArchive->check();
 
         $request->getSession()->set('role', $role);
 

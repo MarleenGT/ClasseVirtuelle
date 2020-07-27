@@ -105,9 +105,22 @@ class AddController extends AbstractController
 
             return $this->redirectToRoute('utilisateurs.index');
         }
+
+        $str = "";
+        if ($user === 'Eleves') {
+            $str = "Ajout d'élève";
+        } elseif ($user === 'Profs') {
+            $str = "Ajout de professeur";
+        } elseif ($user === 'Personnels') {
+            $str = "Ajout de personnel";
+        } else {
+            $str = "Ajout d'administrateur";
+        }
+
         return $this->render('utilisateurs/add/add.html.twig', [
             'form' => $form->createView(),
-            'typeUtil' => $user
+            'typeUtil' => $user,
+            'titre' => $str
         ]);
     }
 

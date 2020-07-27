@@ -26,7 +26,7 @@ class CoursController extends AbstractController
      * @return Response
      * @Route("/Cours/ajax", name="cours.ajax", methods={"GET"})
      */
-    public function ajax(Request $request, CheckSession $checkSession): Response
+    public function ajax(Request $request): Response
     {
         if ($request->isXmlHttpRequest()) {
             $select = explode("_", $request->query->get('select'));
@@ -124,12 +124,13 @@ class CoursController extends AbstractController
             $liste_sousgroupe = [];
             $liste_prof = [];
         }
+
         return $this->render('cours/index.html.twig', [
             'current_menu' => 'cours',
             'start_hour' => $this->getParameter('startTimeTable'),
             'liste_classe' => $liste_classe,
             'liste_sousgroupe' => $liste_sousgroupe,
-            'liste_prof' => $liste_prof
+            'liste_prof' => $liste_prof,
         ]);
     }
 

@@ -81,27 +81,27 @@ class AddCoursController extends AbstractController
              * Vérification que le cours ajouté n'est pas déjà passé
              */
             if ($heure_debut < $now) {
+                $this->addFlash('danger', 'Problème au niveau des horaires : le cours ajouté est déjà passé.');
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
-                    'error' => 'Problème au niveau des horaires : le cours ajouté est déjà passé.'
                 ]);
             }
             /**
              * Vérification que le début du cours est avant la fin du cours
              */
             if ($heure_debut > $heure_fin) {
+                $this->addFlash('danger', 'Problème au niveau des horaires : la fin du cours se passe avant la fin du cours.');
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
-                    'error' => "Problème au niveau des horaires : la fin du cours se passe avant la fin du cours."
                 ]);
             }
             /**
              * Vérification que les cours ajoutés sont bien dans la plage horaire d'affichage de l'emploi du temps
              */
-            if ((int)$heure_debut->format('h') < $debut_affichage || (int)$heure_fin->format('h') > $fin_affichage) {
+            if ((int)$heure_debut->format('H') < $debut_affichage || (int)$heure_fin->format('H') > $fin_affichage) {
+                $this->addFlash('danger', 'Problème au niveau des horaires : Vérifiez que le cours ajouté est bien dans les horaires définis par l\'administrateur (de $debut_affichage h à $fin_affichage h).');
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
-                    'error' => "Problème au niveau des horaires : Vérifiez que le cours ajouté est bien dans les horaires définis par l'administrateur (de $debut_affichage h à $fin_affichage h)."
                 ]);
             }
 
@@ -127,22 +127,32 @@ class AddCoursController extends AbstractController
             try {
                 $verif = $this->verifCours($obj);
             } catch (Exception $e) {
+                $this->addFlash('danger', 'Problème dans la vérification des cours');
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
-                    "error" => "Problème dans la vérification des cours"
                 ]);
             }
 
             if (count($verif['classe']) > 0 || count($verif['sousgroupe']) > 0 || count($verif['prof']) > 0) {
+                $this->addFlash('danger', 'Conflit entre le cours ajouté et ceux déjà présents.');
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
                     'conflit' => $verif
                 ]);
             }
+            /**
+             * Vérification du lien de connection au cours
+             * et ajout de http si besoin pour permettre à Twig de détecter que le lien est un lien externe
+             */
+            $lien = $obj->getLien();
+            if (substr($lien, 0, 8) !== "https://" && substr($lien, 0, 7) !== "http://") {
+                $obj->setLien("http://".$lien);
+            }
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($cours);
             $entityManager->flush();
-
+            $this->addFlash('success', 'Cours ajouté !');
             return $this->redirectToRoute('cours.index');
         }
         return $this->render("cours/add.html.twig", [

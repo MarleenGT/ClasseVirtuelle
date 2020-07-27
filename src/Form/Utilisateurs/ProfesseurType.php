@@ -37,12 +37,14 @@ class ProfesseurType extends AbstractType
                 'class' => Matieres::class,
                 'choice_label' => 'nom_matiere',
                 'multiple' => true,
+                'label' => 'Matière(s) enseignée(s)'
             ])
             ->add('id_classe', EntityType::class, [
                 'class' => Classes::class,
                 'choice_label' => 'nom_classe',
                 'multiple' => true,
-                "required" => false
+                "required" => false,
+                'label' => 'Classe(s) enseignée(s)'
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $prof = $event->getData();

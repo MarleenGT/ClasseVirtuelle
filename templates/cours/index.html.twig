@@ -91,6 +91,7 @@
             method: {
                 initialize: function () {
                     indexCours.param.date = this.startOfWeek(new Date);
+                    indexCours.param.date.setHours(8, 0, 0, 0);
                     indexCours.index.selectEdt.on('change', this.AJAX);
                     {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
                         indexCours.index.selectEdt.children().hide();
@@ -134,14 +135,16 @@
                 },
                 changeSelectOption: function (btn, arr) {
                     let str = btn.innerText;
+                    $("option[selected]").removeAttr("selected");
                     for (let i = 0; i < arr.length; i++) {
                         let list = indexCours.index.option[arr[i].substr(0, 4)];
+                        console.log(str, arr[i])
                         if (str === arr[i]) {
                             list.show();
                             list.first().attr("selected", true);
                         } else {
                             list.hide();
-                            list.children().removeAttr("selected");
+                            // list.children().removeAttr("selected");
                         }
                     }
                 },
@@ -166,7 +169,6 @@
                     } else {
                         return "Emploi du temps du " + dateMonday + " au " + dateSaturday;
                     }
-
                 }
             }
         }

@@ -37,6 +37,7 @@ class EleveType extends AbstractType
                 'class' => Classes::class,
                 // uses the User.username property as the visible option string
                 'choice_label' => 'nom_classe',
+                'label' => 'Classe'
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $eleve = $event->getData();

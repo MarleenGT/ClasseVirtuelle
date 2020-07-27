@@ -1,15 +1,33 @@
 #liste-details {
-    border: 1px solid #8b8b8b;
     margin-top: 2em;
     padding: 1em;
 }
-.titre-details-compte {
+#liste-details .list-group-item {
+    transition-property: background-color;
+    transition-duration: 0.3s;
+}
+#liste-details .list-group-item:hover {
+    background-color: #007bff;
+    color: white;
+}
+#importRow, #liste-details, #purgeRow {
+    border: 1px solid #8b8b8b;
+}
+.titre-details-compte, .titre-import, .titre-purge {
     display: inline;
     position: relative;
-    top: -1.9em;
     padding-right: 0.5em;
     padding-left: 0.5em;
     background-color: white;
+}
+.titre-details-compte{
+    top: -1.9em;
+}
+.titre-import{
+    top: -0.9em;
+}
+.titre-purge{
+    top: -0.9em;
 }
 #reglages {
     margin: 1em;
@@ -18,16 +36,5 @@
     margin-top: 2em;
 }
 .custom-file-input ~ .custom-file-label::after {
-    content: "Choisir...";
-}
-#importRow {
-    border: 1px solid #8b8b8b;
-}
-.titre-import {
-    display: inline;
-    position: relative;
-    top: -0.9em;
-    padding-right: 0.3em;
-    padding-left: 0.3em;
-    background-color: white;
+    display: none;
 }
