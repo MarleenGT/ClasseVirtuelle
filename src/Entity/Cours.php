@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CoursRepository;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CoursRepository::class)
@@ -36,11 +37,13 @@ class Cours
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\DateTime()
      */
     private $heure_debut;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\DateTime()
      */
     private $heure_fin;
 
@@ -56,11 +59,13 @@ class Cours
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\DateTime()
      */
     private $date;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Url()
      */
     private $lien;
 

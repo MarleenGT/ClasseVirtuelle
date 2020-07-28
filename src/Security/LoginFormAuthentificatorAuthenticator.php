@@ -106,6 +106,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
                 $request->getSession()->set('id', $query->getId());
                 $request->getSession()->set('classe', $query->getIdClasse());
                 $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+                $request->getSession()->set('user', $query);
                 break;
             case 'ROLE_PROF':
                 $query = $this->entityManager->getRepository(Profs::class)->findOneBy(['id_user' => $id]);
@@ -121,14 +122,17 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
                 $request->getSession()->set('classe', $classe);
                 $request->getSession()->set('matiere', $matiere);
                 $request->getSession()->set('sousgroupe', $query->getIdUser()->getSousgroupesVisibles());
+                $request->getSession()->set('user', $query);
                 break;
             case 'ROLE_PERSONNEL':
                 $query = $this->entityManager->getRepository(Personnels::class)->findOneBy(['id_user' => $id]);
                 $request->getSession()->set('id', $query->getId());
+                $request->getSession()->set('user', $query);
                 break;
             case 'ROLE_ADMIN':
                 $query = $this->entityManager->getRepository(Admins::class)->findOneBy(['id_user' => $id]);
                 $request->getSession()->set('id', $query->getId());
+                $request->getSession()->set('user', $query);
                 break;
         }
         return new RedirectResponse('/ClasseVirtuelle/public/Cours');

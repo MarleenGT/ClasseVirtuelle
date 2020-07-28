@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/Cours/suppression.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+{% endblock %}
+{% block title 'Suppression du cours' %}
+{% block body %}
+    {{ dump() }}
+    <div class="jumbotron container">
+        <h1 class="mb-5">Suppression des cours</h1>
+        <ul>
+            {% for cours in coursListe %}
+                {% if cours.idClasse is not null %}
+                    {% set cla_sg = "la classe de "~cours.idClasse.nomClasse %}
+                {% else %}
+                    {% set cla_sg = "le sous-groupe "~cours.idSousgroupe.nomSousgroupe %}
+                {% endif %}
+                <li class="{% if loop.index is divisible by(2) %}row-2{% else %}row-1{% endif %} pb-2 pt-2 row">
+                    <div class="d-flex flex-column col-8">
+                        <p>{{ cours.matiere }} de {{ cours.heureDebut|date("H:i") }}
+                            à {{ cours.heureFin|date("H:i") }}</p>
+                        <p>Avec {{ cla_sg }}</p>
+                    </div>
+                    <div class="col-4 d-flex align-items-center">
+                        <button class="btn btn-outline-info" type="button" data-toggle="modal"
+                                data-button="modif" data-id="{{ cours.id }}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger" type="button" data-toggle="modal"
+                                data-button="suppr" data-id="{{ cours.id }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+{% endblock %}

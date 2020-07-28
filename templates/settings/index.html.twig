@@ -10,14 +10,17 @@
         </div>
     {% endfor %}
     <div id="reglages">
-        <div id="details-compte" class="row">
-            <div id="liste-details" class="offset-1 col-lg-4 col-sm-10">
-                <p class="titre-details-compte">Détails du compte</p>
-                <ul class="list-group">
-                    <li class="list-group-item" id="list_id">Identifiant</li>
-                    <li class="list-group-item" id="list_mdp">Mot de passe</li>
-                    <li class="list-group-item" id="list_email">Email</li>
-                </ul>
+        <div id="details-compte" class="row mb-2 no-gutters">
+            <div class="offset-1 col-lg-4 col-sm-10">
+                <div id="liste-details">
+                    <p class="titre-details-compte">Détails du compte</p>
+                    <ul class="list-group">
+                        <li class="list-group-item" id="list_id">Identifiant</li>
+                        <li class="list-group-item" id="list_mdp">Mot de passe</li>
+                        <li class="list-group-item" id="list_email">Email</li>
+                    </ul>
+                </div>
+                <div class="h-100"></div>
             </div>
             <div id="form-compte" class="offset-lg-2 offset-1 col-lg-4 col-sm-10">
                 {% if error is defined %}
@@ -75,7 +78,8 @@
             </div>
         </div>
         {% if role == "ROLE_ADMIN" %}
-            <div id="importRow" class="row offset-1 col-10 mt-5">
+            <div class="border-bottom"></div>
+            <div id="importRow" class="row offset-1 col-10">
                 <p class="titre-import">Importer un fichier (.csv)</p>
                 <form id="import" class="offset-1 col-10" enctype="multipart/form-data" method="POST"
                       action="{{ path('import.import') }}">
@@ -95,7 +99,8 @@
                     </div>
                 </form>
             </div>
-            <div id="purgeRow" class="row offset-1 col-10 mt-5 pb-3">
+            <div class="border-bottom"></div>
+            <div id="purgeRow" class="row offset-1 col-10 pb-5">
                 <p class="titre-purge">Purger les données</p>
                 {% if purgeError is defined and purgeError|length > 0 %}
                     <p class="purgeError">{{ purgeError }}</p>

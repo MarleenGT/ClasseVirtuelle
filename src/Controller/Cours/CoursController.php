@@ -4,14 +4,11 @@
 namespace App\Controller\Cours;
 
 
-use App\Entity\Archives;
+use App\Controller\CheckRepository\CheckCoursRepo;
 use App\Entity\Classes;
-use App\Entity\Cours;
-use App\Entity\DateArchive;
 use App\Entity\Eleves;
 use App\Entity\Profs;
 use App\Entity\Sousgroupes;
-use App\Service\CheckSession;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,31 +19,51 @@ class CoursController extends AbstractController
 {
     /**
      * @param Request $request
-     * @param CheckSession $checkSession
      * @return Response
      * @Route("/Cours/ajax", name="cours.ajax", methods={"GET"})
      */
-    public function ajax(Request $request): Response
+    public function ajax(Request $request, CheckCoursRepo $checkCoursRepo): Response
     {
         if ($request->isXmlHttpRequest()) {
-            $select = explode("_", $request->query->get('select'));
-            $archivage = $this->getDoctrine()->getRepository(DateArchive::class)->find(1)->getDateDerniereArchive();
+
+            /**
+             * Récupération et nettoyage du choix de l'emploi du temps
+             */
+            $select = explode("_", filter_var($request->query->get('select'), FILTER_SANITIZE_STRING));
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
-            $timeLundi = (int)$request->query->get('date');
-            $timeSamedi = (int)($timeLundi + 5 * 24 * 60 * 60 + 60 * 60 * ($fin - $debut));
+
+            /**
+             * Récupération et vérification de l'heure du début de l'affichage de l'emploi du temps
+             */
+            if (is_numeric($request->query->get('date'))) {
+                $timeLundi = (int)$request->query->get('date');
+            } else {
+                $this->addFlash('danger', "Problème pour la récupération du jour. Vérifiez si javascript est activé.");
+                return $this->render('cours/index.html.twig');
+            }
+            $timeSamedi = $timeLundi + 5 * 24 * 60 * 60 + 60 * 60 * ($fin - $debut);
             $date_lundi = (new DateTime)->setTimestamp($timeLundi);
             $date_samedi = (new DateTime)->setTimestamp($timeSamedi);
+
+            $role = $this->getUser()->getRoles()[0];
 
             /**
              * Vérification de la date d'archivage pour savoir si les cours à afficher sont dans la table Archives ou Cours
              */
-            $role = $this->getUser()->getRoles()[0];
-            $repository = ($archivage < $date_samedi)? Cours::class : Archives::class;
+            $repository = $checkCoursRepo->check($timeLundi);
             if ($role === "ROLE_ELEVE"){
                 $eleve = $this->getDoctrine()->getRepository(Eleves::class)->findOneBy(['id_user' => $this->getUser()->getId()]);
+                if (!$eleve) {
+                    $this->addFlash('danger', 'Problème pour la récupération de l\'emploi de temps. Contacter l\'administrateur' );
+                    return $this->render('cours/index.html.twig');
+                }
                 $query = $this->findCoursForEleve($eleve, $repository, $date_lundi, $date_samedi);
             } else {
+
+                /**
+                 * Récupération de l'emploi du temps correspondant à l'option choisie
+                 */
                 if ($select[0] === 'pr'){
                     if ($role === "ROLE_PROF"){
                         $profId = $this->getDoctrine()->getRepository(Profs::class)->findOneBy(['id_user' => $this->getUser()->getId()])->getId();
@@ -66,9 +83,11 @@ class CoursController extends AbstractController
             $thu = [];
             $fri = [];
             $sat = [];
-            $debut = $this->getParameter('startTimeTable');
-            $fin = $this->getParameter('endTimeTable');
 
+            /**
+             * Stockage de chaque cours récupéré dans le tableau correspondant au jour du cours.
+             * Création des variables nécessaires pour le positionnement des cours dans l'emploi du temps
+             */
             foreach ($query as $cours) {
                 $coursArray = [];
                 $coursArray['cours'] = $cours;
@@ -79,10 +98,12 @@ class CoursController extends AbstractController
             }
             $hours = [];
 
+            /**
+             * Vérification des valeurs d'environnement de l'emploi du temps.
+             */
             if ($debut > $fin){
-                return $this->render('cours/index.html.twig', [
-                    'error' => 'Problème dans les paramètres d\'affichage. Contactez l\'administrateur.'
-                ]);
+                $this->addFlash('danger', "Les valeurs correspondant aux heures de début et de la fin de la journée sont incorrectes. Contactez l'administrateur.");
+                return $this->render('cours/index.html.twig');
             }
             for ($i = $debut; $i < $fin; $i++) {
                 $hours[] = $i.'h';
@@ -101,9 +122,8 @@ class CoursController extends AbstractController
                 'samedi' => $sat
             ]);
         } else {
-            return $this->render('cours/index.html.twig', [
-                'error' => 'Ceci n\'est pas une requête AJAX'
-            ]);
+            $this->addFlash('danger', "La requête AJAX est incorrecte. Contactez l'administrateur.");
+            return $this->render('cours/index.html.twig');
         }
     }
 
@@ -114,6 +134,9 @@ class CoursController extends AbstractController
      */
     public function index(): Response
     {
+        /**
+         * Récupération des listes de profs/classes/sous-groupes en fonction de l'utilisateur
+         */
         $role = $this->getUser()->getRoles()[0];
         if ($role === 'ROLE_PERSONNEL' || $role === 'ROLE_ADMIN'){
             $liste_classe = $this->getDoctrine()->getRepository(Classes::class)->findAll();
@@ -134,7 +157,12 @@ class CoursController extends AbstractController
         ]);
     }
 
-    private function hours_tofloat($val)
+    /**
+     * @param $val
+     * @return int
+     * Transformation des horaires du cours en nombres pour le positionnement dans l'emploi du temps.
+     */
+    private function hours_tofloat($val): int
     {
         if (empty($val)) {
             return 0;
@@ -143,6 +171,14 @@ class CoursController extends AbstractController
         return $parts[0] + floor(($parts[1] / 60) * 100) / 100;
     }
 
+    /**
+     * @param Eleves $eleve
+     * @param $repository
+     * @param $heure_debut
+     * @param $heure_fin
+     * @return array
+     * Récupération des cours de l'élève.
+     */
     private function findCoursForEleve(Eleves $eleve, $repository, $heure_debut, $heure_fin): array
     {
         $query = [];

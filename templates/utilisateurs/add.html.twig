@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title titre %}
+{% block body %}
+    {% if error is defined %}
+        <h2>{{ error }}</h2>
+    {% endif %}
+    <div class="container jumbotron">
+        <div class="offset-sm-2 col-sm-10 mb-5">
+            <h2>{{ titre }}</h2>
+        </div>
+        {{ form(form) }}
+    </div>
+{% endblock %}

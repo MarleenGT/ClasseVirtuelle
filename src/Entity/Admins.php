@@ -24,6 +24,7 @@ class Admins
 
     /**
      * @ORM\Column(type="string", length=255)
+     * Ass
      */
     private $prenom;
 

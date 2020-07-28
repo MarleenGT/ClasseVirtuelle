@@ -1,36 +1,35 @@
 {% extends 'base.html.twig' %}
-{% block title 'Ajout cours' %}
+{% block stylesheets %}
+{#    <link rel="stylesheet" type="text/css" href="{{ asset('css/Cours/modif.css') }}">#}
+{% endblock %}
+{% block title 'Modification de cours' %}
 {% block body %}
-    {% if error is defined %}
-        {{ error }}
-    {% endif %}
-    {% if conflit is defined %}
-        {{ dump(conflit) }}
-    {% endif %}
     <div class="container">
-        {{ form_start(form) }}
-        <div class="mb-2 ml-5">
-            {{ form(form.typeChoice) }}
-        </div>
-        <div id="form_classe" class="mb-2">
-            {{ form_label(form.id_classe) }}
-            {{ form(form.id_classe) }}
-        </div>
-        <div id="form_sousgroupe" class="mb-2">
-            {{ form_label(form.id_sousgroupe) }}
-            {{ form(form.id_sousgroupe) }}
-        </div>
-        <div class="mb-2">
-            {{ form_label(form.matiere) }}
-            {{ form(form.matiere) }}
-        </div>
+        <div class="container">
+            {{ form_start(form) }}
+            <div class="mb-2 ml-5">
+                {{ form(form.typeChoice) }}
+            </div>
+            <div id="form_classe" class="mb-2">
+                {{ form_label(form.id_classe) }}
+                {{ form(form.id_classe) }}
+            </div>
+            <div id="form_sousgroupe" class="mb-2">
+                {{ form_label(form.id_sousgroupe) }}
+                {{ form(form.id_sousgroupe) }}
+            </div>
+            <div class="mb-2">
+                {{ form_label(form.matiere) }}
+                {{ form(form.matiere) }}
+            </div>
 
-        <div id="form_autre" class="mb-2">
-            {{ form_label(form.autre) }}
-            {{ form(form.autre) }}
+            <div id="form_autre" class="mb-2">
+                {{ form_label(form.autre) }}
+                {{ form(form.autre) }}
+            </div>
+            {{ form(form) }}
+            {{ form_end(form) }}
         </div>
-        {{ form(form) }}
-        {{ form_end(form) }}
     </div>
 {% endblock %}
 {% block javascripts %}

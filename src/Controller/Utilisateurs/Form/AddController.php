@@ -72,7 +72,7 @@ class AddController extends AbstractController
             }
             $query = $this->getDoctrine()->getRepository(Users::class)->findBy(['email' => $addUser->getIdUser()->getEmail()]);
             if ($query){
-                return $this->render('utilisateurs/add/add.html.twig', [
+                return $this->render('utilisateurs/add.html.twig', [
                     'form' => $form->createView(),
                     'typeUtil' => $user,
                     "error" => "L'email renseigné est déjà utilisé."
@@ -94,7 +94,7 @@ class AddController extends AbstractController
                 try {
                     $entityManager->flush();
                 } catch (Exception $e) {
-                    return $this->render('utilisateurs/add/add.html.twig', [
+                    return $this->render('utilisateurs/add.html.twig', [
                         'form' => $form->createView(),
                         'typeUtil' => $user,
                         "error" => "Erreur lors de l'ajout de l'utilisateur."
@@ -105,8 +105,7 @@ class AddController extends AbstractController
 
             return $this->redirectToRoute('utilisateurs.index');
         }
-
-        $str = "";
+        
         if ($user === 'Eleves') {
             $str = "Ajout d'élève";
         } elseif ($user === 'Profs') {
@@ -117,7 +116,7 @@ class AddController extends AbstractController
             $str = "Ajout d'administrateur";
         }
 
-        return $this->render('utilisateurs/add/add.html.twig', [
+        return $this->render('utilisateurs/add.html.twig', [
             'form' => $form->createView(),
             'typeUtil' => $user,
             'titre' => $str

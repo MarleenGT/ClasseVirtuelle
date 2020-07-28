@@ -51,7 +51,7 @@ class ModifController extends AbstractController
             $obj = $this->getDoctrine()->getRepository(Admins::class)->find($id);
             $formType = AdminType::class;
         } else {
-            return $this->render('utilisateurs/index.html.twig', [
+            return $this->json([
                 'error' => 'Le type d\'utilisateur (Eleves, Professeurs ou Personnels) est incorrect'
             ]);
         }
@@ -77,10 +77,7 @@ class ModifController extends AbstractController
                 $email->setUrl($url);
                 $messageBus->dispatch($email);
             }
-            return $this->render("utilisateurs/index.html.twig", [
-                "select" => $user,
-                'user' => $user,
-            ]);
+            return $this->redirectToRoute('utilisateurs.index');
         }
         $nom = $obj->getNom();
         $prenom = $obj->getPrenom();

@@ -56,9 +56,7 @@ class DeleteController extends AbstractController
             $entityManager->remove($obj);
             $entityManager->flush();
 
-            return $this->render("utilisateurs/index.html.twig", [
-                "select" => $user
-            ]);
+            return $this->redirectToRoute('utilisateurs.index');
         }
 
         $nom = $obj->getNom();

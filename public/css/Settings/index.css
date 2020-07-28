@@ -7,7 +7,7 @@
     transition-duration: 0.3s;
 }
 #liste-details .list-group-item:hover {
-    background-color: #007bff;
+    background-color: #509cff;
     color: white;
 }
 #importRow, #liste-details, #purgeRow {
@@ -37,4 +37,8 @@
 }
 .custom-file-input ~ .custom-file-label::after {
     display: none;
+}
+.border-bottom{
+    margin: 2em;
+    border-bottom: 1px solid black;
 }

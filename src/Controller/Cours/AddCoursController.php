@@ -33,14 +33,17 @@ class AddCoursController extends AbstractController
         /**
          * Préparation de tableau de matières pour le formulaire
          */
-        $matieres = $session->get('matiere');
+        $matieres = [];
+        foreach ($session->get('user')->getIdMatiere() as $matiere) {
+            $matieres[] = $matiere;
+        }
         $matieres[] = 'Autre';
 
         $cours = new Cours();
         $form = $this->createForm(CoursType::class, $cours, [
             'matieres' => $matieres,
-            'classes' => $session->get('classe'),
-            'sousgroupes' => $session->get('sousgroupe')->getValues(),
+            'classes' => $session->get('user')->getIdClasse(),
+            'sousgroupes' => $session->get('user')->getIdUser()->getSousgroupesVisibles(),
         ]);
         $form->handleRequest($request);
 
@@ -72,9 +75,9 @@ class AddCoursController extends AbstractController
             } elseif ($type === 'classe') {
                 $cours->setIdSousgroupe(null);
             } else {
+                $this->addFlash('danger', 'Rentrez une classe ou un sous-groupe.');
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
-                    'error' => 'Rentrez une classe ou un sous-groupe.'
                 ]);
             }
             /**
