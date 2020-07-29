@@ -10,7 +10,7 @@
 <body>
 {% if app.user %}
     {% set role = app.session.get('role') %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 p-3">
+    <nav class="navbar navbar-expand navbar-dark bg-dark mb-4 p-3">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
@@ -42,7 +42,7 @@
 {% for label, messages in app.flashes %}
     {% for message in messages %}
         <div class="alert alert-{{ label }}">
-            {{ message }}
+            {{ message|raw }}
         </div>
     {% endfor %}
 {% endfor %}

@@ -37,13 +37,13 @@ class Cours
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\DateTime()
+     * @Assert\Type("DateTime")
      */
     private $heure_debut;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\DateTime()
+     * @Assert\Type("DateTime")
      */
     private $heure_fin;
 
@@ -59,13 +59,12 @@ class Cours
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\DateTime()
+     * @Assert\Type("DateTime")
      */
     private $date;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Url()
      */
     private $lien;
 

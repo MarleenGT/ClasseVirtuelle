@@ -4,11 +4,14 @@
 namespace App\Form\Cours;
 
 use App\Entity\Classes;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sousgroupes;
 use Symfony\Component\Form\AbstractType;
@@ -22,7 +25,13 @@ class CoursType extends AbstractType
     {
         $cours = $builder->getData();
         $builder
-            ->add('id_prof', HiddenType::class)
+            ->add('id', HiddenType::class, [
+                'mapped' => false,
+                'data' => $options['id']
+            ])
+//            ->add('id_prof', HiddenType::class, [
+//                'mapped' => false
+//            ])
             ->add('typeChoice', ChoiceType::class, [
                 'choices' => [
                     'Classe' => 'classe',
@@ -68,9 +77,9 @@ class CoursType extends AbstractType
             ->add('date', DateType::class, [
                 'mapped' => false,
                 'widget' => 'single_text',
-                'label' => "Choix de la date :",
+                'label' => "Date du cours :",
                 'input' => 'datetime',
-                'data' => $cours->getDate()
+                'data' => $cours->getHeureDebut()
             ])
             ->add('heure_debut', TimeType::class, [
                 'mapped' => false,
@@ -93,9 +102,25 @@ class CoursType extends AbstractType
                 'label' => "Remarques :",
                 'required' => false
             ])
-            ->add('submit', SubmitType::class, [
-                'label' => "Ajouter",
-            ]);
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+                $cours = $event->getData();
+                $form = $event->getForm();
+                if (!$cours || null === $cours->getId()) {
+                    $form->add('submit', SubmitType::class, [
+                        'label' => "Ajouter"
+                    ]);
+                } else {
+                    $form->add('submit', SubmitType::class, [
+                        'label' => "Modifier"
+                    ])
+                        ->add('close', ButtonType::class, [
+                            'label' => 'Annuler',
+                            'attr' => [
+                                'data-dismiss' => "modal"
+                            ]
+                        ]);
+                }
+            });
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -103,7 +128,8 @@ class CoursType extends AbstractType
         $resolver->setDefaults([
             'matieres' => null,
             'classes' => null,
-            'sousgroupes' => null
+            'sousgroupes' => null,
+            'id' => null
         ]);
     }
 }

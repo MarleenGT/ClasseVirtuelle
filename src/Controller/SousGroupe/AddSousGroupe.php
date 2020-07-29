@@ -8,7 +8,6 @@ use App\Entity\Profs;
 use App\Entity\Sousgroupes;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,6 +19,7 @@ class AddSousGroupe extends AbstractController
      */
     public function add(Request $request)
     {
+        dump($request);
         if ($request->request->get("nom") && strlen($request->request->get("nom")) > 0) {
             $nom = $request->request->get('nom');
         } else {

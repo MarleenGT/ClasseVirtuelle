@@ -4,10 +4,9 @@
 namespace App\Controller\Cours;
 
 
+use App\Controller\CheckCoursConflit\CheckCoursConflit;
 use App\Entity\Cours;
-use App\Entity\Eleves;
 use App\Entity\Profs;
-use App\Entity\Sousgroupes;
 use App\Form\Cours\CoursType;
 use App\Service\CheckSession;
 use DateTime;
@@ -23,11 +22,12 @@ class AddCoursController extends AbstractController
     /**
      * @param Request $request
      * @param CheckSession $checkSession
+     * @param CheckCoursConflit $checkCoursConflit
      * @return Response
      * @IsGranted("ROLE_PROF")
      * @Route("/Cours/Ajouter", name="cours.add", methods={"POST"})
      */
-    public function add(Request $request, CheckSession $checkSession): Response
+    public function add(Request $request, CheckSession $checkSession, CheckCoursConflit $checkCoursConflit): Response
     {
         $session = $checkSession->getSession($request);
         /**
@@ -48,7 +48,7 @@ class AddCoursController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('id'));
+            $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('user')->getId());
             $obj = $form->getData();
 
             /**
@@ -69,7 +69,6 @@ class AddCoursController extends AbstractController
             $now = new DateTime();
             $debut_affichage = $this->getParameter('startTimeTable');
             $fin_affichage = $this->getParameter('endTimeTable');
-
             if ($type === 'sousgroupe') {
                 $cours->setIdClasse(null);
             } elseif ($type === 'classe') {
@@ -120,6 +119,7 @@ class AddCoursController extends AbstractController
                 $id_sousgroupe = $obj->getIdSousgroupe()->getId();
                 foreach ($prof->getIdUser()->getSousgroupesvisibles() as $sousgroupe) {
                     if ($sousgroupe->getId() === $id_sousgroupe) {
+                        dump($sousgroupe);
                         $obj->setIdSousgroupe($sousgroupe);
                         break;
                     }
@@ -128,7 +128,7 @@ class AddCoursController extends AbstractController
 
 
             try {
-                $verif = $this->verifCours($obj);
+                $verif = $checkCoursConflit->verifCours($obj);
             } catch (Exception $e) {
                 $this->addFlash('danger', 'Problème dans la vérification des cours');
                 return $this->render("cours/add.html.twig", [
@@ -136,8 +136,16 @@ class AddCoursController extends AbstractController
                 ]);
             }
 
-            if (count($verif['classe']) > 0 || count($verif['sousgroupe']) > 0 || count($verif['prof']) > 0) {
-                $this->addFlash('danger', 'Conflit entre le cours ajouté et ceux déjà présents.');
+            if (count($verif) > 0) {
+                $msg = "Conflit avec d'autres cours : <br>";
+                foreach ($verif as $item) {
+                    $msg .= $item->getMatiere()." avec ".$item->getIdProf()->getCivilite().$item->getIdProf()->getNom()." le ".$item->getHeureDebut()->format("d/m/Y")." de ".$item->getHeureDebut()->format("H:i")." à ".$item->getHeureFin()->format("H:i");
+                    if ($item->getIdClasse()){
+                        $msg .= " (".$item->getIdClasse()->getNomClasse().")";
+                    }
+                    $msg .= "<br>";
+                }
+                $this->addFlash('danger', $msg);
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
                     'conflit' => $verif
@@ -161,83 +169,5 @@ class AddCoursController extends AbstractController
         return $this->render("cours/add.html.twig", [
             "form" => $form->createView()
         ]);
-    }
-
-    private function verifCours(Cours $cours)
-    {
-        $heure_debut = $cours->getHeureDebut();
-        $heure_fin = $cours->getHeureFin();
-        $coursListe = ['classe' => [], 'sousgroupe' => [], 'prof' => []];
-        $sousgroupeListe = [];
-        $classeListe = [];
-
-        $coursProfListe = $this->getDoctrine()->getRepository(Cours::class)->findCoursByProf($cours->getIdProf(), $heure_debut, $heure_fin);
-        foreach ($coursProfListe as $coursProf){
-            if (!isset($coursListe['prof'][$coursProf->getId()])){
-                $coursListe['prof'][$coursProf->getId()] = $coursProf;
-            }
-        }
-
-        /**
-         * On récupère la liste des élèves concernés par le cours
-         */
-        if ($cours->getIdClasse()) {
-            $classe = $cours->getIdClasse();
-            $eleves = $this->getDoctrine()->getRepository(Eleves::class)->findElevesByClasse($classe);
-        } elseif ($cours->getIdSousgroupe()) {
-            $groupe = $cours->getIdSousgroupe();
-            $eleves = $this->getDoctrine()->getRepository(Eleves::class)->findElevesBySousgroupe($groupe);
-        } else {
-            throw new Exception("Classe et sous-groupe nuls pour le cours à ajouter.");
-        }
-
-        /**
-         * Si le cours concerne une classe, on récupère l'ensemble des cours en conflit pour la classe concernée
-         */
-        if ($cours->getIdClasse()) {
-            $coursClasseListe = $this->getDoctrine()->getRepository(Cours::class)->findCoursByClasse($cours->getIdClasse(), $heure_debut, $heure_fin);
-            foreach ($coursClasseListe as $coursClasse) {
-                $coursListe['classe'][] = $coursClasse;
-            }
-        }
-        /**
-         * Pour chaque élève, on récupère les cours le concernant en conflit avec le cours à ajouter
-         */
-        foreach ($eleves as $eleve) {
-            /**
-             * Si le cours concerne un sous-groupe, on récupère l'ensemble des cours en conflit
-             * dans la classe de chaque élève (en évitant de répéter les requêtes déjà effectuées)
-             */
-            if ($cours->getIdSousgroupe()) {
-                $classe = $eleve->getIdClasse();
-                if (!isset($classeListe[$classe->getId()])) {
-                    $classeListe[$classe->getId()] = $classe;
-                    $coursClasseListe = $this->getDoctrine()->getRepository(Cours::class)->findCoursByClasse($classe, $heure_debut, $heure_fin);
-                    foreach ($coursClasseListe as $coursClasse) {
-                        $coursListe['classe'][] = $coursClasse;
-                    }
-                }
-            }
-
-            /**
-             * On récupère l'ensemble des sous-groupes de chaque élève, puis les cours en conflit
-             * pour chaque sous-groupe (en évitant de répéter les requêtes déjà effectuées)
-             */
-            $sousgroupes = $this->getDoctrine()->getRepository(Sousgroupes::class)->findSousgroupesByEleve($eleve);
-            if (count($sousgroupes) > 0) {
-                foreach ($sousgroupes as $sousgroupe) {
-                    if (!isset($sousgroupeListe[$sousgroupe->getId()])) {
-                        $sousgroupeListe[$sousgroupe->getId()] = $sousgroupe;
-                        $coursSousGroupeListe = $this->getDoctrine()->getRepository(Cours::class)->findCoursBySousgroupe($sousgroupe, $heure_debut, $heure_fin);
-                        foreach ($coursSousGroupeListe as $coursSousgroupe) {
-                            if (!isset($coursListe['sousgroupe'][$coursSousgroupe->getId()])) {
-                                $coursListe['sousgroupe'][$coursSousgroupe->getId()] = $coursSousgroupe;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $coursListe;
     }
 }

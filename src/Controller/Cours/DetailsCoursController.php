@@ -42,12 +42,15 @@ class DetailsCoursController extends AbstractController
          * si l'utilisateur est le prof créateur ou un administrateur
          */
         if ($this->getUser()->getRoles()[0] === "ROLE_ADMIN" || ($this->getUser()->getRoles()[0] === "ROLE_PROF" && $cours->getIdProf()->getId() === $session->get('user')->getId())) {
-            $footer = $this->render("cours/footer.modal.html.twig", [
+            $footer = $this->render("cours/footer.admin.modal.html.twig", [
                 'cours' => $cours,
-                'date' => $date
+                'date' => $date,
+                'lien' => $cours->getLien(),
             ]);
         } else {
-            $footer = "";
+            $footer = $this->render("cours/footer.modal.html.twig", [
+                'lien' => $cours->getLien(),
+            ]);
         }
 
         return $this->json([
@@ -55,10 +58,10 @@ class DetailsCoursController extends AbstractController
             "body" => $this->render('cours/details.html.twig', [
                 'auteur' => $cours->getIdProf()->getCivilite().' '.$cours->getIdProf()->getNom(),
                 'matiere' => $cours->getMatiere(),
-                'date' => $cours->getDate()->format("d/m/Y"),
+                'date' => $cours->getHeureDebut()->format("d/m/Y"),
                 'debut' => $cours->getHeureDebut()->format("H:i"),
                 'fin' => $cours->getHeureFin()->format("H:i"),
-                'lien' => $cours->getLien(),
+
                 'commentaire' => $cours->getCommentaire()
             ]),
             "footer" => $footer

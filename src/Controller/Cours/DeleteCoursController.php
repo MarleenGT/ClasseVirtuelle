@@ -5,7 +5,7 @@ namespace App\Controller\Cours;
 
 
 use App\Controller\CheckRepository\CheckCoursRepo;
-use App\Form\Cours\CoursType;
+use App\Entity\Profs;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +28,7 @@ class DeleteCoursController extends AbstractController
         $repo = $checkCoursRepo->check($request->request->get('date'));
         $id = $request->request->get('id');
         $cours = $this->getDoctrine()->getRepository($repo)->find($id);
-        $prof = $session->get('user');
+        $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('user')->getId());
         /**
          * Vérification de l'auteur du cours et si l'utilisateur peut le modifier
          */
@@ -38,15 +38,12 @@ class DeleteCoursController extends AbstractController
                 'current_menu' => 'cours'
             ]);
         }
-        $form = $this->createForm(CoursType::class, $cours, [
-            'matieres' => $prof->getIdMatiere(),
-            'classes' => $prof->getIdClasse(),
-            'sousgroupes' => $prof->getIdUser()->getSousgroupesVisibles(),
-        ]);
-
-        return $this->render('cours/modif.html.twig', [
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($cours);
+        $em->flush();
+        $this->addFlash('success', 'Cours supprimé !');
+        return $this->render('cours/index.html.twig', [
             'current_menu' => 'Cours',
-            'form' => $form->createView()
         ]);
     }
 

@@ -19,6 +19,7 @@ class CoursController extends AbstractController
 {
     /**
      * @param Request $request
+     * @param CheckCoursRepo $checkCoursRepo
      * @return Response
      * @Route("/Cours/ajax", name="cours.ajax", methods={"GET"})
      */

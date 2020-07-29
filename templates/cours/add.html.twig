@@ -10,24 +10,24 @@
     <div class="container">
         {{ form_start(form) }}
         <div class="mb-2 ml-5">
-            {{ form(form.typeChoice) }}
+            {{ form_widget(form.typeChoice) }}
         </div>
         <div id="form_classe" class="mb-2">
             {{ form_label(form.id_classe) }}
-            {{ form(form.id_classe) }}
+            {{ form_widget(form.id_classe) }}
         </div>
         <div id="form_sousgroupe" class="mb-2">
             {{ form_label(form.id_sousgroupe) }}
-            {{ form(form.id_sousgroupe) }}
+            {{ form_widget(form.id_sousgroupe) }}
         </div>
         <div class="mb-2">
             {{ form_label(form.matiere) }}
-            {{ form(form.matiere) }}
+            {{ form_widget(form.matiere) }}
         </div>
 
         <div id="form_autre" class="mb-2">
             {{ form_label(form.autre) }}
-            {{ form(form.autre) }}
+            {{ form_widget(form.autre) }}
         </div>
         {{ form(form) }}
         {{ form_end(form) }}

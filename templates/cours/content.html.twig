@@ -1,6 +1,11 @@
-
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }}">
+            {{ message|raw }}
+        </div>
+    {% endfor %}
+{% endfor %}
 {% set role = app.session.get('role') %}
-{{ dump() }}
 <table class="emploiDuTemps w-100">
     <thead>
     <tr>
@@ -21,8 +26,8 @@
             <td class="colonne_jour" id="{{ jour }}" rowspan="0" style="position: relative">
                 <div class="contenu {{ jour }}" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0">
                     {% for cours in _context[jour] %}
-                        <div class="cours p-2" data-toggle="modal" data-target="#coursCRUD" data-id="{{ cours['cours'].id }}" style="width: 100%; position: absolute; top: {{ cours.float_debut }}%; height: {{ cours.float_fin - cours.float_debut }}%;">
-                            <p class="text-center">{{ cours['cours'].matiere }} de {{ cours['cours'].heureDebut|date("H:i") }} à {{ cours['cours'].heureFin|date("H:i") }}</p>
+                        <div class="cours p-2 d-flex flex-column justify-content-around align-items-center" data-toggle="modal" data-target="#coursCRUD" data-id="{{ cours['cours'].id }}" style="width: 100%; position: absolute; top: {{ cours.float_debut }}%; height: {{ cours.float_fin - cours.float_debut }}%;">
+                            <p><span class="matiere font-weight-bolder">{{ cours['cours'].matiere }}</span> <span class="horaires">de {{ cours['cours'].heureDebut|date("H:i") }} à {{ cours['cours'].heureFin|date("H:i") }}</span></p>
                             {% if role != "ROLE_ELEVE" %}
                             {% if cours['cours'].idClasse is not null %}
                                 {% set cla_sg = cours['cours'].idClasse.nomClasse %}
@@ -30,11 +35,11 @@
                                 {% set cla_sg = cours['cours'].idSousgroupe.nomSousgroupe %}
                             {% endif %}
                                 <p class="d-flex justify-content-between">
-                                    <span>Par : {{ cours['cours'].idProf.civilite }} {{ cours['cours'].idProf.nom }}</span>
-                                    <span>Pour : {{ cla_sg }}</span>
+                                    <span class="prof">Par : {{ cours['cours'].idProf.civilite }} {{ cours['cours'].idProf.nom }}</span>
+                                    <span class="classe">Pour : {{ cla_sg }}</span>
                                 </p>
-                                <a class="text-primary" target="blank" href="{{ cours['cours'].lien }}">Lien vers le cours</a>
                             {% endif %}
+                            <a class="text-primary lien" target="blank" href="{{ cours['cours'].lien }}">Lien vers le cours</a>
                         </div>
                 {% endfor %}
                 </div>

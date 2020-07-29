@@ -1,10 +1,4 @@
-<form action="{{ path('cours.update') }}" method="POST">
-    <input hidden type="text" name="id" value="{{ cours.id }}">
-    <input hidden type="text" name="date" value="{{ date }}">
-    <input type="submit" class="btn btn-info" name="Modifier" value="Modifier">
+<form action="{{ lien }}" method="post">
+    <input type="submit" class="btn btn-primary" value="Aller au cours">
 </form>
-<form action="{{ path('cours.delete') }}" method="POST">
-    <input hidden type="text" name="id" value="{{ cours.id }}">
-    <input hidden type="text" name="date" value="{{ date }}">
-    <input type="submit" class="btn btn-danger" name="Supprimer" value="Supprimer">
-</form>
+

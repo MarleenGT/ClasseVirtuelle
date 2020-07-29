@@ -28,13 +28,16 @@ class UtilisateursController extends AbstractController
         if ($request->isXmlHttpRequest()) {
             $user = $request->request->get('user');
             $limit = $request->request->get('limit');
-            $offset = $request->request->get('offset')*$limit;
+            $offset = $request->request->get('offset') * $limit;
             $search = $request->request->get('search');
-            if ($offset < 0){
+            if ($offset < 0) {
                 $offset = 0;
             }
             if ($user === 'Eleves') {
                 $query = $this->getDoctrine()->getRepository(Eleves::class)->findElevesByPages($limit, $offset, $search);
+                foreach ($query as $key => $eleve) {
+                    $query[$key]['sousgroupe'] = explode(',', $eleve['sousgroupe']);
+                }
             } elseif ($user === 'Professeurs') {
                 $query = $this->getDoctrine()->getRepository(Profs::class)->findProfsByPages($limit, $offset, $search);
             } elseif ($user === 'Personnels') {
@@ -84,7 +87,7 @@ class UtilisateursController extends AbstractController
                  * Vérification si la classe à ajouter existe déjà
                  */
                 $query = $this->getDoctrine()->getRepository(Classes::class)->findOneBy(['nom_classe' => $classe->getNomClasse()]);
-                if (!$query){
+                if (!$query) {
                     $em = $this->getDoctrine()->getManager();
                     $em->persist($classe);
                     $em->flush();

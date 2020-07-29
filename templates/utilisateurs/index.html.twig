@@ -87,7 +87,7 @@
                         </div>
                         {{ form_widget(form.nom_classe, {'attr': {'class': 'form_control', 'placeholder': form.nom_classe.vars.label }}) }}
                         <div class="input-group-append">
-                            <input type="submit" class="btn btn-primary" value="Ajouter">
+                            {{ form_widget(form.submit) }}
                         </div>
                     </div>
                     {{ form_end(form) }}
@@ -135,7 +135,7 @@
                 list: $("#sousgroupeList"),
                 profList: $("#profSousgroupeList"),
                 sousgroupeButton: $("button[name = 'sousgroupeAdd']"),
-                sousgroupeTitre: $("input[name = 'sousgroupeTitre']").val(),
+                sousgroupeTitre: $("input[name = 'sousgroupeTitre']"),
                 sousgroupeMsg: $('#sousgroupeMsg'),
                 optionsToggle: $("#optionsToggle"),
                 optionsField: $("#optionsField"),
@@ -207,17 +207,15 @@
                     {% if app.user.roles[0] == 'ROLE_PROF' %}
                     indexUtil.param.sousgroupeProfList = [{'id': {{ app.user.id }} }];
                     {% endif %}
-                    console.log(indexUtil.param.sousgroupeList, indexUtil.param.sousgroupeProfList)
                     $.ajax({
                         url: "{{ path('sousgroupe.add') }}",
                         method: "POST",
                         data: {
                             eleves: indexUtil.param.sousgroupeList,
                             profs: indexUtil.param.sousgroupeProfList,
-                            nom: indexUtil.index.sousgroupeTitre,
+                            nom: indexUtil.index.sousgroupeTitre.val(),
                         }
                     }).done(function (msg) {
-                        console.table(msg)
                         if (msg.error) {
                             indexUtil.index.sousgroupeMsg.html("<span class='error'>" + msg.error + "</span>");
                         } else if (msg.success) {

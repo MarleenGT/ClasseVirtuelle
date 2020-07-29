@@ -31,3 +31,6 @@ span.td, div.td{
 .profSousgroupe, .addSousgroupe{
     margin-left: 1rem;
 }
+.sousgroupe {
+    padding-left: 0;
+}
