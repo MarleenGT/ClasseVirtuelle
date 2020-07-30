@@ -4,7 +4,6 @@
 namespace App\Form\Cours;
 
 use App\Entity\Classes;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -29,9 +28,6 @@ class CoursType extends AbstractType
                 'mapped' => false,
                 'data' => $options['id']
             ])
-//            ->add('id_prof', HiddenType::class, [
-//                'mapped' => false
-//            ])
             ->add('typeChoice', ChoiceType::class, [
                 'choices' => [
                     'Classe' => 'classe',
@@ -112,17 +108,10 @@ class CoursType extends AbstractType
                 } else {
                     $form->add('submit', SubmitType::class, [
                         'label' => "Modifier"
-                    ])
-                        ->add('close', ButtonType::class, [
-                            'label' => 'Annuler',
-                            'attr' => [
-                                'data-dismiss' => "modal"
-                            ]
-                        ]);
+                    ]);
                 }
             });
     }
-
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

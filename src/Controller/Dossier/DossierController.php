@@ -23,12 +23,11 @@ class DossierController extends AbstractController
 {
     /**
      * @param Request $request
-     * @Route("/{id}/{nom}/{prenom}", name="dossier.index", methods="POST")
+     * @Route("/{id}/{nom}/{prenom}", name="dossier.index")
      * @return Response
      */
     public function index(Request $request)
     {
-        dump($this->getUser()->getRoles()[0]);
         $id = $request->get('id');
         $user_id = $this->getUser()->getId();
         $eleve = $this->getDoctrine()->getRepository(Eleves::class)->find($id);
@@ -46,18 +45,6 @@ class DossierController extends AbstractController
             $entity = $this->getDoctrine()->getManager();
             $entity->persist($obj);
             $entity->flush();
-        }
-        $delete_id = array_search("Supprimer", $request->request->all());
-        if ($delete_id) {
-            $delete_com = $this->getDoctrine()->getRepository(Commentaires::class)->find($delete_id);
-            if ($delete_com && (($this->getUser()->getRoles()[0] !== "ROLE_ADMIN" && $delete_com->getIdAuteur() === $this->getUser()) || $this->getUser()->getRoles()[0] === "ROLE_ADMIN")) {
-                $em = $this->getDoctrine()->getManager();
-                $em->remove($delete_com);
-                $em->flush();
-                $this->addFlash('success', 'Commentaire supprimé !');
-            } else {
-                $this->addFlash('danger', 'Problème dans la suppression du commentaire');
-            }
         }
         $commentaires = [];
         $commentairesGlobal = $this->getDoctrine()->getRepository(Commentaires::class)->findBy(['id_concerne' => $eleve->getIdUser()->getId(), 'global' => true]);
@@ -78,7 +65,7 @@ class DossierController extends AbstractController
 
         return $this->render('dossier/index.html.twig', [
             'eleve' => $eleve,
-            'commentaires' => $commentaires,
+            'commentaires' => array_reverse($commentaires),
             'form' => $form->createView()
         ]);
     }

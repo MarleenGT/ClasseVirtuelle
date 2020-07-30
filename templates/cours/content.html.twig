@@ -26,20 +26,27 @@
             <td class="colonne_jour" id="{{ jour }}" rowspan="0" style="position: relative">
                 <div class="contenu {{ jour }}" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0">
                     {% for cours in _context[jour] %}
-                        <div class="cours p-2 d-flex flex-column justify-content-around align-items-center" data-toggle="modal" data-target="#coursCRUD" data-id="{{ cours['cours'].id }}" style="width: 100%; position: absolute; top: {{ cours.float_debut }}%; height: {{ cours.float_fin - cours.float_debut }}%;">
-                            <p><span class="matiere font-weight-bolder">{{ cours['cours'].matiere }}</span> <span class="horaires">de {{ cours['cours'].heureDebut|date("H:i") }} à {{ cours['cours'].heureFin|date("H:i") }}</span></p>
-                            {% if role != "ROLE_ELEVE" %}
-                            {% if cours['cours'].idClasse is not null %}
-                                {% set cla_sg = cours['cours'].idClasse.nomClasse %}
-                            {% else %}
-                                {% set cla_sg = cours['cours'].idSousgroupe.nomSousgroupe %}
-                            {% endif %}
-                                <p class="d-flex justify-content-between">
-                                    <span class="prof">Par : {{ cours['cours'].idProf.civilite }} {{ cours['cours'].idProf.nom }}</span>
-                                    <span class="classe">Pour : {{ cla_sg }}</span>
-                                </p>
-                            {% endif %}
-                            <a class="text-primary lien" target="blank" href="{{ cours['cours'].lien }}">Lien vers le cours</a>
+                        <div class="cours d-flex flex-column justify-content-around align-items-center color_{{ cours['cours'].matiere|replace({' ': ''})|replace({'.': '-'})|lower }}" data-toggle="modal" data-target="#coursCRUD" data-id="{{ cours['cours'].id }}" style="width: 100%; position: absolute; top: {{ cours.float_debut }}%; height: {{ cours.float_fin - cours.float_debut }}%;">
+                            <div class="row">
+                                <p class="matiere col-xl-6 col-lg-12">{{ cours['cours'].matiere }}</p>
+                                <p class="horaires col-xl-6 col-lg-12 d-none d-md-block">De {{ cours['cours'].heureDebut|date("H:i") }} à {{ cours['cours'].heureFin|date("H:i") }}</p>
+                            </div>
+                            {% if role != "ROLE_ELEVE" and cours.float_fin - cours.float_debut >= 20 %}
+                                {% if cours['cours'].idClasse is not null %}
+                                    {% set cla_sg = cours['cours'].idClasse.nomClasse %}
+                                {% else %}
+                                    {% set cla_sg = cours['cours'].idSousgroupe.nomSousgroupe %}
+                                {% endif %}
+                                <div class="row">
+                                    <p class="prof col-12 d-none d-xl-block">Par : {{ cours['cours'].idProf.civilite }} {{ cours['cours'].idProf.nom }}</p>
+                                </div>
+                                <div class="row">
+                                    <p class="classe col-12 d-none d-xl-block">Pour : {{ cla_sg }}</p>
+                                </div>
+                                {% endif %}
+                            <div class="row">
+                                <a class="text-primary lien col-12 d-none d-md-block" target="blank" href="{{ cours['cours'].lien }}">Lien vers le cours</a>
+                            </div>
                         </div>
                 {% endfor %}
                 </div>

@@ -5,7 +5,7 @@
 {% block title 'Dossier de '~eleve.prenom~' '~eleve.nom %}
 {% block body %}
     <div class="row">
-        <div class="row col-3 align-self-start">
+        <div class="row offset-1 col-11 offset-md-0 col-lg-3 col-md-6 align-self-start">
             <div class="offset-2 col-10">NOM : {{ eleve.nom }}</div>
             <div class="offset-2 col-10">PRENOM : {{ eleve.prenom }}</div>
             <div class="offset-2 col-10">CLASSE : {{ eleve.idClasse }}</div>
@@ -27,19 +27,24 @@
                 {{ form_end(form) }}
             </div>
         </div>
-        <div class="col-9">
+        <div class="col">
             <ul id="commentaires">
                 <p class="titre-commentaires">Commentaires :</p>
                 {% for com in commentaires %}
                     <li class="{% if loop.index is divisible by(2) %} row-2 {% else %} row-1 {% endif %}">
-                        <div>
-                            <p>Ecrit par : {{ com[1].nom }}</p>
+                            <p>Ecrit par : {% if com[1].type == "Professeurs" %}{{ com[1].civilite }}{% endif %}{{ com[1].nom }}</p>
                             <p>Le : {{ com[0].date|date("d/m/Y") }} à {{ com[0].date|date("H:i") }}</p>
-                            <p class="cadre-commentaire">{{ com[0].commentaire }}</p>
-                        </div>
-                        <form method="POST">
-                            <input type="submit" value="Supprimer" name="{{ com[0].id }}">
+                            <p class="cadre-commentaire" data-id="{{ com[0].id }}">{{ com[0].commentaire }}</p>
+                        {% if app.user.idRole.nomRole == 'ROLE_ADMIN' or app.user.id == com[0].idauteur.id %}
+                        <form method="post" action="{{ path('commentaire.update') }}" class="pb-1">
+                            <input style="display: none" class="cadre-commentaire commentaire w-100 mb-3" type="text" data-id="{{ com[0].id }}" value="{{ com[0].commentaire }}" name="commentaire">
+                            <button style="display: none" type="button" class="btn btn-secondary d-inline-block btn_modif" data-id="{{ com[0].id }}">Modifier</button>
+                            <input type="submit" class="submit_modif btn btn-primary" name="{{ com[0].id }}" value="Modifier">
                         </form>
+                        <form method="POST" action="{{ path('commentaire.delete') }}">
+                            <input type="submit" class="btn btn-danger" value="Supprimer" name="{{ com[0].id }}">
+                        </form>
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>
@@ -47,4 +52,39 @@
     </div>
 {% endblock %}
 {% block javascripts %}
+<script>
+    let indexDossier = {
+        index: {
+            btnModif: $(".btn_modif"),
+            submitModif: $(".submit_modif"),
+            commentaire: $(".commentaire"),
+        },
+        method: {
+            initialize: function () {
+                indexDossier.index.btnModif.click(this.startModif);
+                indexDossier.index.submitModif.hide()
+                $(".commentaire").hide()
+            },
+            startModif: function () {
+                let id = $(this).data('id');
+                let input = $('input[data-id='+id+'][type="text"]');
+                let submit = $('input[name='+id+'][value="Modifier"]');
+                let suppr = $('input[name='+id+'][value="Supprimer"]');
+                let p = $('p[data-id='+id+']');
+                $(submit).toggle();
+                $(input).toggle();
+                $(suppr).toggle();
+                $(p).toggle();
+                if ($(this).text() === "Modifier"){
+                    $(this).text("Annuler");
+                } else {
+                    $(this).text("Modifier");
+                }
+            },
+        }
+    }
+    indexDossier.method.initialize();
+</script>
+
+
 {% endblock %}

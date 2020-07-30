@@ -5,6 +5,7 @@
 }
 #commentaires>li {
     padding: 1em 0.5em 1em 0.5em;
+    border-bottom: 1px black solid;
 }
 .row-1 {
     background-color: #f1f2f6;

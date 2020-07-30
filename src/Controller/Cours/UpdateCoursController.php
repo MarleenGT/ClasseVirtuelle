@@ -108,7 +108,7 @@ class UpdateCoursController extends AbstractController
              * Vérification que le cours ajouté n'est pas déjà passé
              */
             if ($heure_debut < $now) {
-                $this->addFlash('danger', 'Problème au niveau des horaires : le cours ajouté est déjà passé.');
+                $this->addFlash('danger', 'Problème au niveau des horaires : le cours à modifier est déjà passé.');
                 return $this->render("cours/modif.html.twig", [
                     "form" => $form->createView(),
                 ]);
@@ -126,7 +126,7 @@ class UpdateCoursController extends AbstractController
              * Vérification que les cours ajoutés sont bien dans la plage horaire d'affichage de l'emploi du temps
              */
             if ((int)$heure_debut->format('H') < $debut_affichage || (int)$heure_fin->format('H') > $fin_affichage) {
-                $this->addFlash('danger', 'Problème au niveau des horaires : Vérifiez que le cours ajouté est bien dans les horaires définis par l\'administrateur (de $debut_affichage h à $fin_affichage h).');
+                $this->addFlash('danger', 'Problème au niveau des horaires : Vérifiez que le cours ajouté est bien dans les horaires définis par l\'administrateur (de .'.$debut_affichage.'.h à .'.$fin_affichage.'.h).');
                 return $this->render("cours/modif.html.twig", [
                     "form" => $form->createView(),
                 ]);
@@ -161,7 +161,7 @@ class UpdateCoursController extends AbstractController
             if (count($verif) > 0) {
                 $msg = "Conflit avec d'autres cours : <br>";
                 foreach ($verif as $item) {
-                    $msg .= $item->getMatiere()." avec ".$item->getIdProf()->getCivilite().$item->getIdProf()->getNom()." le ".$item->getHeureDebut()->format("d/m/Y")." de ".$item->getHeureDebut()->format("H:i")." à ".$item->getHeureDebut()->format("H:i");
+                    $msg .= $item->getMatiere()." avec ".$item->getIdProf()->getCivilite().$item->getIdProf()->getNom()." le ".$item->getHeureDebut()->format("d/m/Y")." de ".$item->getHeureDebut()->format("H:i")." à ".$item->getHeureFin()->format("H:i");
                     if ($item->getIdClasse()){
                         $msg .= " (".$item->getIdClasse()->getNomClasse().")";
                     }
@@ -169,8 +169,7 @@ class UpdateCoursController extends AbstractController
                 }
                 $this->addFlash('danger', $msg);
                 return $this->render("cours/modif.html.twig", [
-                    "form" => $form->createView(),
-                    'conflit' => $verif
+                    "form" => $form->createView()
                 ]);
             }
             $entityManager = $this->getDoctrine()->getManager();

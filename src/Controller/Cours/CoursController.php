@@ -9,6 +9,7 @@ use App\Entity\Classes;
 use App\Entity\Eleves;
 use App\Entity\Profs;
 use App\Entity\Sousgroupes;
+use App\Service\CheckSession;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -130,11 +131,14 @@ class CoursController extends AbstractController
 
 
     /**
+     * @param Request $request
+     * @param CheckSession $checkSession
      * @return Response
      * @Route("/Cours", name="cours.index")
      */
-    public function index(): Response
+    public function index(Request $request, CheckSession $checkSession): Response
     {
+        $session = $checkSession->getSession($request);
         /**
          * Récupération des listes de profs/classes/sous-groupes en fonction de l'utilisateur
          */
@@ -143,10 +147,10 @@ class CoursController extends AbstractController
             $liste_classe = $this->getDoctrine()->getRepository(Classes::class)->findAll();
             $liste_sousgroupe = $this->getDoctrine()->getRepository(Sousgroupes::class)->findAll();
             $liste_prof = $this->getDoctrine()->getRepository(Profs::class)->findAll();
-        } else {
-            $liste_classe = [];
-            $liste_sousgroupe = [];
-            $liste_prof = [];
+        } else if ($role === 'ROLE_PROF') {
+            $liste_classe = $session->get('user')->getIdClasse();
+            $liste_sousgroupe = $this->getUser()->getSousgroupesvisibles();
+            $liste_prof = $session->get('user');
         }
 
         return $this->render('cours/index.html.twig', [

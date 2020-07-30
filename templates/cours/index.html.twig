@@ -32,14 +32,14 @@
                             <label class="input-group-text" for="selectEdt">Choix de l'emploi du temps</label>
                         </div>
                         <select class="custom-select" id="selectEdt">
-                            <option value="pr_{{ app.session.get('id') }}">Emploi du temps personnel</option>
+                            <option value="pr_{{ liste_prof.id }}">Emploi du temps personnel</option>
                             <optgroup label="Classes">
-                                {% for classe in app.session.get('classe') %}
+                                {% for classe in liste_classe %}
                                     <option value="cl_{{ classe.id }}">{{ classe.nomClasse }}</option>
                                 {% endfor %}
                             </optgroup>
                             <optgroup label="Sous-groupes">
-                                {% for sousgroupe in app.session.get('sousgroupe') %}
+                                {% for sousgroupe in liste_sousgroupe %}
                                     <option value="sg_{{ sousgroupe.id }}">{{ sousgroupe.nomSousgroupe }}</option>
                                 {% endfor %}
                             </optgroup>
@@ -58,7 +58,7 @@
                 {% if role == "ROLE_PROF" %}
                     <div class="col-2">
                         <form action="{{ path('cours.add') }}" method="post">
-                            <button class="btn-primary btn" type="submit" name="ajouter">Ajouter un cours</button>
+                            <button class="btn-primary btn add_cours" type="submit" name="ajouter"></button>
                         </form>
                     </div>
 
@@ -205,7 +205,7 @@
                     dateS.setDate(dateM.getDate() + 5);
                     let dateMonday = dateM.getDate() + "/" + (dateM.getMonth() + 1);
                     let dateSaturday = dateS.getDate() + "/" + (dateS.getMonth() + 1);
-                    if (str) {
+                    if (str && window.innerWidth > 760) {
                         return "Emploi du temps du " + dateMonday + " au " + dateSaturday + " (" + str + ")";
                     } else {
                         return "Emploi du temps du " + dateMonday + " au " + dateSaturday;
