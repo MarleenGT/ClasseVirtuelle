@@ -40,12 +40,12 @@ class Archives
     private $commentaire;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="archives")
+     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="archives", fetch="EAGER")
      */
     private $id_classe;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Sousgroupes::class, inversedBy="archives")
+     * @ORM\ManyToOne(targetEntity=Sousgroupes::class, inversedBy="archives", fetch="EAGER")
      */
     private $id_sousgroupe;
 
@@ -58,6 +58,11 @@ class Archives
      * @ORM\Column(type="datetime")
      */
     private $date;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $lien;
 
     public function getId(): ?int
     {
@@ -155,6 +160,19 @@ class Archives
     public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+
+    public function getLien(): ?string
+    {
+        return $this->lien;
+    }
+
+    public function setLien(string $lien): self
+    {
+        $this->lien = $lien;
 
         return $this;
     }

@@ -1,5 +1,12 @@
-<p>Cours de {{ matiere }}</p>
-<p>Par {{ auteur }}</p>
-<p>Le {{ date }}</p>
-<p>De {{ debut }} à {{ fin }}</p>
-<p>Commentaire : {{ commentaire }}</p>
+<p>Cours de {{ matiere|escape }}</p>
+<p>Par {{ auteur|escape }}</p>
+{% if app.session.get('role') != 'ROLE_ELEVE' %}
+    <p>Pour : {{ destinataire|escape }}</p>
+{% endif %}
+<p>Le {{ date|escape }}</p>
+<p>De {{ debut|escape }} à {{ fin|escape }}</p>
+{% if commentaire|length > 0 %}
+    <p>Commentaire : {{ commentaire|escape }}</p>
+{% endif %}
+
+

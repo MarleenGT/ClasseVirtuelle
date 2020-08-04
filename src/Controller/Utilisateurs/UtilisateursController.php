@@ -9,7 +9,7 @@ use App\Entity\Classes;
 use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
-use App\Form\Classes\AddClasseType;
+use App\Entity\Sousgroupes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,30 +74,23 @@ class UtilisateursController extends AbstractController
         ];
 
         /**
-         * Si l'utilisateur est un administrateur, création du formulaire d'ajout d'une classe
+         * Création des listes de modification de classe/sous-groupe
          */
-        if ($role === 'ROLE_ADMIN') {
-            $cla = new Classes();
-            $form = $this->createForm(AddClasseType::class, $cla);
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $classe = $form->getData();
-
-                /**
-                 * Vérification si la classe à ajouter existe déjà
-                 */
-                $query = $this->getDoctrine()->getRepository(Classes::class)->findOneBy(['nom_classe' => $classe->getNomClasse()]);
-                if (!$query) {
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($classe);
-                    $em->flush();
-                    $this->addFlash('success', 'Classe ajoutée !');
-                } else {
-                    $this->addFlash('danger', 'La classe à ajouter existe déjà.');
-                }
-            }
-            $options['form'] = $form->createView();
+        $classes = [];
+        if ($role === 'ROLE_PROF') {
+            $sousgroupes = $this->getDoctrine()->getRepository(Sousgroupes::class)->findBy(['id_createur' => $this->getUser()->getId()]);
+        } elseif ($role === 'ROLE_PERSONNEL') {
+            $classes = $this->getDoctrine()->getRepository(Classes::class)->findAll();
+            $sousgroupes = $this->getDoctrine()->getRepository(Sousgroupes::class)->findBy(['id_createur' => $this->getUser()->getId()]);
+        } elseif ($role === 'ROLE_ADMIN') {
+            $classes = $this->getDoctrine()->getRepository(Classes::class)->findAll();
+            $sousgroupes = $this->getDoctrine()->getRepository(Sousgroupes::class)->findAll();
+        } else {
+            return $this->forward('App\Controller\LoginController::logout');
         }
+        $options['classes'] = $classes;
+        $options['sousgroupes'] = $sousgroupes;
+
         return $this->render('utilisateurs/index.html.twig', $options);
     }
 }

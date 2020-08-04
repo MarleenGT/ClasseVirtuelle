@@ -79,28 +79,35 @@
                         <option value="45">45</option>
                     </select>
                 </div>
-                {% if role == "ROLE_ADMIN" %}
-                    {{ form_start(form) }}
-                    <div class="input-group mb-5">
-                        <div class="input-group-prepend">
-                            <label class="input-group-text" for="addClasse">Ajouter une classe</label>
-                        </div>
-                        {{ form_widget(form.nom_classe, {'attr': {'class': 'form_control', 'placeholder': form.nom_classe.vars.label }}) }}
-                        <div class="input-group-append">
-                            {{ form_widget(form.submit) }}
-                        </div>
-                    </div>
-                    {{ form_end(form) }}
-                {% endif %}
-                <div id="sousgroupeMsg"></div>
+                <div id="sousgroupeMsg" class="mb-1 text-center"></div>
                 <div class="input-group" id="sousgroupeInput">
-                    <label for="sousgroupeTitre" hidden>Entrez le nom du sous-groupe</label>
-                    <input required type="text" class="form-control" name="sousgroupeTitre" id="sousgroupeTitre"
-                           placeholder="Nom du sous-groupe">
                     <div class="input-group-prepend">
-                        <button type="button" class="btn btn-secondary" name="sousgroupeAdd">Créer</button>
+                        <label hidden for="sousgroupeSelect">Choix du sous-groupe ou de la classe</label>
+                        <select class="custom-select" id="sousgroupeSelect">
+                            <optgroup label="Classes">
+                                <option value="cl_autre">Nouvelle classe</option>
+                                {% for classe in classes %}
+                                    <option value="cl_{{ classe.id }}">{{ classe.nomClasse|e }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="Sous-groupes">
+                                <option value="sg_autre">Nouveau groupe</option>
+                                {% for sousgroupe in sousgroupes %}
+                                    <option value="sg_{{ sousgroupe.id }}">{{ sousgroupe.nomSousgroupe|e }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select>
                     </div>
+                    <label for="sousgroupeTitre" hidden>Entrez le nom</label>
+                    <input required type="text" class="form-control" name="sousgroupeTitre" id="sousgroupeTitre"
+                           placeholder="Nom">
+
                 </div>
+                <form class="d-flex justify-content-around mb-4">
+                    <button type="button" class="btn btn-primary" name="sousgroupeAdd">Créer</button>
+                    <button type="button" class="btn btn-info" name="sousgroupeUpdate">Modifier</button>
+                    <button type="button" class="btn btn-danger" name="sousgroupeDelete">Supprimer</button>
+                </form>
                 <div class="eleve-list">
                     <p>Éleves :</p>
                     <ul id="sousgroupeList"></ul>
@@ -135,8 +142,11 @@
                 list: $("#sousgroupeList"),
                 profList: $("#profSousgroupeList"),
                 sousgroupeButton: $("button[name = 'sousgroupeAdd']"),
+                sousgroupeUpdateButton: $("button[name = 'sousgroupeUpdate']"),
+                sousgroupeDeleteButton: $("button[name = 'sousgroupeDelete']"),
                 sousgroupeTitre: $("input[name = 'sousgroupeTitre']"),
                 sousgroupeMsg: $('#sousgroupeMsg'),
+                sousgroupeSelect: $('#sousgroupeSelect'),
                 optionsToggle: $("#optionsToggle"),
                 optionsField: $("#optionsField"),
             },
@@ -147,6 +157,9 @@
             },
             method: {
                 initialize: function () {
+                    /**
+                     * Ajout changement de page au niveau des flèches
+                     */
                     indexUtil.index.moins.click(function () {
                         if (indexUtil.param.offset > 0) {
                             indexUtil.param.offset -= 1;
@@ -159,9 +172,39 @@
                             indexUtil.method.AJAX();
                         }
                     });
+                    /**
+                     * Lancement de l'ajout de sous-groupe ou classe
+                     */
                     indexUtil.index.sousgroupeButton.click(function () {
-                        indexUtil.method.sousgroupeAJAX();
+                        if (indexUtil.index.sousgroupeSelect.val() === "sg_autre") {
+                            indexUtil.method.addAJAX("{{ path('sousgroupe.add') }}");
+                        } else if (indexUtil.index.sousgroupeSelect.val() === "cl_autre") {
+                            indexUtil.method.addAJAX("{{ path('classe.add') }}");
+                        }
                     });
+                    /**
+                     * Lancement de l'update de sous-groupe ou classe
+                     */
+                    indexUtil.index.sousgroupeUpdateButton.click(function () {
+                        if (indexUtil.index.sousgroupeSelect.val().substring(0, 3) === "sg_") {
+                            indexUtil.method.updateAJAX("{{ path('sousgroupe.update') }}");
+                        } else if (indexUtil.index.sousgroupeSelect.val().substring(0, 3) === "cl_") {
+                            indexUtil.method.updateAJAX("{{ path('classe.update') }}");
+                        }
+                    });
+                    /**
+                     * Lancement de la suppression de sous-groupe ou classe
+                     */
+                    indexUtil.index.sousgroupeDeleteButton.click(function () {
+                        if (indexUtil.index.sousgroupeSelect.val().substring(0, 3) === "sg_") {
+                            indexUtil.method.deleteAJAX("{{ path('sousgroupe.delete') }}");
+                        } else if (indexUtil.index.sousgroupeSelect.val().substring(0, 3) === "cl_") {
+                            indexUtil.method.deleteAJAX("{{ path('classe.delete') }}");
+                        }
+                    });
+                    /**
+                     * Lancement AJAX a chaque action
+                     */
                     indexUtil.index.search_input.keyup(function () {
                         indexUtil.method.AJAX();
                     });
@@ -173,7 +216,10 @@
                         indexUtil.param.offset = 0;
                         indexUtil.method.AJAX();
                     });
-                    indexUtil.method.AJAX();
+                    indexUtil.index.sousgroupeSelect.change(this.changeSelect);
+                    /**
+                     * Mise en place du modal Utilisateurs
+                     */
                     indexUtil.index.modal.on('show.bs.modal', function (event) {
                         let button = $(event.relatedTarget) // Button that triggered the modal
                         let CRUD = button.data('button') // Extract info from data-* attributes
@@ -196,23 +242,87 @@
                         indexUtil.index.modalTitre.text("")
                         indexUtil.index.modalBody.html("")
                     });
+                    /**
+                     * Toggle du champ options
+                     */
                     indexUtil.index.optionsField.hide();
                     indexUtil.index.optionsToggle.click(function () {
                         indexUtil.index.optionsField.toggle();
                         listingUtil.index.addSG.toggle();
                         listingUtil.index.profSG.toggle();
                     });
+                    indexUtil.index.sousgroupeSelect.val("cl_autre");
+                    indexUtil.index.sousgroupeUpdateButton.hide();
+                    indexUtil.index.sousgroupeDeleteButton.hide();
+                    indexUtil.index.sousgroupeTitre.val("");
+                    indexUtil.method.AJAX();
                 },
-                sousgroupeAJAX: function () {
-                    {% if app.user.roles[0] == 'ROLE_PROF' %}
-                    indexUtil.param.sousgroupeProfList = [{'id': {{ app.user.id }} }];
-                    {% endif %}
+                /**
+                 * Changement du texte dans le champ sous-groupe
+                 */
+                changeSelect: function() {
+                    indexUtil.method.resetList();
+                    if ($(this).val() !== "cl_autre" && $(this).val() !== "sg_autre") {
+                        indexUtil.index.sousgroupeTitre.val($("#sousgroupeSelect option:selected").text());
+                        indexUtil.index.sousgroupeTitre.prop('readonly', true);
+                        indexUtil.index.sousgroupeButton.hide();
+                        indexUtil.index.sousgroupeUpdateButton.show();
+                        indexUtil.index.sousgroupeDeleteButton.show();
+                        indexUtil.method.getlistAJAX();
+                    } else {
+                        indexUtil.index.sousgroupeTitre.val("");
+                        indexUtil.index.sousgroupeTitre.prop('readonly', false);
+                        indexUtil.index.sousgroupeButton.show();
+                        indexUtil.index.sousgroupeUpdateButton.hide();
+                        indexUtil.index.sousgroupeDeleteButton.hide();
+                    }
+                },
+                /**
+                 * Récupération des listes d'élèves et profs
+                 */
+                getlistAJAX: function () {
                     $.ajax({
-                        url: "{{ path('sousgroupe.add') }}",
+                        url: "{{ path('getlistutilisateurs.getList') }}",
                         method: "POST",
                         data: {
-                            eleves: indexUtil.param.sousgroupeList,
-                            profs: indexUtil.param.sousgroupeProfList,
+                            value: indexUtil.index.sousgroupeSelect.val()
+                        }
+                    }).done(function (msg) {
+                        let eleves = msg.eleves;
+                        let profs = msg.profs;
+                        eleves.forEach(function (eleve) {
+                            let button = $("#add_"+eleve.id);
+                            if (button.length > 0) {
+                                button.trigger("click");
+                            } else {
+                                indexUtil.param.sousgroupeList.push({'id': eleve.id, 'nom': eleve.nom+' '+eleve.prenom, 'classe': eleve.nom_classe});
+                                indexUtil.method.appendToList(indexUtil.index.list, eleve.id, eleve.nom+' '+eleve.prenom, eleve.nom_classe);
+                            }
+                        })
+                        profs.forEach(function (prof) {
+                            let button = $("#show_"+prof.id);
+                            if (button.length > 0) {
+                                button.trigger("click");
+                            } else {
+                                let civ = prof.civilite === null ? "" : prof.civilite+' ';
+                                indexUtil.param.sousgroupeProfList.push({'id': prof.id, 'nom': civ+prof.nom+' '+prof.prenom});
+                                indexUtil.method.appendToList(indexUtil.index.profList, prof.id, civ+prof.nom+' '+prof.prenom);
+                            }
+                        })
+                        indexUtil.method.checkSousgroupe(indexUtil.param.sousgroupeList);
+                        indexUtil.method.checkProfSousgroupe(indexUtil.param.sousgroupeProfList);
+                    })
+                },
+                /**
+                 * Ajout d'une nouvelle classe ou sous-groupe
+                 */
+                addAJAX: function (path) {
+                    $.ajax({
+                        url: path,
+                        method: "POST",
+                        data: {
+                            eleves: this.pluck(indexUtil.param.sousgroupeList, 'id'),
+                            profs: this.pluck(indexUtil.param.sousgroupeProfList, 'id'),
                             nom: indexUtil.index.sousgroupeTitre.val(),
                         }
                     }).done(function (msg) {
@@ -221,14 +331,50 @@
                         } else if (msg.success) {
                             indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
                         }
-                        indexUtil.index.list.html("");
-                        indexUtil.index.profList.html("");
                         $("div.selected").removeClass("selected");
-                        $("button.selected").removeClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
-                            indexUtil.method.addSousgroupe($(this));
-                        });
+                        indexUtil.method.resetList();
                     })
                 },
+                updateAJAX: function (path) {
+                    $.ajax({
+                        url: path,
+                        method: "POST",
+                        data: {
+                            eleves: this.pluck(indexUtil.param.sousgroupeList, 'id'),
+                            profs: this.pluck(indexUtil.param.sousgroupeProfList, 'id'),
+                            id: indexUtil.index.sousgroupeSelect.val(),
+                        }
+                    }).done(function (msg) {
+                        if (msg.error) {
+                            indexUtil.index.sousgroupeMsg.html("<span class='error'>" + msg.error + "</span>");
+                        } else if (msg.success) {
+                            indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
+                        }
+                        $("div.selected").removeClass("selected");
+                        indexUtil.method.resetList();
+                    })
+                },
+                deleteAJAX: function (path) {
+                    $.ajax({
+                        url: path,
+                        method: "POST",
+                        data: {
+                            id: indexUtil.index.sousgroupeSelect.val(),
+                        }
+                    }).done(function (msg) {
+                        if (msg.error) {
+                            indexUtil.index.sousgroupeMsg.html("<span class='error'>" + msg.error + "</span>");
+                        } else if (msg.success) {
+                            indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
+                        }
+                        console.log(indexUtil.index.sousgroupeSelect.children("value="+indexUtil.index.sousgroupeSelect.val()))
+                        $("div.selected").removeClass("selected");
+                        indexUtil.method.resetList();
+                    })
+                },
+                /**
+                 * Recherche des listes utilisateurs
+                 */
                 AJAX: function () {
                     let user = "";
                     {% if role == "ROLE_PROF" %}
@@ -249,11 +395,14 @@
                         indexUtil.index.div.html(msg);
                         if (indexUtil.index.select.val() === 'Eleves') {
                             indexUtil.method.checkSousgroupe(indexUtil.param.sousgroupeList);
-                        } else if (indexUtil.index.select.val() === 'Profs') {
+                        } else if (indexUtil.index.select.val() === 'Professeurs') {
                             indexUtil.method.checkProfSousgroupe(indexUtil.param.sousgroupeProfList);
                         }
                     })
                 },
+                /**
+                 * Ajout des élèves et profs dans les listes
+                 */
                 appendToList: function (ul, id, nom, classe = null) {
                     let li = document.createElement('li');
                     let span_nom = document.createElement('span');
@@ -270,7 +419,11 @@
                     li.append(span_nom);
                     ul.append(li);
                     span_nom.innerText = nom;
+
                 },
+                /**
+                 * Vérification des listes
+                 */
                 checkSousgroupe: function (list) {
                     list.forEach(function (li) {
                         let id = li["id"];
@@ -284,7 +437,7 @@
                 },
                 addSousgroupe: function (button) {
                     let row = button.parent().parent();
-                    let nom = row.children(".nom").text();
+                    let nom = (row.children(".nom").text()).trim();
                     let classe = row.children(".classeEleve").text();
                     let id = row.data('id');
                     indexUtil.method.appendToList(indexUtil.index.list, id, nom, classe);
@@ -307,13 +460,14 @@
                     li.remove();
                 },
                 checkProfSousgroupe: function (list) {
+                    console.log(list);
                     list.forEach(function (li) {
                         let id = li["id"];
                         let row = $("div[data-id ='" + id + "']");
                         let button = $("#show_" + id);
                         row.addClass('selected')
                         button.addClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
-                            indexUtil.method.removeSousgroupe($(this));
+                            indexUtil.method.removeProfSousgroupe($(this));
                         });
                     })
                 },
@@ -323,7 +477,7 @@
                     let id = row.data('id');
                     indexUtil.method.appendToList(indexUtil.index.profList, id, nom);
                     indexUtil.param.sousgroupeProfList.push({'id': id, 'nom': nom});
-                    button.addClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
+                    button.addClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
                         indexUtil.method.removeProfSousgroupe($(this));
                     });
                 },
@@ -332,12 +486,32 @@
                     let id = row.data('id');
                     let li = $("#list_show_" + id);
                     row.removeClass("selected");
-                    button.removeClass('selected').html('<i class="fas fa-user-minus"></i>').off("click").bind('click', function () {
+                    button.removeClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
                         indexUtil.method.addProfSousgroupe($(this));
                     });
                     let index = indexUtil.param.sousgroupeProfList.findIndex(elem => elem['id'] === id);
                     indexUtil.param.sousgroupeProfList.splice(index, 1);
                     li.remove();
+                },
+                resetList: function () {
+                    indexUtil.index.list.html("");
+                    indexUtil.index.profList.html("");
+                    indexUtil.param.sousgroupeList = [];
+                    indexUtil.param.sousgroupeProfList = [];
+                    $("button.selected.addSousgroupe").removeClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
+                        indexUtil.method.addSousgroupe($(this));
+                    });
+                    $("button.selected.profSousgroupe").removeClass('selected').html('<i class="fas fa-user-plus"></i>').off("click").bind('click', function () {
+                        indexUtil.method.addProfSousgroupe($(this));
+                    });
+                },
+                pluck: function(array, key){
+                    let arr = array.map(function(item) { return item[key]; })
+                    if (arr === null) {
+                        return []
+                    } else {
+                        return arr;
+                    }
                 }
             }
         }

@@ -18,10 +18,10 @@ class PersonnelsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Personnels::class);
     }
+
     /**
      * @return Personnels[] Returns an array of Personnels objects
      */
-
     public function findPersonnelsByPages($limit, $offset, $search)
     {
         $column = ['p.id', 'p.nom', 'p.prenom', 'p.poste'];

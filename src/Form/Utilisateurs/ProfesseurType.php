@@ -37,6 +37,7 @@ class ProfesseurType extends AbstractType
                 'class' => Matieres::class,
                 'choice_label' => 'nom_matiere',
                 'multiple' => true,
+                "required" => false,
                 'label' => 'Matière(s) enseignée(s)'
             ])
             ->add('id_classe', EntityType::class, [

@@ -30,7 +30,7 @@ class Classes
     private $eleves;
 
     /**
-     * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_classe")
+     * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_classe", cascade={"persist", "remove"})
      */
     private $cours;
 

@@ -14,15 +14,15 @@
                         <label hidden for="selectEdt">Choix de l'emploi du temps</label>
                         <select class="custom-select" id="selectEdt">
                             {% for prof in liste_prof %}
-                                <option value="pr_{{ prof.id }}"
-                                        class="select_prof">{{ prof.civilite }} {{ prof.nom }} {{ prof.prenom }}</option>
+                                <option value="pr_{{ prof.id|escape }}"
+                                        class="select_prof">{{ prof.civilite|escape }} {{ prof.nom|escape }} {{ prof.prenom|escape }}</option>
                             {% endfor %}
                             {% for classe in liste_classe %}
-                                <option value="cl_{{ classe.id }}" class="select_classe">{{ classe.nomClasse }}</option>
+                                <option value="cl_{{ classe.id|escape }}" class="select_classe">{{ classe.nomClasse|escape }}</option>
                             {% endfor %}
                             {% for sousgroupe in liste_sousgroupe %}
-                                <option value="sg_{{ sousgroupe.id }}"
-                                        class="select_sousgroupe">{{ sousgroupe.nomSousgroupe }}</option>
+                                <option value="sg_{{ sousgroupe.id|escape }}"
+                                        class="select_sousgroupe">{{ sousgroupe.nomSousgroupe|escape }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -32,15 +32,15 @@
                             <label class="input-group-text" for="selectEdt">Choix de l'emploi du temps</label>
                         </div>
                         <select class="custom-select" id="selectEdt">
-                            <option value="pr_{{ liste_prof.id }}">Emploi du temps personnel</option>
+                            <option value="pr_{{ liste_prof.id|escape }}">Emploi du temps personnel</option>
                             <optgroup label="Classes">
                                 {% for classe in liste_classe %}
-                                    <option value="cl_{{ classe.id }}">{{ classe.nomClasse }}</option>
+                                    <option value="cl_{{ classe.id|escape }}">{{ classe.nomClasse|escape }}</option>
                                 {% endfor %}
                             </optgroup>
                             <optgroup label="Sous-groupes">
                                 {% for sousgroupe in liste_sousgroupe %}
-                                    <option value="sg_{{ sousgroupe.id }}">{{ sousgroupe.nomSousgroupe }}</option>
+                                    <option value="sg_{{ sousgroupe.id|escape }}">{{ sousgroupe.nomSousgroupe|escape }}</option>
                                 {% endfor %}
                             </optgroup>
                         </select>
@@ -73,7 +73,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitre"></h5>
+                    <h5 class="modal-title" id="modalTitre">Détails du cours</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -116,7 +116,7 @@
             method: {
                 initialize: function () {
                     indexCours.param.date = this.startOfWeek(new Date);
-                    indexCours.param.date.setHours(8, 0, 0, 0);
+                    indexCours.param.date.setHours({{ start_hour|escape }}, 0, 0, 0);
                     indexCours.index.selectEdt.on('change', this.AJAX);
                     {% if role == 'ROLE_PERSONNEL' or role == 'ROLE_ADMIN' %}
                         indexCours.index.selectEdt.children().hide();
@@ -143,6 +143,10 @@
                     indexCours.index.modal.on('show.bs.modal', function (event) {
                         let cours = $(event.relatedTarget) // Cours that triggered the modal
                         indexCours.method.detailsAJAX(cours);
+                    });
+                    indexCours.index.modal.on('hidden.bs.modal', function () {
+                        indexCours.index.modalBody.html("");
+                        indexCours.index.modalFooter.html("");
                     });
                     this.AJAX();
                 },
@@ -192,9 +196,6 @@
                         method: "POST",
                         data: {id: cours.data('id'), date: Date.parse(indexCours.param.date) / 1000}
                     }).done(function (msg) {
-                        console.log(msg)
-                        indexCours.index.modalTitre.html(msg.titre);
-                        indexCours.index.modalBody.html(msg.body.content);
                         indexCours.index.modalBody.html(msg.body.content);
                         indexCours.index.modalFooter.html(msg.footer.content);
                     })

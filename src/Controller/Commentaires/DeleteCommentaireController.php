@@ -29,6 +29,7 @@ class DeleteCommentaireController extends AbstractController
                 $this->addFlash('danger', 'Problème dans la suppression du commentaire');
             }
         }
+
         return $this->redirect($request->headers->get('referer'));
     }
 }

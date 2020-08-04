@@ -77,7 +77,7 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
 
         if (!$user) {
             // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('L\'identifiant est incorrect');
+            throw new CustomUserMessageAuthenticationException('Les identifiants sont incorrects');
         }
 
         return $user;
@@ -103,21 +103,21 @@ class LoginFormAuthentificatorAuthenticator extends AbstractFormLoginAuthenticat
         switch ($role) {
             case 'ROLE_ELEVE':
                 $query = $this->entityManager->getRepository(Eleves::class)->findOneBy(['id_user' => $id]);
-                $request->getSession()->set('id', $query->getId());
-                $request->getSession()->set('classe', $query->getIdClasse());
-                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
+//                $request->getSession()->set('id', $query->getId());
+//                $request->getSession()->set('classe', $query->getIdClasse());
+//                $request->getSession()->set('sous-groupe', $query->getIdSousgroupe());
                 $request->getSession()->set('user', $query);
                 break;
             case 'ROLE_PROF':
-                $query = $this->entityManager->getRepository(Profs::class)->findOneBy(['id_user' => $id]);
-                $matiere = [];
-                $classe = [];
-                foreach ($query->getIdMatiere() as $mat) {
-                    $matiere[] = $mat;
-                }
-                foreach ($query->getIdClasse() as $cla) {
-                    $classe[] = $cla;
-                }
+                $query = $this->entityManager->getRepository(Profs::class)->findProfHydrated($id);
+//                $matiere = [];
+//                $classe = [];
+//                foreach ($query->getIdMatiere() as $mat) {
+//                    $matiere[] = $mat;
+//                }
+//                foreach ($query->getIdClasse() as $cla) {
+//                    $classe[] = $cla;
+//                }
 //                $request->getSession()->set('id', $query->getId());
 //                $request->getSession()->set('classe', $classe);
 //                $request->getSession()->set('matiere', $matiere);

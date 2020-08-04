@@ -36,8 +36,7 @@ class Eleves
     private $prenom;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="eleves")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity=Classes::class, inversedBy="eleves", cascade={"remove"})
      */
     private $id_classe;
 

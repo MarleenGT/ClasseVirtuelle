@@ -24,7 +24,7 @@
             </div>
             <div id="form-compte" class="offset-lg-2 offset-1 col-lg-4 col-sm-10">
                 {% if error is defined %}
-                    {{ error }}
+                    {{ error|escape }}
                 {% endif %}
                 <div id="formId">
                     {{ form_start(formId) }}

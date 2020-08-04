@@ -151,6 +151,10 @@ class CoursController extends AbstractController
             $liste_classe = $session->get('user')->getIdClasse();
             $liste_sousgroupe = $this->getUser()->getSousgroupesvisibles();
             $liste_prof = $session->get('user');
+        } else {
+            $liste_classe = [];
+            $liste_sousgroupe = [];
+            $liste_prof = [];
         }
 
         return $this->render('cours/index.html.twig', [

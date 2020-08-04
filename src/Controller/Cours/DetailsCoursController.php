@@ -4,7 +4,7 @@
 namespace App\Controller\Cours;
 
 
-use App\Entity\Cours;
+use App\Controller\CheckRepository\CheckCoursRepo;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ class DetailsCoursController extends AbstractController
      * @return JsonResponse
      * @Route("/Cours/Details", name="cours.details", methods={"POST"})
      */
-    public function details(Request $request): JsonResponse
+    public function details(Request $request, CheckCoursRepo $checkCoursRepo): JsonResponse
     {
         $session = $request->getSession();
 
@@ -35,7 +35,8 @@ class DetailsCoursController extends AbstractController
         /**
          * Récupération du cours concerné
          */
-        $cours = $this->getDoctrine()->getRepository(Cours::class)->find($id);
+        $repo = $checkCoursRepo->check($date);
+        $cours = $this->getDoctrine()->getRepository($repo)->find($id);
 
         /**
          * Création des boutons de modification et suppression du cours
@@ -53,11 +54,13 @@ class DetailsCoursController extends AbstractController
             ]);
         }
 
+        $destinataire = $cours->getIdClasse() ? $cours->getIdClasse() : $cours->getIdSousgroupe();
+
         return $this->json([
-            "titre" => "Détails du cours",
             "body" => $this->render('cours/details.html.twig', [
                 'auteur' => $cours->getIdProf()->getCivilite().' '.$cours->getIdProf()->getNom(),
                 'matiere' => $cours->getMatiere(),
+                'destinataire' => $destinataire,
                 'date' => $cours->getHeureDebut()->format("d/m/Y"),
                 'debut' => $cours->getHeureDebut()->format("H:i"),
                 'fin' => $cours->getHeureFin()->format("H:i"),

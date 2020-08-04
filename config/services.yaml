@@ -7,6 +7,7 @@ parameters:
     # Heures d'encadrement de l'emploi du temps (affichage).
     # startTimeTable correspond à l'heure à laquelle commence l'affichage des cours sur l'emploi du temps
     # endTimeTable correspond à l'heure à laquelle fini l'affichage des cours sur l'emploi du temps
+    # Veillez à ne garder que des nombres entiers pour ces heures
     startTimeTable : 8
     endTimeTable : 18
 services:

@@ -119,7 +119,6 @@ class AddCoursController extends AbstractController
                 $id_sousgroupe = $obj->getIdSousgroupe()->getId();
                 foreach ($prof->getIdUser()->getSousgroupesvisibles() as $sousgroupe) {
                     if ($sousgroupe->getId() === $id_sousgroupe) {
-                        dump($sousgroupe);
                         $obj->setIdSousgroupe($sousgroupe);
                         break;
                     }
@@ -148,7 +147,6 @@ class AddCoursController extends AbstractController
                 $this->addFlash('danger', $msg);
                 return $this->render("cours/add.html.twig", [
                     "form" => $form->createView(),
-                    'conflit' => $verif
                 ]);
             }
             /**

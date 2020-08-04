@@ -27,7 +27,7 @@ class Sousgroupes
     private $id_createur;
 
     /**
-     * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_sousgroupe")
+     * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="id_sousgroupe", cascade={"persist", "remove"})
      */
     private $cours;
 
@@ -198,5 +198,8 @@ class Sousgroupes
 
         return $this;
     }
-
+    public function __toString(): string
+    {
+        return $this->getNomSousgroupe();
+    }
 }

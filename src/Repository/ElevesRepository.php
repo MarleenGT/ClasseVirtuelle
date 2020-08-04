@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Classes;
 use App\Entity\Eleves;
+use App\Entity\Sousgroupes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -46,7 +48,7 @@ class ElevesRepository extends ServiceEntityRepository
      * @param $classe
      * @return array
      */
-    public function findElevesByClasse($classe): array
+    public function findElevesByClasse(Classes $classe): array
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.id_classe = :classe')
@@ -60,7 +62,7 @@ class ElevesRepository extends ServiceEntityRepository
      * @param $groupe
      * @return array
      */
-    public function findElevesBySousgroupe($groupe): array
+    public function findElevesBySousgroupe(Sousgroupes $groupe): array
     {
         return $this->createQueryBuilder('e')
             ->leftJoin('e.id_sousgroupe', 's')
@@ -71,4 +73,36 @@ class ElevesRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * @param $id
+     * @return array
+     */
+    public function findElevesByClasseId(int $id): array
+    {
+        return $this->createQueryBuilder('e')
+            ->select('e.id, e.nom, e.prenom, c.nom_classe')
+            ->leftJoin('e.id_classe', 'c')
+            ->where('c.id = :classe')
+            ->setParameter('classe', $id)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function findElevesBySousgroupeId(int $id): array
+    {
+        return $this->createQueryBuilder('e')
+            ->select('e.id, e.nom, e.prenom, c.nom_classe')
+            ->leftJoin('e.id_sousgroupe', 's')
+            ->leftJoin('e.id_classe', 'c')
+            ->where('s.id = :groupe')
+            ->setParameter('groupe', $id)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
