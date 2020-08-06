@@ -32,7 +32,7 @@ class Sousgroupes
     private $cours;
 
     /**
-     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_sousgroupe")
+     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_sousgroupe", cascade={"persist", "remove"})
      */
     private $archives;
 

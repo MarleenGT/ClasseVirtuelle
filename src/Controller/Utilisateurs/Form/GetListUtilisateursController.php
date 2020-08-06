@@ -5,6 +5,7 @@ namespace App\Controller\Utilisateurs\Form;
 
 use App\Entity\Eleves;
 use App\Entity\Profs;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,7 @@ class GetListUtilisateursController extends AbstractController
      * @Route("/List", name="getlistutilisateurs.getList", methods="POST")
      * @param Request $request
      * @return JsonResponse
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
      */
     public function getList(Request $request)
     {

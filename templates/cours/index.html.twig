@@ -171,7 +171,6 @@
                     $("option[selected]").removeAttr("selected");
                     for (let i = 0; i < arr.length; i++) {
                         let list = indexCours.index.option[arr[i].substr(0, 4)];
-                        console.log(str, arr[i])
                         if (str === arr[i]) {
                             list.show();
                             list.first().attr("selected", true);
@@ -184,7 +183,7 @@
                     $.ajax({
                         url: "{{ path('cours.ajax') }}",
                         method: "GET",
-                        data: {date: Date.parse(indexCours.param.date) / 1000, select: indexCours.index.selectEdt.val()}
+                        data: {date: Date.parse(indexCours.param.date) / 1000, {% if role != 'ROLE_ELEVE' %}select: indexCours.index.selectEdt.val(){% endif %}}
                     }).done(function (msg) {
                         indexCours.index.calendrier.html(msg);
                         indexCours.index.titreEdt.html(indexCours.method.getTitre(indexCours.param.date{% if role != 'ROLE_ELEVE' %}, indexCours.index.selectEdt.find("option:selected").text(){% endif %}));

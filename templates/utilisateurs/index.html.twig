@@ -46,7 +46,7 @@
             </div>
             <input class="form-control" id="search" type="search" placeholder="Recherche" aria-label="Recherche">
             <div class="input-group-append">
-                <button class="btn btn-primary" id="optionsToggle">Options</button>
+                <button style="display: none" class="btn btn-primary" id="optionsToggle">Options</button>
             </div>
         </div>
         <div class="modal fade" id="modalCRUD" tabindex="-1" role="dialog" aria-labelledby="modalCRUD"
@@ -77,6 +77,8 @@
                         <option value="15">15</option>
                         <option value="30">30</option>
                         <option value="45">45</option>
+                        <option value="60">60</option>
+                        <option value="90">90</option>
                     </select>
                 </div>
                 <div id="sousgroupeMsg" class="mb-1 text-center"></div>
@@ -84,12 +86,14 @@
                     <div class="input-group-prepend">
                         <label hidden for="sousgroupeSelect">Choix du sous-groupe ou de la classe</label>
                         <select class="custom-select" id="sousgroupeSelect">
+                            {% if app.user.roles[0] == 'ROLE_PERSONNEL' or app.user.roles[0] == 'ROLE_ADMIN' %}
                             <optgroup label="Classes">
                                 <option value="cl_autre">Nouvelle classe</option>
                                 {% for classe in classes %}
                                     <option value="cl_{{ classe.id }}">{{ classe.nomClasse|e }}</option>
                                 {% endfor %}
                             </optgroup>
+                            {% endif %}
                             <optgroup label="Sous-groupes">
                                 <option value="sg_autre">Nouveau groupe</option>
                                 {% for sousgroupe in sousgroupes %}
@@ -125,7 +129,7 @@
 {% block javascripts %}
     <script>
         let modifUser = {};
-        let lisingUtil = {};
+        let listingUtil = {};
         let indexUtil = {
             index: {
                 select: $('#util_select'),
@@ -153,6 +157,7 @@
             param: {
                 sousgroupeList: [],
                 sousgroupeProfList: [],
+                startList: {% if app.user.roles[0] == 'ROLE_PROF' %}"sg_autre"{% else %}"cl_autre"{% endif %},
                 offset: 0
             },
             method: {
@@ -251,7 +256,7 @@
                         listingUtil.index.addSG.toggle();
                         listingUtil.index.profSG.toggle();
                     });
-                    indexUtil.index.sousgroupeSelect.val("cl_autre");
+                    indexUtil.index.sousgroupeSelect.val(indexUtil.param.startList);
                     indexUtil.index.sousgroupeUpdateButton.hide();
                     indexUtil.index.sousgroupeDeleteButton.hide();
                     indexUtil.index.sousgroupeTitre.val("");
@@ -264,14 +269,12 @@
                     indexUtil.method.resetList();
                     if ($(this).val() !== "cl_autre" && $(this).val() !== "sg_autre") {
                         indexUtil.index.sousgroupeTitre.val($("#sousgroupeSelect option:selected").text());
-                        indexUtil.index.sousgroupeTitre.prop('readonly', true);
                         indexUtil.index.sousgroupeButton.hide();
                         indexUtil.index.sousgroupeUpdateButton.show();
                         indexUtil.index.sousgroupeDeleteButton.show();
                         indexUtil.method.getlistAJAX();
                     } else {
                         indexUtil.index.sousgroupeTitre.val("");
-                        indexUtil.index.sousgroupeTitre.prop('readonly', false);
                         indexUtil.index.sousgroupeButton.show();
                         indexUtil.index.sousgroupeUpdateButton.hide();
                         indexUtil.index.sousgroupeDeleteButton.hide();
@@ -331,6 +334,8 @@
                         } else if (msg.success) {
                             indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
                         }
+                        indexUtil.index.sousgroupeSelect.val(indexUtil.param.startList);
+                        indexUtil.index.sousgroupeTitre.val("");
                         $("div.selected").removeClass("selected");
                         indexUtil.method.resetList();
                     })
@@ -343,6 +348,7 @@
                             eleves: this.pluck(indexUtil.param.sousgroupeList, 'id'),
                             profs: this.pluck(indexUtil.param.sousgroupeProfList, 'id'),
                             id: indexUtil.index.sousgroupeSelect.val(),
+                            nom: indexUtil.index.sousgroupeTitre.val()
                         }
                     }).done(function (msg) {
                         if (msg.error) {
@@ -350,6 +356,8 @@
                         } else if (msg.success) {
                             indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
                         }
+                        indexUtil.index.sousgroupeSelect.val(indexUtil.param.startList);
+                        indexUtil.index.sousgroupeTitre.val("");
                         $("div.selected").removeClass("selected");
                         indexUtil.method.resetList();
                     })
@@ -367,7 +375,8 @@
                         } else if (msg.success) {
                             indexUtil.index.sousgroupeMsg.html("<span class='success'>" + msg.success + "</span>");
                         }
-                        console.log(indexUtil.index.sousgroupeSelect.children("value="+indexUtil.index.sousgroupeSelect.val()))
+                        indexUtil.index.sousgroupeSelect.val(indexUtil.param.startList);
+                        indexUtil.index.sousgroupeTitre.val("");
                         $("div.selected").removeClass("selected");
                         indexUtil.method.resetList();
                     })
@@ -406,6 +415,7 @@
                 appendToList: function (ul, id, nom, classe = null) {
                     let li = document.createElement('li');
                     let span_nom = document.createElement('span');
+                    let button_ban = document.createElement('button');
                     if (classe) {
                         let span_classe = document.createElement('span');
                         span_classe.classList.add('listClasse');
@@ -416,7 +426,35 @@
                         li.id = "list_show_" + id;
                     }
                     span_nom.classList.add('listNom')
+                    button_ban.classList.add('float-right')
+                    button_ban.classList.add('mr-2')
+                    button_ban.classList.add('p-0')
+                    button_ban.classList.add('btn')
+                    button_ban.innerHTML = '<i class="far fa-minus-square"></i>';
+                    $(button_ban).bind('click', function () {
+                        let arr_id = $(this).parent().attr('id').split('_');
+                        let id = arr_id[2];
+                        if (arr_id[1] === 'add'){
+                            let btn = $("#add_"+id);
+                            if (btn){
+                                indexUtil.method.removeSousgroupe(btn)
+                            } else {
+                                let index = indexUtil.param.sousgroupeList.findIndex(elem => elem['id'] === id);
+                                indexUtil.param.sousgroupeList.splice(index, 1);
+                            }
+                        } else if (arr_id[1] === 'show') {
+                            let btn = $("#show_"+id);
+                            if (btn){
+                                indexUtil.method.removeProfSousgroupe(btn)
+                            } else {
+                                let index = indexUtil.param.sousgroupeProfList.findIndex(elem => elem['id'] === id);
+                                indexUtil.param.sousgroupeProfList.splice(index, 1);
+                            }
+                        }
+                        $(this).parent().remove();
+                    })
                     li.append(span_nom);
+                    li.append(button_ban);
                     ul.append(li);
                     span_nom.innerText = nom;
 
@@ -460,7 +498,6 @@
                     li.remove();
                 },
                 checkProfSousgroupe: function (list) {
-                    console.log(list);
                     list.forEach(function (li) {
                         let id = li["id"];
                         let row = $("div[data-id ='" + id + "']");

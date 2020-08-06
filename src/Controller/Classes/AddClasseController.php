@@ -7,6 +7,7 @@ namespace App\Controller\Classes;
 use App\Entity\Classes;
 use App\Entity\Eleves;
 use App\Entity\Profs;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ class AddClasseController extends AbstractController
     /**
      * @param Request $request
      * @Route("/Classe/Ajouter", name="classe.add", methods={"POST"})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL')")
      * @return JsonResponse
      */
     public function add(Request $request)
@@ -37,6 +39,9 @@ class AddClasseController extends AbstractController
         $idEleve = $request->request->get('eleves') ? $request->request->get('eleves') : [];
         $idProfs = $request->request->get('profs') ? $request->request->get('profs') : [];
 
+        /**
+         * Vérification si l'ensemble des id des listes sont de type numérique
+         */
         if (count($idEleve) !== count(array_filter($idEleve, 'is_numeric')) || count($idProfs) !== count(array_filter($idProfs, 'is_numeric'))) {
             return $this->json([
                 'error' => "Erreur dans les listes d'éleves et/ou de professeurs"

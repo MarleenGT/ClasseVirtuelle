@@ -9,6 +9,7 @@ use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Form\Utilisateurs\DeleteType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ class DeleteController extends AbstractController
      * @param Request $request
      * @return Response
      * @Route("/Utilisateurs/Delete", name="utilisateurs.delete", methods={"POST"})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL')")
      */
     public function delete(Request $request)
     {

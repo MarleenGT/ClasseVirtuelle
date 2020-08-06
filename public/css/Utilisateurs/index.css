@@ -1,5 +1,5 @@
 #optionsField, .eleve-list > p, .prof-list > p {
-    background-color: #e8d9b2;
+    background-color: #efe4d0;
 }
 
 #optionsField {
@@ -11,6 +11,10 @@
     padding: 0;
     position: relative;
     top: -0.5rem;
+}
+
+#sousgroupeList button, #profSousgroupeList button{
+    color: red;
 }
 
 #sousgroupeList > li, #profSousgroupeList > li {

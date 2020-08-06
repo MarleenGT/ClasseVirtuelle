@@ -11,6 +11,6 @@ framework:
 
         routing:
             # Route your messages to the transports
-#            'Symfony\Component\Mailer\Messenger\SendEmailMessage':  async
              'App\Controller\Message\Email': async
+             'App\Controller\Message\CoursEmail': async
 

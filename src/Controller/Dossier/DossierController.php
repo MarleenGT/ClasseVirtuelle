@@ -11,6 +11,7 @@ use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Form\Commentaire\CommentaireType;
 use DateTime;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,7 @@ class DossierController extends AbstractController
      * @param Request $request
      * @Route("/{id}/{nom}/{prenom}", name="dossier.index")
      * @return Response
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
      */
     public function index(Request $request)
     {

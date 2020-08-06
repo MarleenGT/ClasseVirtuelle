@@ -6,6 +6,13 @@
     {% endfor %}
 {% endfor %}
 {% set role = app.session.get('role') %}
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }}">
+            {{ message|raw }}
+        </div>
+    {% endfor %}
+{% endfor %}
 <table class="emploiDuTemps w-100">
     <thead>
     <tr>

@@ -8,6 +8,7 @@ use App\Form\Settings\ChangeIdType;
 use App\Form\Settings\ChangePasswordType;
 use DateTime;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -133,6 +134,7 @@ class SettingsController extends AbstractController
 
     /**
      * @Route ("/Purge", name="reglages.purgeTables")
+     * @IsGranted("ROLE_ADMIN")
      */
     public function purgeTables()
     {

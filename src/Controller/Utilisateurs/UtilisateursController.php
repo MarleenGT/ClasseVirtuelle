@@ -10,6 +10,7 @@ use App\Entity\Eleves;
 use App\Entity\Personnels;
 use App\Entity\Profs;
 use App\Entity\Sousgroupes;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +23,7 @@ class UtilisateursController extends AbstractController
      * @param Request $request
      * @Route("/Utilisateurs/ajax", name="utilisateurs.ajax", methods={"POST"})
      * @return Response
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
      */
     public function choice(Request $request): Response
     {
@@ -62,11 +64,10 @@ class UtilisateursController extends AbstractController
     }
 
     /**
-     * @param Request $request
      * @return Response
      * @Route("/Utilisateurs", name="utilisateurs.index")
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $role = $this->getUser()->getRoles()[0];
         $options = [

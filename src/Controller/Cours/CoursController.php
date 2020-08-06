@@ -27,11 +27,13 @@ class CoursController extends AbstractController
     public function ajax(Request $request, CheckCoursRepo $checkCoursRepo): Response
     {
         if ($request->isXmlHttpRequest()) {
-
+            $role = $this->getUser()->getRoles()[0];
             /**
              * Récupération et nettoyage du choix de l'emploi du temps
              */
-            $select = explode("_", filter_var($request->query->get('select'), FILTER_SANITIZE_STRING));
+            if ($role !== "ROLE_ELEVE") {
+                $select = explode("_", filter_var($request->query->get('select'), FILTER_SANITIZE_STRING));
+            }
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
 
@@ -48,8 +50,6 @@ class CoursController extends AbstractController
             $date_lundi = (new DateTime)->setTimestamp($timeLundi);
             $date_samedi = (new DateTime)->setTimestamp($timeSamedi);
 
-            $role = $this->getUser()->getRoles()[0];
-
             /**
              * Vérification de la date d'archivage pour savoir si les cours à afficher sont dans la table Archives ou Cours
              */
@@ -62,7 +62,6 @@ class CoursController extends AbstractController
                 }
                 $query = $this->findCoursForEleve($eleve, $repository, $date_lundi, $date_samedi);
             } else {
-
                 /**
                  * Récupération de l'emploi du temps correspondant à l'option choisie
                  */

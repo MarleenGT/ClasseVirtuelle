@@ -5,6 +5,7 @@ namespace App\Controller\Commentaires;
 
 
 use App\Entity\Commentaires;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,6 +15,7 @@ class DeleteCommentaireController extends AbstractController
     /**
      * @param Request $request
      * @Route("/Dossier/Delete", name="commentaire.delete", methods="POST")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
      */
     public function delete(Request $request)
     {

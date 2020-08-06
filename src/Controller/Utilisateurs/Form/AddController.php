@@ -15,6 +15,7 @@ use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
 use App\Service\CompleteUser;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +31,7 @@ class AddController extends AbstractController
      * @param MessageBusInterface $messageBus
      * @return Response
      * @Route("/Utilisateurs/Ajout", name="utilisateurs.add", methods={"POST"})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL')")
      */
     public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus)
     {
@@ -38,6 +40,7 @@ class AddController extends AbstractController
         } elseif ($request->request->has("add")) {
             $user = $request->request->get('add')['type'];
         } else {
+            $this->addFlash('danger', "Problème dans la vérification de l'utilisateur à ajouter");
             return $this->render('utilisateurs/index.html.twig');
         }
 
@@ -65,17 +68,13 @@ class AddController extends AbstractController
             $task = $form->getData();
             $entityManager = $this->getDoctrine()->getManager();
             $addUser = $completeUser->completeUser($task, $user);
-            if (is_string($addUser)){
-                return $this->render('utilisateurs/index.html.twig', [
-                    'error' => "Erreur lors de l'ajout de l'utilisateur : $addUser"
-                ]);
-            }
+
             $query = $this->getDoctrine()->getRepository(Users::class)->findBy(['email' => $addUser->getIdUser()->getEmail()]);
             if ($query){
+                $this->addFlash('danger', "L'email renseigné est déjà utilisé.");
                 return $this->render('utilisateurs/add.html.twig', [
                     'form' => $form->createView(),
                     'typeUtil' => $user,
-                    "error" => "L'email renseigné est déjà utilisé."
                 ]);
             }
             $email = new Email();
@@ -84,24 +83,17 @@ class AddController extends AbstractController
             $email->setUrl($url);
             $messageBus->dispatch($email);
 
-//            if ($error) {
-//                return $this->render('utilisateurs/index.html.twig', [
-//                    'select' => $user,
-//                    'error' => 'L\'email de création de compte n\'a pas pu être envoyé. Veuillez vérifier l\'adresse mail.'
-//                ]);
-//            } else {
                 $entityManager->persist($addUser);
                 try {
                     $entityManager->flush();
                 } catch (Exception $e) {
+                    $this->addFlash('danger', "Erreur lors de l'ajout de l'utilisateur.");
                     return $this->render('utilisateurs/add.html.twig', [
                         'form' => $form->createView(),
                         'typeUtil' => $user,
-                        "error" => "Erreur lors de l'ajout de l'utilisateur."
                     ]);
                 }
                 $this->addFlash('success', 'Utilisateur ajouté!');
-//            }
 
             return $this->redirectToRoute('utilisateurs.index');
         }

@@ -5,7 +5,9 @@ namespace App\Controller\Cours;
 
 
 use App\Controller\CheckCoursConflit\CheckCoursConflit;
+use App\Controller\Message\CoursEmail;
 use App\Entity\Cours;
+use App\Entity\Eleves;
 use App\Entity\Profs;
 use App\Form\Cours\CoursType;
 use App\Service\CheckSession;
@@ -15,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AddCoursController extends AbstractController
@@ -27,7 +30,7 @@ class AddCoursController extends AbstractController
      * @IsGranted("ROLE_PROF")
      * @Route("/Cours/Ajouter", name="cours.add", methods={"POST"})
      */
-    public function add(Request $request, CheckSession $checkSession, CheckCoursConflit $checkCoursConflit): Response
+    public function add(Request $request, CheckSession $checkSession, CheckCoursConflit $checkCoursConflit, MessageBusInterface $messageBus): Response
     {
         $session = $checkSession->getSession($request);
         /**
@@ -161,11 +164,30 @@ class AddCoursController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($cours);
             $entityManager->flush();
+
+            /**
+             * Envoi des mails à chaque élève lors de l'ajout d'un cours
+             */
+            $this->sendEmail($cours, $messageBus);
             $this->addFlash('success', 'Cours ajouté !');
             return $this->redirectToRoute('cours.index');
         }
         return $this->render("cours/add.html.twig", [
             "form" => $form->createView()
         ]);
+    }
+
+    private function sendEmail(Cours $cours, $messageBus)
+    {
+        if ($cours->getIdClasse()) {
+            $eleves = $this->getDoctrine()->getRepository(Eleves::class)->findBy(['id_classe' => $cours->getIdClasse()]);
+        } else {
+            $eleves = $this->getDoctrine()->getRepository(Eleves::class)->findElevesBySousgroupe($cours->getIdSousgroupe());
+        }
+        foreach ($eleves as $eleve){
+            $email = new CoursEmail();
+            $email->setTask($eleve)->setEmail($eleve->getIdUser()->getEmail())->setCours($cours);
+            $messageBus->dispatch($email);
+        }
     }
 }

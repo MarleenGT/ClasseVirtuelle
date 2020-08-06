@@ -10,6 +10,7 @@ use App\Entity\Profs;
 use App\Form\Cours\CoursType;
 use DateTime;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +24,7 @@ class UpdateCoursController extends AbstractController
      * @param CheckCoursConflit $checkCoursConflit
      * @return Response
      * @throws Exception
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
      * @Route("/Cours/Update", name="cours.update", methods={"POST"})
      */
     public function update(Request $request, CheckCoursRepo $checkCoursRepo, CheckCoursConflit $checkCoursConflit)

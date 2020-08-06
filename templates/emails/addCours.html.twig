@@ -1,0 +1,9 @@
+<h1>Bonjour {{ nom ~ ' ' ~ prenom }}!</h1>
+
+<p>Veuillez trouver ci-dessous les détails d'un cours :</p>
+
+<p>Matière : {{ cours.matiere|e }}</p>
+<p>Date : {{ cours.heureDebut|date("d/m/Y")|escape }}</p>
+<p>De {{ cours.heureDebut|date("H:i")|escape }} à {{ cours.heureFin|date("H:i")|escape }}</p>
+<a href="{{ cours.lien|e }}">Lien vers le cours</a>
+<p>Commentaire : {{ cours.commentaire }}</p>

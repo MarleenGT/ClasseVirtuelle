@@ -3,8 +3,6 @@
 
 namespace App\Service;
 
-
-use App\Controller\ErrorController;
 use App\Entity\Roles;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,25 +14,11 @@ class CompleteUser extends AbstractController
     {
         try {
             $identifiant = bin2hex(random_bytes(20));
-
-        } catch (Exception $e) {
-            return $this->forward(ErrorController::class, [
-                'error' => $e->getMessage()
-            ]);
-        }
-        try {
             $password = bin2hex(random_bytes(20));
-        } catch (Exception $e) {
-            return $this->forward(ErrorController::class, [
-                'error' => $e->getMessage()
-            ]);
-        }
-        try {
             $token = bin2hex(random_bytes(20));
         } catch (Exception $e) {
-            return $this->forward(ErrorController::class, [
-                'error' => $e->getMessage()
-            ]);
+            $this->addFlash('danger', "Problème lors de la complétion de l'ajout. Contactez l'administrateur.");
+            return $this->redirectToRoute('utilisateurs.index');
         }
         $role = $this->getRoleFromTable($type);
         $task->getIdUser()

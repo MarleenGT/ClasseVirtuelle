@@ -12,6 +12,7 @@ use App\Entity\Profs;
 use App\Entity\Users;
 use App\Service\CompleteUser;
 use App\Service\ImportCsv;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,13 +31,19 @@ class ImportController extends AbstractController
      * @param CompleteUser $completeUser
      * @param ImportCsv $importCsv
      * @param MessageBusInterface $messageBus
+     * @IsGranted("ROLE_ADMIN")
      * @return Response
      */
     public function import(Request $request, CompleteUser $completeUser, ImportCsv $importCsv, MessageBusInterface $messageBus)
     {
         $files = $request->files->all();
         $array = array_reverse($files);
-        $str = file_get_contents(array_pop($array)->getPathname());
+        $file = array_pop($array);
+        if ($file === null) {
+            $this->addFlash('danger', 'Fichier non trouvé.');
+            return $this->forward('App\Controller\SettingsController::index');
+        }
+        $str = file_get_contents($file->getPathname());
         $str = filter_var(str_replace(";", ",", $str), FILTER_SANITIZE_STRING);
         $em = $this->getDoctrine()->getManager();
 
@@ -57,7 +64,7 @@ class ImportController extends AbstractController
                 $list_matiere = [];
                 foreach ($profs as $prof) {
                     $obj = new Profs();
-                    $obj->setNom($prof["NOM"])->setPrenom($prof["PRENOM"])->setIdUser(new Users());
+                    $obj->setNom(htmlspecialchars_decode($prof["NOM"], ENT_QUOTES))->setPrenom(htmlspecialchars_decode($prof["PRENOM"], ENT_QUOTES))->setIdUser(new Users());
                     $obj->getIdUser()->setEmail($prof['EMAIL']);
                     if (isset($prof['CIVILITE'])) {
                         $obj->setCivilite($prof["CIVILITE"]);
@@ -78,6 +85,7 @@ class ImportController extends AbstractController
                         $obj->addIdMatiere($query);
                     }
                     $obj = $completeUser->completeUser($obj, "Professeurs");
+                    $em->persist($obj);
                     $email = new Email();
                     $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
                     $email->setTask($obj);
@@ -93,14 +101,16 @@ class ImportController extends AbstractController
                     $obj = new Eleves();
                     $classe = $this->getDoctrine()->getRepository(Classes::class)->findOneBy(['nom_classe' => $eleve['CLASSES']]);
                     if ($classe) {
-                        $obj->setNom($eleve['NOM'])->setPrenom($eleve['PRENOM'])->setIdClasse($classe)->setIdUser(new Users());
+                        $obj->setNom(htmlspecialchars_decode($eleve["NOM"], ENT_QUOTES))->setPrenom(htmlspecialchars_decode($eleve["PRENOM"], ENT_QUOTES))->setIdClasse($classe)->setIdUser(new Users());
                         $obj->getIdUser()->setEmail($eleve['EMAIL']);
                         $obj = $completeUser->completeUser($obj, "Eleves");
                     } else {
                         $str .= "La classe" . $eleve['CLASSES'] . " de " . $obj->getNom() . " " . $obj->getPrenom() . ". L'utilisateur n'a pas été importé. <br>";
                     }
                     $email = new Email();
+                    $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
                     $email->setTask($obj);
+                    $email->setUrl($url);
                     $messageBus->dispatch($email);
                     $em->persist($obj);
                 }

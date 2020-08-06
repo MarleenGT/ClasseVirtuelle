@@ -43,7 +43,7 @@ class Classes
     }
 
     /**
-     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_classe")
+     * @ORM\OneToMany(targetEntity=Archives::class, mappedBy="id_classe", cascade={"persist", "remove"})
      */
     private $archives;
 

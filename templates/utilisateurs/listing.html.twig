@@ -80,9 +80,8 @@
                                 <button class="btn btn-outline-info" type="submit" data-id="{{ list.id }}"><i
                                             class="fas fa-folder-open"></i></button>
                             </form>
-
                         {% endif %}
-                        {% if app.user.roles[0] == 'ROLE_PERSONNEL' or app.user.roles[0] == 'ROLE_ADMIN' %}
+                        {% if app.user.roles[0] == 'ROLE_ADMIN' or (app.user.roles[0] == 'ROLE_PERSONNEL' and (user == 'Eleves' or user == 'Professeurs')) %}
                         <button class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#modalCRUD"
                                 data-button="modif" data-user="{{ user }}" data-id="{{ list.id }}"><i
                                     class="fas fa-user-edit"></i></button>
@@ -118,6 +117,7 @@
                 },
                 method: {
                     initialize: function () {
+                        indexUtil.index.optionsToggle.show();
                         listingUtil.index.addSG.bind('click', function () {
                             indexUtil.method.addSousgroupe($(this));
                         });

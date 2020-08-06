@@ -7,6 +7,7 @@ use App\Entity\Eleves;
 use App\Entity\Profs;
 use App\Entity\Sousgroupes;
 use DateTime;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ class AddSousGroupeController extends AbstractController
      * @param Request $request
      * @Route("/Sousgroupe/Ajouter", name="sousgroupe.add", methods={"POST"})
      * @return JsonResponse
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
      */
     public function add(Request $request)
     {
@@ -31,6 +33,9 @@ class AddSousGroupeController extends AbstractController
         $eleve_list = $request->request->get('eleves') ? $request->request->get('eleves') : [];
         $prof_list = $request->request->get('profs') ? $request->request->get('profs') : [];
 
+        /**
+         * Vérification si l'ensemble des id des listes sont de type numérique
+         */
         if (count($eleve_list) !== count(array_filter($eleve_list, 'is_numeric')) || count($prof_list) !== count(array_filter($prof_list, 'is_numeric'))) {
             return $this->json([
                 'error' => "Erreur dans les listes d'éleves et/ou de professeurs"
@@ -51,7 +56,7 @@ class AddSousGroupeController extends AbstractController
             } else {
                 $profs = $this->getDoctrine()->getRepository(Profs::class)->findBy(['id' => $prof_list]);
                 foreach ($profs as $prof) {
-                    $sousgroupe->addVisibilite($prof);
+                    $sousgroupe->addVisibilite($prof->getIdUser());
                 }
             }
             $date_creation = new DateTime();

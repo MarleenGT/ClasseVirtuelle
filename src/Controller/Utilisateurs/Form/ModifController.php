@@ -13,6 +13,7 @@ use App\Form\Utilisateurs\AdminType;
 use App\Form\Utilisateurs\EleveType;
 use App\Form\Utilisateurs\PersonnelType;
 use App\Form\Utilisateurs\ProfesseurType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,7 @@ class ModifController extends AbstractController
      * @param MessageBusInterface $messageBus
      * @return Response
      * @Route("/Utilisateurs/Modif", name="utilisateurs.modif")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL')")
      */
     public function modif(Request $request, MessageBusInterface $messageBus)
     {

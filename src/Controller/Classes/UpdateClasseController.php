@@ -33,12 +33,32 @@ class UpdateClasseController extends AbstractController
                 'error' => 'Problème dans la détermination de la classe à modifier.'
             ]);
         }
+        if ($request->request->get("nom") && strlen($request->request->get("nom")) > 0) {
+            $nom = filter_var($request->request->get('nom'), FILTER_SANITIZE_STRING);
+        } else {
+            return $this->json([
+                'error' => 'Le nom de la classe doit être ajouté.'
+            ]);
+        }
         $eleve_list = $request->request->get('eleves') ? $request->request->get('eleves') : [];
         $prof_list = $request->request->get('profs') ? $request->request->get('profs') : [];
+
+        /**
+         * Vérification si l'ensemble des id des listes sont de type numérique
+         */
+        if (count($eleve_list) !== count(array_filter($eleve_list, 'is_numeric')) || count($prof_list) !== count(array_filter($prof_list, 'is_numeric'))) {
+            return $this->json([
+                'error' => "Erreur dans les listes d'éleves et/ou de professeurs"
+            ]);
+        }
 
         if ($request->isXmlHttpRequest()) {
             $entityManager = $this->getDoctrine()->getManager();
             $classe = $this->getDoctrine()->getRepository(Classes::class)->find($id);
+            $classe->setNomClasse($nom);
+            foreach ($classe->getEleves() as $eleve){
+                $classe->removeEleve($eleve);
+            }
             $eleves = $this->getDoctrine()->getRepository(Eleves::class)->findBy(['id' => $eleve_list]);
             foreach ($eleves as $eleve) {
                 $classe->addEleve($eleve);

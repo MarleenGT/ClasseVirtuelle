@@ -10,6 +10,7 @@ parameters:
     # Veillez à ne garder que des nombres entiers pour ces heures
     startTimeTable : 8
     endTimeTable : 18
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -32,4 +33,7 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Controller\MessageHandler\EmailHandler:
         arguments:
-            $address: 'test@test.com'
+            $address: 'Activation@ClasseVirtuelle.com'
+#    App\Controller\MessageHandler\CoursEmailHandler:
+#        arguments:
+#            $address: 'Cours@Classevirtuelle.com'
