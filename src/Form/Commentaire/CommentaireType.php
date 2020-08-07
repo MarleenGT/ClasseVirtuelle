@@ -30,6 +30,9 @@ class CommentaireType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
+            'attr' => [
+            'id'    => 'addCommentaire',
+        ]
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\DateArchive;
+use App\Entity\Users;
 use App\Form\Settings\ChangeEmailType;
 use App\Form\Settings\ChangeIdType;
 use App\Form\Settings\ChangePasswordType;
@@ -21,42 +22,28 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class SettingsController extends AbstractController
 {
     /**
-     * @Route ("", name="reglages.index")
-     */
-    public function index()
-    {
-        $form = $this->usersForm();
-
-        return $this->render('settings/index.html.twig', [
-            'current_menu' => 'settings',
-            'formId' => $form["formId"]->createView(),
-            'formMdp' => $form["formMdp"]->createView(),
-            'formEmail' => $form["formEmail"]->createView(),
-        ]);
-    }
-
-    /**
      * @param Request $request
+     * @param UserPasswordEncoderInterface $passwordEncoder
      * @return Response
      * @Route ("/Identifiant", name="reglages.changeId", methods="POST")
      */
-    public function changeId(Request $request): Response
+    public function changeId(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        $form = $this->createForm(ChangeIdType::class, $this->getUser());
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $task = $form->getData();
+        $param = $request->request->get('change_id');
+        $plainPassword = $param['plainPassword']['plainPassword'];
+        $identifiant = filter_var($param['identifiant'], FILTER_SANITIZE_STRING);
+        $user = $this->getDoctrine()->getRepository(Users::class)->find($this->getUser()->getId());
+        if ($passwordEncoder->isPasswordValid($user, $plainPassword)) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($task);
+            $user->setIdentifiant($identifiant);
+            $entityManager->persist($user);
             $entityManager->flush();
             $this->addFlash('success', 'Identifiant modifié');
-            return $this->render("settings/index.html.twig");
+        } else {
+            $this->addFlash('danger', 'Le mot de passe est incorrect');
         }
-        return $this->render('settings/index.html.twig', [
-            'change' => 'Identifiant',
-            'form' => $form->createView()
-        ]);
+
+        return $this->redirectToRoute('reglages.index');
     }
 
     /**
@@ -67,41 +54,25 @@ class SettingsController extends AbstractController
      */
     public function changePassword(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        $form = $this->createForm(ChangePasswordType::class);
-        $form->handleRequest($request);
+        $param = $request->request->get('change_password');
+        $plainPassword = $param['plainPassword']['plainPassword'];
+        $newPassword = $param['changedPassword'];
+        $user = $this->getDoctrine()->getRepository(Users::class)->find($this->getUser()->getId());
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $task = $form->all();
-            $user = $this->getUser();
-            $plainPassword = $task['plainPassword']->getData();
-            $newPassword = $task['changedPassword']->getViewData();
-
-            if ($passwordEncoder->isPasswordValid($user, $plainPassword) && $newPassword['first'] === $newPassword['second']) {
-                $password = $passwordEncoder->encodePassword($user, $newPassword['first']);
-                $user->setMdp($password);
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($user);
-                $entityManager->flush();
-                $this->addFlash('success', 'Mot de passe modifié');
-                return $this->render("settings/index.html.twig");
-            } elseif (!($passwordEncoder->isPasswordValid($user, $plainPassword))) {
-                return $this->render('settings/index.html.twig', [
-                    'change' => 'Mot de passe',
-                    'form' => $form->createView(),
-                    'error' => 'Le mot de passe actuel n\'est pas valide'
-                ]);
-            } else {
-                return $this->render('settings/index.html.twig', [
-                    'change' => 'Mot de passe',
-                    'form' => $form->createView(),
-                    'error' => 'Les deux nouveaux mots de passe ne correspondent pas'
-                ]);
-            }
+        if ($passwordEncoder->isPasswordValid($user, $plainPassword) && $newPassword['first'] === $newPassword['second']) {
+            $password = $passwordEncoder->encodePassword($user, $newPassword['first']);
+            $user->setMdp($password);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+            $this->addFlash('success', 'Mot de passe modifié');
+        } elseif (!($passwordEncoder->isPasswordValid($user, $plainPassword))) {
+            $this->addFlash('danger', "Le mot de passe actuel n'est pas valide");
+        } else {
+            $this->addFlash('danger', "Les deux nouveaux mots de passe ne correspondent pas");
         }
-        return $this->render('settings/index.html.twig', [
-            'change' => 'Mot de passe',
-            'form' => $form->createView()
-        ]);
+
+        return $this->redirectToRoute('reglages.index');
     }
 
     /**
@@ -112,24 +83,21 @@ class SettingsController extends AbstractController
      */
     public function changeEmail(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        $form = $this->createForm(ChangeEmailType::class, $this->getUser());
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $task = $form->getData();
-            $plainPassword = $form->all()['plainPassword']->getData();
-            if ($passwordEncoder->isPasswordValid($task, $plainPassword)) {
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($task);
-                $entityManager->flush();
-            }
+        $param = $request->request->get('change_email');
+        $plainPassword = $param['plainPassword']['plainPassword'];
+        $email = filter_var($param['email'], FILTER_SANITIZE_STRING);
+        $user = $this->getDoctrine()->getRepository(Users::class)->find($this->getUser()->getId());
+        if ($passwordEncoder->isPasswordValid($user, $plainPassword)) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $user->setEmail($email);
+            $entityManager->persist($user);
+            $entityManager->flush();
             $this->addFlash('success', 'Email modifié');
-            return $this->render("settings/index.html.twig");
+        } else {
+            $this->addFlash('danger', 'Le mot de passe est incorrect');
         }
-        return $this->render('settings/index.html.twig', [
-            'change' => 'Identifiant',
-            'form' => $form->createView()
-        ]);
+
+        return $this->redirectToRoute('reglages.index');
     }
 
     /**
@@ -187,41 +155,41 @@ class SettingsController extends AbstractController
         $connection->prepare('SET FOREIGN_KEY_CHECKS=1')->execute();
 
         if (count($error) > 0) {
-            $str = "Les tables ";
+            $str = "les tables ";
             $strTable = "";
             foreach ($error as $item) {
                 $strTable .= $item . ", ";
             }
             $str = $str . substr($strTable, 0, -2) . " n'ont pas pu être vidées.";
         }
+        if (strlen($str) > 0) {
+            $this->addFlash('danger', 'Base de données purgée mais ' . $str);
+        } else {
+            $this->addFlash('success', 'Base de données purgée !');
+        }
+        return $this->redirectToRoute('reglages.index');
+    }
 
+    /**
+     * @Route ("", name="reglages.index")
+     */
+    public function index()
+    {
         $form = $this->usersForm();
-        $this->addFlash('success', 'Base de données purgée !');
 
         return $this->render('settings/index.html.twig', [
             'current_menu' => 'settings',
             'formId' => $form["formId"]->createView(),
             'formMdp' => $form["formMdp"]->createView(),
             'formEmail' => $form["formEmail"]->createView(),
-            'purgeError' => $str
         ]);
     }
 
     public function usersForm()
     {
-
-        $formId = $this->createForm(ChangeIdType::class, [
-            'action' => $this->generateUrl('reglages.changeId'),
-            'method' => 'POST',
-        ]);
-        $formMdp = $this->createForm(ChangePasswordType::class, [
-            'action' => $this->generateUrl('reglages.changePassword'),
-            'method' => 'POST',
-        ]);
-        $formEmail = $this->createForm(ChangeEmailType::class, [
-            'action' => $this->generateUrl('reglages.changeEmail'),
-            'method' => 'POST',
-        ]);
+        $formId = $this->createForm(ChangeIdType::class);
+        $formMdp = $this->createForm(ChangePasswordType::class);
+        $formEmail = $this->createForm(ChangeEmailType::class);
 
         return [
             "formId" => $formId,

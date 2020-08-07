@@ -56,6 +56,12 @@
     padding-right: 0.2rem;
     border-right: 1px solid #929292;
 }
+.success {
+    color: #1c6c00;
+}
+.error {
+    color: #C82829;
+}
 @media  {
     
 }

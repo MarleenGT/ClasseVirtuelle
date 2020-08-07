@@ -36,12 +36,12 @@ class AddController extends AbstractController
     public function add(Request $request, CompleteUser $completeUser, MessageBusInterface $messageBus)
     {
         if ($request->request->has("typeUtil")) {
-            $user = $_POST["typeUtil"];
+            $user = $request->request->get("typeUtil");
         } elseif ($request->request->has("add")) {
             $user = $request->request->get('add')['type'];
         } else {
             $this->addFlash('danger', "Problème dans la vérification de l'utilisateur à ajouter");
-            return $this->render('utilisateurs/index.html.twig');
+            return $this->redirectToRoute('utilisateurs.index');
         }
 
         if ($user === 'Eleves') {
@@ -57,7 +57,7 @@ class AddController extends AbstractController
             $formType = AdminType::class;
             $obj = new Admins();
         } else {
-            return $this->render('utilisateurs/index.html.twig');
+            return $this->redirectToRoute('utilisateurs.index');
         }
         $form = $this->get('form.factory')->createNamed('add', $formType, $obj, [
             'type' => $user
@@ -70,7 +70,7 @@ class AddController extends AbstractController
             $addUser = $completeUser->completeUser($task, $user);
 
             $query = $this->getDoctrine()->getRepository(Users::class)->findBy(['email' => $addUser->getIdUser()->getEmail()]);
-            if ($query){
+            if ($query) {
                 $this->addFlash('danger', "L'email renseigné est déjà utilisé.");
                 return $this->render('utilisateurs/add.html.twig', [
                     'form' => $form->createView(),
@@ -83,17 +83,17 @@ class AddController extends AbstractController
             $email->setUrl($url);
             $messageBus->dispatch($email);
 
-                $entityManager->persist($addUser);
-                try {
-                    $entityManager->flush();
-                } catch (Exception $e) {
-                    $this->addFlash('danger', "Erreur lors de l'ajout de l'utilisateur.");
-                    return $this->render('utilisateurs/add.html.twig', [
-                        'form' => $form->createView(),
-                        'typeUtil' => $user,
-                    ]);
-                }
-                $this->addFlash('success', 'Utilisateur ajouté!');
+            $entityManager->persist($addUser);
+            try {
+                $entityManager->flush();
+            } catch (Exception $e) {
+                $this->addFlash('danger', "Erreur lors de l'ajout de l'utilisateur.");
+                return $this->render('utilisateurs/add.html.twig', [
+                    'form' => $form->createView(),
+                    'typeUtil' => $user,
+                ]);
+            }
+            $this->addFlash('success', 'Utilisateur ajouté!');
 
             return $this->redirectToRoute('utilisateurs.index');
         }

@@ -27,7 +27,7 @@
                     {{ error|escape }}
                 {% endif %}
                 <div id="formId">
-                    {{ form_start(formId) }}
+                    {{ form_start(formId, {'action': path('reglages.changeId'), 'method': 'POST'}) }}
                     <div class="row mb-4">
                         {{ form_label(formId.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
                         {{ form_widget(formId.children.plainPassword.children.plainPassword) }}
@@ -42,7 +42,7 @@
                     {{ form_end(formId) }}
                 </div>
                 <div id="formMdp">
-                    {{ form_start(formMdp) }}
+                    {{ form_start(formMdp, {'action': path('reglages.changePassword'), 'method': 'POST'}) }}
                     <div class="row mb-4">
                         {{ form_label(formMdp.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
                         {{ form_widget(formMdp.children.plainPassword.children.plainPassword) }}
@@ -61,7 +61,7 @@
                     {{ form_end(formMdp) }}
                 </div>
                 <div id="formEmail">
-                    {{ form_start(formEmail) }}
+                    {{ form_start(formEmail, {'action': path('reglages.changeEmail'), 'method': 'POST'}) }}
                     <div class="row mb-4">
                         {{ form_label(formEmail.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
                         {{ form_widget(formEmail.children.plainPassword.children.plainPassword) }}
