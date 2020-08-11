@@ -75,8 +75,7 @@
                     {% endif %}
                     <span class="td col-4 col04">
                         {% if user == "Eleves" %}
-                            <form class="d-inline" method="POST"
-                                  action="{{ path('dossier.index', {id: list.id, nom: list.nom, prenom: list.prenom}) }}">
+                            <form class="d-inline" method="POST" action="{{ path('dossier.index', {id: list.id, nom: list.nom, prenom: list.prenom}) }}">
                                 <button class="btn btn-outline-info" type="submit" data-id="{{ list.id }}"><i
                                             class="fas fa-folder-open"></i></button>
                             </form>

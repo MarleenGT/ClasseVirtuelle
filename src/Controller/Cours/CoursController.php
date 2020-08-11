@@ -37,6 +37,7 @@ class CoursController extends AbstractController
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
 
+
             /**
              * Récupération et vérification de l'heure du début de l'affichage de l'emploi du temps
              */
@@ -167,16 +168,16 @@ class CoursController extends AbstractController
 
     /**
      * @param $val
-     * @return int
      * Transformation des horaires du cours en nombres pour le positionnement dans l'emploi du temps.
+     * @return float
      */
-    private function hours_tofloat($val): int
+    private function hours_tofloat($val): float
     {
         if (empty($val)) {
             return 0;
         }
         $parts = explode(':', $val);
-        return $parts[0] + floor(($parts[1] / 60) * 100) / 100;
+        return (int)$parts[0] + floor(($parts[1] / 60) * 100) / 100;
     }
 
     /**

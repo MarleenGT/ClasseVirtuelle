@@ -1,9 +1,11 @@
 <form action="{{ path('cours.update') }}" method="POST">
+    <input type="hidden" name="token" value="{{ csrf_token('modif-cours') }}"/>
     <input hidden type="text" name="id" value="{{ cours.id|escape }}">
     <input hidden type="text" name="date" value="{{ date|escape }}">
     <input type="submit" class="btn btn-info" name="Modifier" value="Modifier">
 </form>
 <form action="{{ path('cours.delete') }}" method="POST">
+    <input type="hidden" name="token" value="{{ csrf_token('delete-cours') }}"/>
     <input hidden type="text" name="id" value="{{ cours.id|escape }}">
     <input hidden type="text" name="date" value="{{ date|escape }}">
     <input type="submit" class="btn btn-danger" name="Supprimer" value="Supprimer">

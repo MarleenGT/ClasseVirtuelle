@@ -25,6 +25,7 @@ class DeleteController extends AbstractController
      */
     public function delete(Request $request)
     {
+
         if (isset($request->request->all()['delete'])) {
             $delete = $request->request->all()['delete'];
             $user = $delete['type'];
@@ -40,10 +41,10 @@ class DeleteController extends AbstractController
             $obj = $this->getDoctrine()->getRepository(Profs::class)->find($id);
         } elseif ($user === 'Personnels') {
             $obj = $this->getDoctrine()->getRepository(Personnels::class)->find($id);
-        } elseif ($user === 'Admins') {
+        } elseif ($user === 'Admins' && $this->getUser()->getRoles()[0] === 'ROLE_ADMIN') {
             $obj = $this->getDoctrine()->getRepository(Admins::class)->find($id);
         } else {
-            return $this->render('utilisateurs/index.html.twig');
+            return $this->redirectToRoute('utilisateurs.index');
         }
 
         $form = $this->createForm(DeleteType::class, $obj, [
@@ -53,10 +54,19 @@ class DeleteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $obj = $form->getData();
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($obj);
-            $entityManager->flush();
+            $submittedToken = $request->request->get('delete')['_token'];
+            if ($this->isCsrfTokenValid('delete', $submittedToken)) {
+                $obj = $form->getData();
+                $entityManager = $this->getDoctrine()->getManager();
+                if ($user == 'Admins' && $this->getDoctrine()->getRepository(Admins::class)->countRowsFromTable() === 1) {
+                    $this->addFlash('danger', "Il ne reste qu'un seul administrateur. La suppression est impossible.");
+                    return $this->redirectToRoute('utilisateurs.index');
+                }
+                $entityManager->remove($obj);
+                $entityManager->flush();
+            } else {
+                $this->addFlash('danger', 'Jeton CSRF incorrect.');
+            }
 
             return $this->redirectToRoute('utilisateurs.index');
         }

@@ -66,19 +66,24 @@ class ModifController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $submittedToken = $request->request->get('modif')['_token'];
+            if ($this->isCsrfTokenValid('modif', $submittedToken)) {
+                $obj = $form->getData();
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($obj);
+                $entityManager->flush();
 
-            $obj = $form->getData();
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($obj);
-            $entityManager->flush();
-
-            if ($form->getClickedButton() && 'sendEmail' === $form->getClickedButton()->getName()){
-                $email = new Email();
-                $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
-                $email->setTask($obj);
-                $email->setUrl($url);
-                $messageBus->dispatch($email);
+                if ($form->getClickedButton() && 'sendEmail' === $form->getClickedButton()->getName()){
+                    $email = new Email();
+                    $url = $this->generateUrl('account.change', ['email' => $obj->getIdUser()->getEmail(), 'token' => $obj->getIdUser()->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
+                    $email->setTask($obj);
+                    $email->setUrl($url);
+                    $messageBus->dispatch($email);
+                }
+            } else {
+                $this->addFlash('danger', 'Jeton CSRF incorrect.');
             }
+
             return $this->redirectToRoute('utilisateurs.index');
         }
         $nom = $obj->getNom();

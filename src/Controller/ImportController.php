@@ -9,6 +9,7 @@ use App\Entity\Classes;
 use App\Entity\Eleves;
 use App\Entity\Matieres;
 use App\Entity\Profs;
+use App\Entity\Sousgroupes;
 use App\Entity\Users;
 use App\Service\CompleteUser;
 use App\Service\ImportCsv;
@@ -41,7 +42,7 @@ class ImportController extends AbstractController
         $file = array_pop($array);
         if ($file === null) {
             $this->addFlash('danger', 'Fichier non trouvé.');
-            return $this->forward('App\Controller\SettingsController::index');
+            return $this->redirectToRoute('reglages.index');
         }
         $str = file_get_contents($file->getPathname());
         $str = filter_var(str_replace(";", ",", $str), FILTER_SANITIZE_STRING);
@@ -51,10 +52,16 @@ class ImportController extends AbstractController
 
             case "Classes":
                 $classes = $importCsv->import($str, ['NOM']);
-                foreach ($classes as $class) {
+                foreach ($classes as $classe) {
                     $obj = new Classes();
-                    $obj->setNomClasse($class["NOM"]);
+                    $sgA = new SousGroupes();
+                    $sgB = new SousGroupes();
+                    $obj->setNomClasse($classe["NOM"]);
+                    $sgA->setNomSousgroupe($classe["NOM"].' Groupe 1');
+                    $sgB->setNomSousgroupe($classe["NOM"].' Groupe 2');
                     $em->persist($obj);
+                    $em->persist($sgA);
+                    $em->persist($sgB);
                 }
                 $this->addFlash('success', 'Classes importées !');
                 break;
@@ -118,7 +125,7 @@ class ImportController extends AbstractController
         };
         $em->flush();
 
-        return $this->forward('App\Controller\SettingsController::index');
+        return $this->redirectToRoute('reglages.index');
 
     }
 

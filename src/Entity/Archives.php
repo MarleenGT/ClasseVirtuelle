@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ArchivesRepository;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ArchivesRepository::class)
@@ -26,11 +27,13 @@ class Archives
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\Type("DateTime")
      */
     private $heure_debut;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\Type("DateTime")
      */
     private $heure_fin;
 
@@ -56,6 +59,7 @@ class Archives
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\Type("DateTime")
      */
     private $date;
 
