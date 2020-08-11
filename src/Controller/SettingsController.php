@@ -28,8 +28,8 @@ class SettingsController extends AbstractController
      */
     public function changeId(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        $submittedToken = $request->request->get('change_password')['_token'];
-        if ($this->isCsrfTokenValid('change_password', $submittedToken)) {
+        $submittedToken = $request->request->get('change_id')['_token'];
+        if ($this->isCsrfTokenValid('change_id', $submittedToken)) {
             $param = $request->request->get('change_id');
             $plainPassword = $param['plainPassword']['plainPassword'];
             $identifiant = filter_var($param['identifiant'], FILTER_SANITIZE_STRING);

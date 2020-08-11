@@ -30,8 +30,6 @@ class DossierController extends AbstractController
      */
     public function index(Request $request)
     {
-//        dump($request);
-//        die();
         $id = $request->get('id');
         $user_id = $this->getUser()->getId();
         $eleve = $this->getDoctrine()->getRepository(Eleves::class)->find($id);
