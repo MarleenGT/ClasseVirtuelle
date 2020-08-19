@@ -130,7 +130,6 @@ class SettingsController extends AbstractController
                 'eleves_sousgroupes',
                 'matieres',
                 'messenger_messages',
-                'personnels',
                 'profs',
                 'profs_classes',
                 'profs_matieres',
@@ -139,6 +138,9 @@ class SettingsController extends AbstractController
                 'sousgroupes_users',
                 'users'
             ];
+            if ($request->request->get('purge_personnel')){
+                $tables[] = "personnels";
+            }
             $error = [];
             $str = "";
             $em = $this->getDoctrine()->getManager();
@@ -148,7 +150,11 @@ class SettingsController extends AbstractController
             foreach ($tables as $table) {
                 $query = 'delete from ' . $table;
                 if ($table === 'users') {
-                    $query .= ' where id_role_id != 4';
+                    if ($request->request->get('purge_personnel')){
+                        $query .= ' where id_role_id != 4';
+                    } else {
+                        $query .= ' where id_role_id = 1 or id_role_id = 2';
+                    }
                 }
                 try {
                     $connection->prepare($query)->execute();

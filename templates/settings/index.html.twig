@@ -131,10 +131,15 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <form method="post" action="{{ path('reglages.purgeTables') }}">
+                    <form method="post" action="{{ path('reglages.purgeTables') }}" class="w-100">
                         <input type="hidden" name="token" value="{{ csrf_token('purge') }}"/>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-danger" id="purgeButton">Purger</button>
+                        <input type="checkbox" name="purge_personnel" id="purge_presonnel">
+                        <label for="purge_presonnel">Vider la table contenant le personnel d'éducation</label>
+                        <div class="d-flex justify-content-around">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-danger" id="purgeButton">Purger</button>
+                        </div>
+
                     </form>
                 </div>
             </div>
