@@ -49,7 +49,7 @@ class Sousgroupes
     /**
      * @ORM\ManyToMany(targetEntity=Users::class, inversedBy="sousgroupes_visibles")
      */
-    private $Visibilite;
+    private $visibilite;
 
 
     /**
@@ -62,7 +62,7 @@ class Sousgroupes
     {
         $this->cours = new ArrayCollection();
         $this->eleves = new ArrayCollection();
-        $this->Visibilite = new ArrayCollection();
+        $this->visibilite = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -166,13 +166,13 @@ class Sousgroupes
      */
     public function getVisibilite(): Collection
     {
-        return $this->Visibilite;
+        return $this->visibilite;
     }
 
     public function addVisibilite(Users $visibilite): self
     {
-        if (!$this->Visibilite->contains($visibilite)) {
-            $this->Visibilite[] = $visibilite;
+        if (!$this->visibilite->contains($visibilite)) {
+            $this->visibilite[] = $visibilite;
         }
 
         return $this;
@@ -180,8 +180,8 @@ class Sousgroupes
 
     public function removeVisibilite(Users $visibilite): self
     {
-        if ($this->Visibilite->contains($visibilite)) {
-            $this->Visibilite->removeElement($visibilite);
+        if ($this->visibilite->contains($visibilite)) {
+            $this->visibilite->removeElement($visibilite);
         }
 
         return $this;

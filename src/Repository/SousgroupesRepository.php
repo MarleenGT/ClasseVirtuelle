@@ -32,6 +32,15 @@ class SousgroupesRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getSGNomByCreateur($id)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.nom_sousgroupe')
+            ->where('s.id_createur = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+    }
 
     public function getSousgroupesCreesByProf($prof)
     {
@@ -41,4 +50,5 @@ class SousgroupesRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
 }

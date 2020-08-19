@@ -23,6 +23,24 @@ class CoursType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $cours = $builder->getData();
+        if ($cours->getId()) {
+            $matiere = null;
+            foreach($options['matieres'] as $mat) {
+                if ($cours->getMatiere() == $mat->getNomMatiere()) {
+                    $matiere = $mat;
+                    break;
+                }
+            }
+            if ($cours->getIdClasse()) {
+                $type = 'classe';
+                $classe = $cours->getIdClasse();
+                $sg = "";
+            } else {
+                $type = 'sousgroupe';
+                $sg = $cours->getIdSousgroupe();
+                $classe = "";
+            }
+        }
         $builder
             ->add('id', HiddenType::class, [
                 'mapped' => false,
@@ -35,16 +53,17 @@ class CoursType extends AbstractType
                 ],
                 'label' => false,
                 'mapped' => false,
-                'expanded' => true
+                'expanded' => true,
+                'data' => $type
             ])
             ->add('id_classe', ChoiceType::class, [
-                    'choices' => $options['classes'],
-                    'choice_label' => function (Classes $classe) {
-                        return $classe ? $classe->getNomClasse() : '';
-                    },
-                    'label' => "Choix de la classe :",
-                    ]
-            )
+                'choices' => $options['classes'],
+                'choice_label' => function (Classes $classe) {
+                    return $classe ? $classe->getNomClasse() : '';
+                },
+                'label' => "Choix de la classe :",
+                'data' => $classe
+            ])
             ->add('id_sousgroupe'
                 , ChoiceType::class, [
                     'choices' => $options['sousgroupes']
@@ -52,6 +71,7 @@ class CoursType extends AbstractType
                         return $sousgroupe ? $sousgroupe->getNomSousgroupe() : '';
                     },
                     'label' => "Choix du sous-groupe :",
+                    'data' => $sg
                 ]
             )
             ->add('matiere'
@@ -61,7 +81,8 @@ class CoursType extends AbstractType
                         return $matiere;
                     },
                     'label' => "Choix de la matière :",
-                    ]
+                    'data' => $matiere
+                ]
             )
             ->add('autre',
                 TextType::class, [
@@ -112,6 +133,7 @@ class CoursType extends AbstractType
                 }
             });
     }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

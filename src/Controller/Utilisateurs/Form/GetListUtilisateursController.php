@@ -42,6 +42,8 @@ class GetListUtilisateursController extends AbstractController
                 $eleveListe = $this->getDoctrine()->getRepository(Eleves::class)->findElevesBySousgroupeId($id);
                 if ($this->getUser()->getRoles()[0] !== "ROLE_PROF") {
                     $profListe = $this->getDoctrine()->getRepository(Profs::class)->findProfsBySousgroupeId($id);
+                } else {
+                    $profListe = [];
                 }
 
             }

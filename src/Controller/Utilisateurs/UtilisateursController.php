@@ -37,8 +37,32 @@ class UtilisateursController extends AbstractController
             }
             if ($user === 'Eleves') {
                 $query = $this->getDoctrine()->getRepository(Eleves::class)->findElevesByPages($limit, $offset, $search);
+                $nomSGVisibles = [];
+                if($this->getUser()->getRoles()[0] === "ROLE_PROF"){
+                    $sgVisibles = $this->getUser()->getSousgroupesVisibles()->getValues();
+                    foreach ($sgVisibles as $sgVisible) {
+                        $nomSGVisibles[] = $sgVisible->getNomSousgroupe();
+                    }
+                } elseif ($this->getUser()->getRoles()[0] === "ROLE_PERSONNEL"){
+                    $sgVisibles = $this->getDoctrine()->getRepository(Sousgroupes::class)->getSGNomByCreateur($this->getUser()->getId());
+                    foreach ($sgVisibles as $sgVisible) {
+                        $nomSGVisibles[] = $sgVisible['nom_sousgroupe'];
+                    }
+                }
+
+                /**
+                 * On filtre les sous-groupes afin de ne montrer que les sous-groupes autorisés
+                 * (le personnel ne voit que les sous-groupes qu'il a lui-même créé par exemple)
+                 */
                 foreach ($query as $key => $eleve) {
                     $query[$key]['sousgroupe'] = explode(',', $eleve['sousgroupe']);
+                    if($this->getUser()->getRoles()[0] === "ROLE_PROF" || $this->getUser()->getRoles()[0] === "ROLE_PERSONNEL"){
+                        foreach ($query[$key]['sousgroupe'] as $sgKey => $sgValue){
+                            if(!in_array($sgValue, $nomSGVisibles)){
+                                array_splice($query[$key]['sousgroupe'], array_search($sgValue, $query[$key]['sousgroupe']), 1);
+                            }
+                        }
+                    }
                 }
             } elseif ($user === 'Professeurs') {
                 $query = $this->getDoctrine()->getRepository(Profs::class)->findProfsByPages($limit, $offset, $search);

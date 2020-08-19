@@ -39,7 +39,7 @@
                         <form method="post" action="{{ path('commentaire.update') }}" class="pb-1 mb-1">
                             <label hidden for="modifCommentaire">Modifiez votre commentaire</label>
                             <input id="modifCommentaire" style="display: none" class="cadre-commentaire commentaire w-100 mb-3" type="text" data-id="{{ com[0].id }}" value="{{ com[0].commentaire|e('html') }}" name="commentaire">
-                            <div style="display: none" class="global">
+                            <div style="display: none" class="global" data-global="{{ com[0].id }}" >
                                 <label for="global">Visible par tous :</label>
                                 <input {% if com[0].global == true %}checked{% endif %} type="checkbox" id="global" data-id="{{ com[0].id }}" name="global">
                             </div>
@@ -117,7 +117,8 @@
             startModif: function () {
                 let id = $(this).data('id');
                 let input = $('input[data-id='+id+'][type="text"]');
-                let check = $(".global");
+                // let check = $(".global");
+                let check = $('div[data-global='+id+']');
                 let submit = $('input[name='+id+'][value="Modifier"]');
                 let suppr = $('input[name='+id+'][value="Supprimer"]');
                 let p = $('p[data-id='+id+']');

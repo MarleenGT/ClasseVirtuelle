@@ -43,7 +43,8 @@
                 classe: $("#form_classe"),
                 matiere: $("#cours_matiere"),
                 autre: $("#form_autre"),
-                radioClasse: $("#cours_typeChoice_0")
+                radioClasse: $("#cours_typeChoice_0"),
+                radioSousgroupe: $("#cours_typeChoice_1")
             },
             method: {
                 initialize: function () {
@@ -52,9 +53,11 @@
                         addCours.index.classe.toggle();
                     });
                     addCours.index.matiere.on('change', addCours.method.checkMatiere);
-                    addCours.index.radioClasse.prop('checked', true);
-                    console.log(addCours.index.autre)
-                    addCours.index.sousgroupe.hide();
+                    if (addCours.index.radioClasse.is(":checked")){
+                        addCours.index.sousgroupe.hide();
+                    } else {
+                        addCours.index.classe.hide();
+                    }
                     this.checkMatiere();
                 },
                 checkMatiere: function () {

@@ -69,7 +69,7 @@ class Users implements UserInterface
     private $admins;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, mappedBy="Visibilite", fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity=Sousgroupes::class, mappedBy="visibilite", fetch="EAGER")
      */
     private $sousgroupes_visibles;
 

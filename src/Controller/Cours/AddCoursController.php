@@ -52,7 +52,6 @@ class AddCoursController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $submittedToken = $request->request->get('cours')["_token"];
-            dump($submittedToken);
             if ($this->isCsrfTokenValid('cours', $submittedToken)) {
                 $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('user')->getId());
                 $obj = $form->getData();

@@ -28,9 +28,11 @@
                                 value="Personnels">
                             Personnels
                         </option>
+                        {% if role == "ROLE_ADMIN" %}
                         <option {% if select is defined and select == 'Admins' %}selected{% endif %} value="Admins">
                             Admins
                         </option>
+                        {% endif %}
                     </select>
                     <div class="input-group-append">
                         <input class="btn btn-outline-secondary" type="submit" value="Ajouter">
@@ -44,7 +46,7 @@
                 <button type="button" class="btn btn-info" id="offsetPlus">></button>
                 <label class="input-group-text" for="search">Recherche</label>
             </div>
-            <input class="form-control" id="search" type="search" placeholder="Recherche" aria-label="Recherche">
+            <input class="form-control" id="search" type="search" placeholder="Recherche (3 caractères minimum)" aria-label="Recherche">
             <div class="input-group-append">
                 <button style="display: none" class="btn btn-primary" id="optionsToggle">Options</button>
             </div>
@@ -211,7 +213,9 @@
                      * Lancement AJAX a chaque action
                      */
                     indexUtil.index.search_input.keyup(function () {
-                        indexUtil.method.AJAX();
+                        if (this.value.length > 2 || this.value.length === 0){
+                            indexUtil.method.AJAX();
+                        }
                     });
                     indexUtil.index.select.change(function () {
                         indexUtil.param.offset = 0;

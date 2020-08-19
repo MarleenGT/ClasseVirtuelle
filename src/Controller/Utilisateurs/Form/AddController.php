@@ -97,10 +97,9 @@ class AddController extends AbstractController
 
             return $this->redirectToRoute('utilisateurs.index');
         }
-
         if ($user === 'Eleves') {
             $str = "Ajout d'élève";
-        } elseif ($user === 'Profs') {
+        } elseif ($user === 'Professeurs') {
             $str = "Ajout de professeur";
         } elseif ($user === 'Personnels') {
             $str = "Ajout de personnel";

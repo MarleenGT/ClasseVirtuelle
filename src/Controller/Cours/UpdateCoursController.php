@@ -6,7 +6,10 @@ namespace App\Controller\Cours;
 
 use App\Controller\CheckCoursConflit\CheckCoursConflit;
 use App\Controller\CheckRepository\CheckCoursRepo;
+use App\Entity\Classes;
+use App\Entity\Matieres;
 use App\Entity\Profs;
+use App\Entity\Sousgroupes;
 use App\Form\Cours\CoursType;
 use DateTime;
 use Exception;
@@ -24,60 +27,80 @@ class UpdateCoursController extends AbstractController
      * @param CheckCoursConflit $checkCoursConflit
      * @return Response
      * @throws Exception
-     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PERSONNEL') or is_granted('ROLE_PROF')")
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_PROF')")
      * @Route("/Cours/Update", name="cours.update", methods={"POST"})
      */
     public function update(Request $request, CheckCoursRepo $checkCoursRepo, CheckCoursConflit $checkCoursConflit)
     {
-        $submittedToken = $request->request->get('token');
-        if ($this->isCsrfTokenValid('delete-cours', $submittedToken)) {
-            $session = $request->getSession();
+
+        $session = $request->getSession();
+        if ($this->getUser()->getRoles()[0] === "ROLE_PROF") {
             $prof = $this->getDoctrine()->getRepository(Profs::class)->find($session->get('user')->getId());
-            if ($request->request->get('date') && $request->request->get('id')) {
-                $id = $request->request->get('id');
-                $date = $request->request->get('date');
-            } else if ($request->request->get('cours')) {
-                $id = $request->request->get('cours')['id'];
-                $cours_date = new DateTime($request->request->get('cours')['date']);
-                $timestamp_date = $cours_date->getTimestamp();
-                $date = strtotime('monday this week', $timestamp_date);
-            } else {
-                return $this->render('cours/index.html.twig', [
-                    'current_menu' => 'cours'
-                ]);
-            }
-            /**
-             * Récupération de répertoire contenant le cours à modifier.
-             */
-            $repo = $checkCoursRepo->check($date);
-            $cours = $this->getDoctrine()->getRepository($repo)->find($id);
-            /**
-             * Vérification de l'auteur du cours et si l'utilisateur peut le modifier
-             */
-            if (!($this->getUser()->getRoles()[0] === "ROLE_ADMIN" || ($this->getUser()->getRoles()[0] === "ROLE_PROF" && $cours->getIdProf()->getId() === $prof->getId()))) {
-                $this->addFlash('danger', "Problème pour la récupération du cours.");
-                return $this->render('cours/index.html.twig', [
-                    'current_menu' => 'cours'
-                ]);
-            }
-            /**
-             * Préparation de tableau de matières pour le formulaire
-             */
-            $matieres = [];
+        }
+        if ($request->request->get('date') && $request->request->get('id')) {
+            $id = $request->request->get('id');
+            $date = $request->request->get('date');
+        } else if ($request->request->get('cours')) {
+            $id = $request->request->get('cours')['id'];
+            $cours_date = new DateTime($request->request->get('cours')['date']);
+            $timestamp_date = $cours_date->getTimestamp();
+            $date = strtotime('monday this week', $timestamp_date);
+        } else {
+            return $this->render('cours/index.html.twig', [
+                'current_menu' => 'cours'
+            ]);
+        }
+        /**
+         * Récupération de répertoire contenant le cours à modifier.
+         */
+        $repo = $checkCoursRepo->check($date);
+        $cours = $this->getDoctrine()->getRepository($repo)->find($id);
+
+        /**
+         * Vérification de l'auteur du cours et si l'utilisateur peut le modifier
+         */
+        if (!($this->getUser()->getRoles()[0] === "ROLE_ADMIN" || ($this->getUser()->getRoles()[0] === "ROLE_PROF" && $cours->getIdProf()->getId() === $prof->getId()))) {
+            $this->addFlash('danger', "Problème pour la récupération du cours.");
+            return $this->render('cours/index.html.twig', [
+                'current_menu' => 'cours'
+            ]);
+        }
+        /**
+         * Préparation de tableau de matières pour le formulaire
+         */
+        $matieres = [];
+        if ($this->getUser()->getRoles()[0] === "ROLE_PROF") {
             foreach ($session->get('user')->getIdMatiere() as $matiere) {
                 $matieres[] = $matiere;
             }
-            $matieres[] = 'Autre';
+            $classes = $prof->getIdClasse();
+            $sousgroupes = $prof->getIdUser()->getSousgroupesVisibles();
+        } else {
+            $matieres = $this->getDoctrine()->getRepository(Matieres::class)->findAll();
+            $classes = $this->getDoctrine()->getRepository(Classes::class)->findAll();
 
-            $form = $this->createForm(CoursType::class, $cours, [
-                'matieres' => $matieres,
-                'classes' => $prof->getIdClasse(),
-                'sousgroupes' => $prof->getIdUser()->getSousgroupesVisibles(),
-                'id' => $cours->getId()
-            ]);
-            $form->handleRequest($request);
+                $sousgroupes = $this->getDoctrine()->getRepository(Sousgroupes::class)->findAll();
 
-            if ($form->isSubmitted() && $form->isValid()) {
+        }
+
+        /**
+         * Récupération des matières et classes pour l'administrateurs
+         */
+
+
+        $matieres[] = 'Autre';
+
+        $form = $this->createForm(CoursType::class, $cours, [
+            'matieres' => $matieres,
+            'classes' => $classes,
+            'sousgroupes' => $sousgroupes,
+            'id' => $cours->getId()
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $submittedToken = $request->request->get('cours')["_token"];
+            if ($this->isCsrfTokenValid('cours', $submittedToken)) {
                 $cours = $form->getData();
                 $type = $form['typeChoice']->getData();
                 $date = $form['date']->getData();
@@ -181,9 +204,10 @@ class UpdateCoursController extends AbstractController
                 $entityManager->flush();
                 $this->addFlash('success', 'Cours modifié !');
                 return $this->redirectToRoute('cours.index');
+            } else {
+                $this->addFlash('danger', 'Token CSRF incorrect.');
+                return $this->redirectToRoute('cours.index');
             }
-        } else {
-            $this->addFlash('danger', 'Token CSRF incorrect.');
         }
 
         return $this->render('cours/modif.html.twig', [

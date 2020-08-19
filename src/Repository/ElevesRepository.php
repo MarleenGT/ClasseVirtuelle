@@ -24,6 +24,8 @@ class ElevesRepository extends ServiceEntityRepository
     /**
      * @param $limit
      * @param $offset
+     * @param $search
+     * @param $id
      * @return Eleves[] Returns an array of Eleves objects
      */
 
@@ -34,7 +36,8 @@ class ElevesRepository extends ServiceEntityRepository
             ->select($column)
             ->leftjoin('e.id_classe', 'c')
             ->leftjoin('e.id_sousgroupe', 's')
-            ->where("lower(e.nom) LIKE '%".$search."%' OR lower(e.prenom) LIKE '%".$search."%' OR lower(c.nom_classe) LIKE '%".$search."%' OR lower(s.nom_sousgroupe) LIKE '%".$search."%'")
+            ->where("lower(e.nom) LIKE :search OR lower(e.prenom) LIKE :search OR lower(c.nom_classe) LIKE :search OR lower(s.nom_sousgroupe) LIKE :search")
+            ->setParameter('search', '%'.addcslashes($search, '%_').'%')
             ->orderBy('e.nom', 'ASC')
             ->groupBy('e.id')
             ->setFirstResult($offset)
