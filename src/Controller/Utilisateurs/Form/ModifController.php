@@ -54,7 +54,7 @@ class ModifController extends AbstractController
             $formType = AdminType::class;
         } else {
             return $this->json([
-                'error' => 'Le type d\'utilisateur (Eleves, Professeurs ou Personnels) est incorrect'
+                'titre' => 'Le type d\'utilisateur (Eleves, Professeurs ou Personnels) est incorrect'
             ]);
         }
         $form = $this->get('form.factory')->createNamed('modif',$formType, $obj, [
@@ -62,7 +62,6 @@ class ModifController extends AbstractController
             'type' => $user,
             'action' => $this->generateUrl('utilisateurs.modif')
         ]);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

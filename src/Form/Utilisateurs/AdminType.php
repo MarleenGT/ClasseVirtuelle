@@ -16,7 +16,6 @@ class AdminType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        dump($options);
         $builder
             ->add('id', HiddenType::class, [
                 'mapped' => false,

@@ -1,5 +1,6 @@
 <?php
 
 return array (
-  'Pepper' => NULL,
+  'IDENTIFIANT' => NULL,
+  'MOT_DE_PASSE' => NULL,
 );

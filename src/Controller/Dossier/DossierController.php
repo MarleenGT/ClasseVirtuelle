@@ -80,7 +80,7 @@ class DossierController extends AbstractController
             $auteur = $this->getDoctrine()->getRepository($repo)->findOneBy(['id_user' => $com->getIdAuteur()->getId()]);
             $commentaires[] = [$com, $auteur];
         }
-        dump($commentaires);
+
         return $this->render('dossier/index.html.twig', [
             'eleve' => $eleve,
             'commentaires' => $commentaires,

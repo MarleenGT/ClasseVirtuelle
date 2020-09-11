@@ -14,6 +14,7 @@ class DetailsCoursController extends AbstractController
 {
     /**
      * @param Request $request
+     * @param CheckCoursRepo $checkCoursRepo
      * @return JsonResponse
      * @Route("/Cours/Details", name="cours.details", methods={"POST"})
      */
@@ -64,7 +65,6 @@ class DetailsCoursController extends AbstractController
                 'date' => $cours->getHeureDebut()->format("d/m/Y"),
                 'debut' => $cours->getHeureDebut()->format("H:i"),
                 'fin' => $cours->getHeureFin()->format("H:i"),
-
                 'commentaire' => $cours->getCommentaire()
             ]),
             "footer" => $footer

@@ -35,7 +35,8 @@
         "symfony/web-link": "5.1.*",
         "symfony/yaml": "5.1.*",
         "symfonycasts/reset-password-bundle": "^1.1",
-        "tgalopin/html-sanitizer-bundle": "^1.2"
+        "tgalopin/html-sanitizer-bundle": "^1.2",
+      "ext-fileinfo": "*"
     },
     "require-dev": {
         "symfony/debug-pack": "*",

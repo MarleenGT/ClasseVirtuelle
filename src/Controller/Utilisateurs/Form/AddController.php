@@ -45,15 +45,19 @@ class AddController extends AbstractController
         }
 
         if ($user === 'Eleves') {
+            $str = "Ajout d'élève";
             $formType = EleveType::class;
             $obj = new Eleves();
         } elseif ($user === 'Professeurs') {
+            $str = "Ajout de professeur";
             $formType = ProfesseurType::class;
             $obj = new Profs();
         } elseif ($user === 'Personnels') {
+            $str = "Ajout de personnel";
             $formType = PersonnelType::class;
             $obj = new Personnels();
         } elseif ($user === 'Admins') {
+            $str = "Ajout d'administrateur";
             $formType = AdminType::class;
             $obj = new Admins();
         } else {
@@ -96,15 +100,6 @@ class AddController extends AbstractController
             $this->addFlash('success', 'Utilisateur ajouté!');
 
             return $this->redirectToRoute('utilisateurs.index');
-        }
-        if ($user === 'Eleves') {
-            $str = "Ajout d'élève";
-        } elseif ($user === 'Professeurs') {
-            $str = "Ajout de professeur";
-        } elseif ($user === 'Personnels') {
-            $str = "Ajout de personnel";
-        } else {
-            $str = "Ajout d'administrateur";
         }
 
         return $this->render('utilisateurs/add.html.twig', [

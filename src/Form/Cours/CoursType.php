@@ -23,8 +23,11 @@ class CoursType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $cours = $builder->getData();
+        $type = null;
+        $sg = null;
+        $matiere = null;
+        $classe = null;
         if ($cours->getId()) {
-            $matiere = null;
             foreach($options['matieres'] as $mat) {
                 if ($cours->getMatiere() == $mat->getNomMatiere()) {
                     $matiere = $mat;

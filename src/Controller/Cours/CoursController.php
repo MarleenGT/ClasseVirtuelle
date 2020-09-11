@@ -39,6 +39,12 @@ class CoursController extends AbstractController
             }
             $debut = $this->getParameter('startTimeTable');
             $fin = $this->getParameter('endTimeTable');
+            if (is_numeric($debut) && is_numeric($fin)){
+                $debut = floor($debut);
+                $fin = floor($fin);
+            } else {
+                throw new Exception("Problème dans l'affichage de l'emploi du temps. Informez l'administrateur.");
+            }
 
             /**
              * Si $debut après $fin, afficher message flash d'informer l'administrateur
@@ -98,16 +104,17 @@ class CoursController extends AbstractController
              * Stockage de chaque cours récupéré dans le tableau correspondant au jour du cours.
              * Création des variables nécessaires pour le positionnement des cours dans l'emploi du temps
              */
-            foreach ($query as $cours) {
-                $coursArray = [];
-                $coursArray['cours'] = $cours;
-                $date = strtolower($cours->getHeureDebut()->format('D'));
-                $coursArray['float_debut'] = ($this->hours_tofloat($cours->getHeureDebut()->format('H:i')) - $debut) * ($fin - $debut);
-                $coursArray['float_fin'] = ($this->hours_tofloat($cours->getHeureFin()->format('H:i')) - $debut) * ($fin - $debut);
-                ${$date}[] = $coursArray;
+            if (isset($query)) {
+                foreach ($query as $cours) {
+                    $coursArray = [];
+                    $coursArray['cours'] = $cours;
+                    $date = strtolower($cours->getHeureDebut()->format('D'));
+                    $coursArray['float_debut'] = ($this->hours_tofloat($cours->getHeureDebut()->format('H:i')) - $debut) * ($fin - $debut);
+                    $coursArray['float_fin'] = ($this->hours_tofloat($cours->getHeureFin()->format('H:i')) - $debut) * ($fin - $debut);
+                    ${$date}[] = $coursArray;
+                }
+                $hours = [];
             }
-            $hours = [];
-
             /**
              * Vérification des valeurs d'environnement de l'emploi du temps.
              */

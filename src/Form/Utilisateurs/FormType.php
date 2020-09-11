@@ -27,7 +27,6 @@ class FormType extends AbstractType
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $name = $event->getForm()->getName();
                 $form = $event->getForm();
-                dump($event);
                 if ($name === "eleve") {
                     $form->add('id_classe', EntityType::class, [
                         // looks for choices from this entity

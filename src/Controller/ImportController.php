@@ -44,6 +44,10 @@ class ImportController extends AbstractController
             $this->addFlash('danger', 'Fichier non trouvé.');
             return $this->redirectToRoute('reglages.index');
         }
+        if (mime_content_type($file) !== "text/csv") {
+            $this->addFlash('danger', 'Mauvais type de fichier. Format csv uniquement');
+            return $this->redirectToRoute('reglages.index');
+        }
         $str = file_get_contents($file->getPathname());
         $str = filter_var(str_replace(";", ",", $str), FILTER_SANITIZE_STRING);
         $em = $this->getDoctrine()->getManager();

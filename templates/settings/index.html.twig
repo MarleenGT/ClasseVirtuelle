@@ -28,7 +28,7 @@
                 {% endif %}
                 <div id="formId">
                     {{ form_start(formId, {'action': path('reglages.changeId'), 'method': 'POST'}) }}
-                    <div class="row mb-4">
+                    <div class="row mb-5">
                         {{ form_label(formId.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
                         {{ form_widget(formId.children.plainPassword.children.plainPassword) }}
                     </div>
@@ -43,7 +43,7 @@
                 </div>
                 <div id="formMdp">
                     {{ form_start(formMdp, {'action': path('reglages.changePassword'), 'method': 'POST'}) }}
-                    <div class="row mb-4">
+                    <div class="row mb-5">
                         {{ form_label(formMdp.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
                         {{ form_widget(formMdp.children.plainPassword.children.plainPassword) }}
                     </div>
@@ -62,7 +62,7 @@
                 </div>
                 <div id="formEmail">
                     {{ form_start(formEmail, {'action': path('reglages.changeEmail'), 'method': 'POST'}) }}
-                    <div class="row mb-4">
+                    <div class="row mb-5">
                         {{ form_label(formEmail.children.plainPassword.children.plainPassword, null, {'label_attr': {'class': 'col-sm-12'}}) }}
                         {{ form_widget(formEmail.children.plainPassword.children.plainPassword) }}
                     </div>
@@ -100,20 +100,24 @@
                 </form>
             </div>
             <div class="border-bottom"></div>
-            <div id="purgeRow" class="row offset-1 col-10 pb-5">
+            <div id="purgeRow" class="row offset-1 col-10 pb-4">
                 <p class="titre-purge">Purger les données</p>
-                {% if purgeError is defined and purgeError|length > 0 %}
-                    <p class="purgeError">{{ purgeError }}</p>
-                {% endif %}
-                <div class="row offset-1 col-10 mt-5">
+                <div class="row offset-1 col-10 mt-4">
                     <p class="caution-purge col-8 p-1">Attention : cette opération va purger l'ensemble des tables de la base de données</p>
                     <button type="button" class="btn btn-danger offset-2" data-toggle="modal" data-target="#purgeModal">
                         Purger
                     </button>
                 </div>
-
             </div>
         {% endif %}
+        <div class="border-bottom"></div>
+        <div id="docRow" class="row offset-1 col-10 pb-4">
+            <p class="titre-doc">Documentation</p>
+            <div class="row offset-1 col-10 mt-4 ml-0">
+                <p class="caution-doc col-8 p-1">Télécharger la documentation</p>
+                <a class="btn btn-primary offset-2" href="{{ path('doc.download') }}">Documentation</a>
+            </div>
+        </div>
     </div>
     <div class="modal fade" id="purgeModal" tabindex="-1" role="dialog" aria-labelledby="purgeModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -126,8 +130,9 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        Cette opération va vider chacune des tables de la base de données à l'exception des tables rôles et administrateurs.<br>
-                        A l'issue de cette opération, seuls les administrateurs pourront se connecter.
+                        Cette opération va vider chacune des tables de la base de données à l'exception des tables rôles, personnels et administrateurs.<br>
+                        Vous pouvez supprimer les données du personnel d'éducation en cochant la case ci-dessous.<br>
+                        A l'issue de cette opération, seuls les administrateurs et le personnel d'éducation (sauf si la suppression est demandée) pourront se connecter.
                     </p>
                 </div>
                 <div class="modal-footer">

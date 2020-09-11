@@ -10,10 +10,10 @@
     background-color: #509cff;
     color: white;
 }
-#importRow, #liste-details, #purgeRow {
+#importRow, #liste-details, #purgeRow, #docRow {
     border: 1px solid #8b8b8b;
 }
-.titre-details-compte, .titre-import, .titre-purge {
+.titre-details-compte, .titre-import, .titre-purge, .titre-doc {
     display: inline;
     position: relative;
     padding-right: 0.5em;
@@ -27,6 +27,9 @@
     top: -0.9em;
 }
 .titre-purge{
+    top: -0.9em;
+}
+.titre-doc{
     top: -0.9em;
 }
 #reglages {

@@ -13,7 +13,7 @@ class CoursEmail
 
     public function __construct()
     {
-        $this->address = 'Cours@Classevirtuelle.com';
+        $this->address = 'Cours@ClasseVirtuelle.com';
     }
 
     /**
